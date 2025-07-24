@@ -1,6 +1,6 @@
 import React from 'react';
-import { connect } from '../data/connect';
 import { Redirect } from 'react-router';
+import { connect } from '../data/connect';
 
 interface StateProps {
   hasSeenTutorial: boolean;
@@ -8,7 +8,7 @@ interface StateProps {
 
 const HomeOrTutorial: React.FC<StateProps> = ({ hasSeenTutorial }) => {
   return hasSeenTutorial ? (
-    <Redirect to="/tabs/schedule" />
+    <Redirect to="/tabs/task" />
   ) : (
     <Redirect to="/tutorial" />
   );

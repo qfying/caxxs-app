@@ -1,5 +1,5 @@
 import React from 'react';
-import { RouteComponentProps, withRouter, useLocation } from 'react-router';
+import { RouteComponentProps, useLocation, withRouter } from 'react-router';
 
 import {
   IonContent,
@@ -14,13 +14,14 @@ import {
 } from '@ionic/react';
 import {
   calendarOutline,
+  chatbubbleOutline,
   hammer,
-  moonOutline,
   help,
   informationCircleOutline,
   logIn,
   logOut,
   mapOutline,
+  moonOutline,
   peopleOutline,
   person,
   personAdd,
@@ -37,6 +38,7 @@ const routes = {
     { title: 'Speakers', path: '/tabs/speakers', icon: peopleOutline },
     { title: 'Map', path: '/tabs/map', icon: mapOutline },
     { title: 'About', path: '/tabs/about', icon: informationCircleOutline },
+    { title: '聊天', path: '/chat', icon: chatbubbleOutline },
   ],
   loggedInPages: [
     { title: 'Account', path: '/account', icon: person },
@@ -66,7 +68,7 @@ interface DispatchProps {
   setDarkMode: typeof setDarkMode;
 }
 
-interface MenuProps extends RouteComponentProps, StateProps, DispatchProps {}
+interface MenuProps extends RouteComponentProps, StateProps, DispatchProps { }
 
 const Menu: React.FC<MenuProps> = ({
   darkMode,

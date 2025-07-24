@@ -1,28 +1,28 @@
-import React, { useRef, useEffect } from 'react';
 import {
-  IonContent,
-  IonPage,
-  IonHeader,
-  IonToolbar,
-  IonButtons,
   IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
   IonIcon,
+  IonPage,
+  IonToolbar,
   useIonViewWillEnter,
 } from '@ionic/react';
 import { arrowForward } from 'ionicons/icons';
+import React, { useRef } from 'react';
+import { RouteComponentProps } from 'react-router';
+import { connect } from '../data/connect';
 import { setMenuEnabled } from '../data/sessions/sessions.actions';
 import { setHasSeenTutorial } from '../data/user/user.actions';
 import './Tutorial.scss';
-import { connect } from '../data/connect';
-import { RouteComponentProps } from 'react-router';
 
-interface OwnProps extends RouteComponentProps {}
+interface OwnProps extends RouteComponentProps { }
 interface DispatchProps {
   setHasSeenTutorial: typeof setHasSeenTutorial;
   setMenuEnabled: typeof setMenuEnabled;
 }
 
-interface TutorialProps extends OwnProps, DispatchProps {}
+interface TutorialProps extends OwnProps, DispatchProps { }
 
 const Tutorial: React.FC<TutorialProps> = ({
   history,
@@ -45,7 +45,7 @@ const Tutorial: React.FC<TutorialProps> = ({
   const startApp = async () => {
     await setHasSeenTutorial(true);
     await setMenuEnabled(true);
-    history.push('/tabs/schedule', { direction: 'none' });
+    history.push('/tabs/task', { direction: 'none' });
   };
 
   return (

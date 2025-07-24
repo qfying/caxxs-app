@@ -1,0 +1,112 @@
+# 项目介绍与使用说明（ionic-react-conference-app）
+
+## 一、项目简介
+
+本项目是一个基于 **Ionic Framework** 和 **React** 的会议演示 App，模拟了一个技术大会的完整流程。它展示了 Ionic 组件、React 生态和跨平台开发能力，适用于 Web、iOS、Android。**本项目仅为演示用途，并无真实会议。**
+
+---
+
+## 二、主要功能
+
+- **会议日程浏览**：查看会议安排，支持筛选、搜索、收藏感兴趣的议程。
+- **讲者信息**：浏览讲者列表，查看讲者详情及其演讲内容。
+- **会场地图**：内置交互式地图，帮助用户定位会场和分会场。
+- **用户认证**：支持注册、登录、登出、个人信息管理。
+- **主题切换**：支持深色/浅色模式一键切换。
+- **推送通知**：集成推送通知（需原生支持）。
+- **支持页面**：可提交支持/反馈信息。
+- **新手教程**：内置新手引导页面。
+- **多端适配**：可运行于 Web、iOS、Android。
+
+---
+
+## 三、如何使用
+
+### 1. 安装依赖
+
+```bash
+npm install
+# 或
+yarn install
+# 或
+pnpm install
+```
+
+### 2. 启动开发服务器（Web 端）
+
+```bash
+npm run dev
+# 或
+ionic serve
+```
+访问 [http://localhost:3000](http://localhost:3000)
+
+### 3. 打包构建
+
+```bash
+npm run build
+```
+
+### 4. 运行/打包 Android 应用
+
+```bash
+npx cap sync android
+npx cap open android
+```
+然后用 Android Studio 打开 `android` 文件夹，选择 `Build > Generate APK(s)` 生成 APK。
+
+---
+
+## 四、主要文件/文件夹说明
+
+| 路径 | 说明 |
+|------|------|
+| `src/` | 前端主代码目录 |
+| ├─ `App.tsx` | 应用主入口，路由与全局状态 |
+| ├─ `pages/` | 各页面组件 |
+| │  ├─ `SchedulePage.tsx` | 会议日程页面，支持筛选、收藏、搜索 |
+| │  ├─ `SpeakerList.tsx` | 讲者列表页面 |
+| │  ├─ `SpeakerDetail.tsx` | 讲者详情页面 |
+| │  ├─ `SessionDetail.tsx` | 议程详情页面 |
+| │  ├─ `MapView.tsx` | 会场地图页面（基于 Leaflet）|
+| │  ├─ `About.tsx` | 关于页面，介绍会议及地点 |
+| │  ├─ `Account.tsx` | 账户管理页面 |
+| │  ├─ `Login.tsx`、`Signup.tsx` | 登录、注册页面 |
+| │  ├─ `Support.tsx` | 支持/反馈页面 |
+| │  ├─ `Tutorial.tsx` | 新手教程页面 |
+| ├─ `components/` | 复用组件（如菜单、弹窗、列表项等）|
+| ├─ `data/` | 状态管理、数据接口、Redux 相关 |
+| ├─ `models/` | TypeScript 类型定义 |
+| ├─ `theme/` | 主题样式、变量 |
+| ├─ `App.scss` | 全局样式 |
+| `public/` | 静态资源（图片、数据等）|
+| `android/` | Android 原生工程目录（用于打包 APK）|
+| `ios/` | iOS 原生工程目录（用于打包 IPA）|
+| `package.json` | 项目依赖与脚本，定义依赖包、启动/构建命令等 |
+| `README.md` | 官方英文项目说明文档 |
+| `README-FY` | 本地生成的中文项目说明文档（本文件）|
+| `capacitor.config.json` | Capacitor 配置文件，管理原生平台集成参数 |
+| `ionic.config.json` | Ionic CLI 配置文件，管理项目名、集成插件等 |
+| `tsconfig.json` | TypeScript 编译配置文件 |
+| `tsconfig.node.json` | Node.js 环境下的 TypeScript 配置 |
+| `vite.config.ts` | Vite 构建工具配置文件 |
+| `vercel.json` | Vercel 部署配置文件 |
+| `index.html` | Web 端主入口 HTML 文件 |
+| `firebase.json` | Firebase 部署/托管配置文件（如有用到 Firebase）|
+| `LICENSE` | 项目开源协议文件 |
+| `pnpm-lock.yaml`、`package-lock.json` | 包管理器自动生成的依赖锁定文件 |
+
+---
+
+## 五、常见问题
+
+- **如何打包 APK？**  
+  见上文“运行/打包 Android 应用”步骤。
+- **如何切换深色/浅色模式？**  
+  侧边栏菜单可一键切换。
+- **如何添加/修改会议数据？**  
+  可在 `public/assets/data/` 目录下修改 `data.json`、`locations.json`。
+
+---
+
+如需更详细的开发、二次开发、功能扩展等说明，欢迎继续提问！ 

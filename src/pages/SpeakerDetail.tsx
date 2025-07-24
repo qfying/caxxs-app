@@ -3,26 +3,25 @@ import { RouteComponentProps } from 'react-router';
 
 import './SpeakerDetail.scss';
 
-import { ActionSheetButton } from '@ionic/core';
 import {
   IonActionSheet,
-  IonChip,
-  IonIcon,
-  IonHeader,
-  IonLabel,
-  IonToolbar,
-  IonButtons,
-  IonContent,
-  IonButton,
   IonBackButton,
+  IonButton,
+  IonButtons,
+  IonChip,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonLabel,
   IonPage,
+  IonToolbar
 } from '@ionic/react';
 import {
   callOutline,
   callSharp,
-  logoTwitter,
   logoGithub,
   logoInstagram,
+  logoTwitter,
   shareOutline,
   shareSharp,
 } from 'ionicons/icons';
@@ -36,16 +35,16 @@ interface OwnProps extends RouteComponentProps {
   speaker?: Speaker;
 }
 
-interface StateProps {}
+interface StateProps { }
 
-interface DispatchProps {}
+interface DispatchProps { }
 
-interface SpeakerDetailProps extends OwnProps, StateProps, DispatchProps {}
+interface SpeakerDetailProps extends OwnProps, StateProps, DispatchProps { }
 
 const SpeakerDetail: React.FC<SpeakerDetailProps> = ({ speaker }) => {
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [actionSheetButtons, setActionSheetButtons] = useState<
-    ActionSheetButton[]
+    IonActionSheetButton[]
   >([]);
   const [actionSheetHeader, setActionSheetHeader] = useState('');
 

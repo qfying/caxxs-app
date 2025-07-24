@@ -1,32 +1,20 @@
 import React from 'react';
 
-import { getMode } from '@ionic/core';
 import {
-  IonHeader,
-  IonToolbar,
-  IonButtons,
-  IonButton,
-  IonTitle,
-  IonContent,
-  IonList,
-  IonListHeader,
-  IonItem,
-  IonLabel,
-  IonCheckbox,
-  IonFooter,
-  IonIcon,
+  IonButton, IonButtons, IonCheckbox, IonContent, IonFooter, IonHeader, IonIcon, IonItem, IonList,
+  IonListHeader, IonTitle, IonToolbar
 } from '@ionic/react';
 import {
-  logoReact,
   call,
-  document,
-  logoIonic,
-  hammer,
-  restaurant,
   cog,
   colorPalette,
-  construct,
   compass,
+  construct,
+  document,
+  hammer,
+  logoIonic,
+  logoReact,
+  restaurant,
 } from 'ionicons/icons';
 
 import './SessionListFilter.css';
@@ -55,7 +43,7 @@ const SessionListFilter: React.FC<SessionListFilterProps> = ({
   onDismissModal,
   updateFilteredTracks,
 }) => {
-  const ios = getMode() === 'ios';
+  const ios = window.navigator.userAgent.includes('iPhone') || window.navigator.userAgent.includes('iPad');
 
   const toggleTrackFilter = (track: string) => {
     if (filteredTracks.indexOf(track) > -1) {

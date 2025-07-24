@@ -1,22 +1,22 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 
 import {
-  IonToolbar,
-  IonContent,
-  IonPage,
-  IonButtons,
-  IonTitle,
-  IonMenuButton,
-  IonSegment,
-  IonSegmentButton,
   IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
   IonIcon,
-  IonSearchbar,
+  IonMenuButton,
+  IonModal,
+  IonPage,
   IonRefresher,
   IonRefresherContent,
+  IonSearchbar,
+  IonSegment,
+  IonSegmentButton,
+  IonTitle,
   IonToast,
-  IonModal,
-  IonHeader,
+  IonToolbar,
   getConfig,
 } from '@ionic/react';
 import { options, search } from 'ionicons/icons';
@@ -27,12 +27,12 @@ import './SchedulePage.scss';
 
 import ShareSocialFab from '../components/ShareSocialFab';
 
-import * as selectors from '../data/selectors';
 import { connect } from '../data/connect';
+import * as selectors from '../data/selectors';
 import { setSearchText } from '../data/sessions/sessions.actions';
 import { Schedule } from '../models/Schedule';
 
-interface OwnProps {}
+interface OwnProps { }
 
 interface StateProps {
   schedule: Schedule;
