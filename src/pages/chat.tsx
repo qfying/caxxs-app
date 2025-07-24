@@ -486,6 +486,15 @@ const ResearcherMessage: React.FC<{ message: Message }> = ({ message }) => {
     }
   }, [message.dataId]);
 
+  // 监听流式输出完成状态，自动收起盒子
+  useEffect(() => {
+    // 当消息状态为 'sent' 且不再流式输出时，自动收起盒子
+    if (message.status === 'sent' && !message.isStreaming && message.dataId) {
+      console.log("Researcher 流式输出完成，自动收起盒子", message.dataId);
+      setIsCollapsed(true);
+    }
+  }, [message.status, message.isStreaming, message.dataId]);
+
   const parsedContent = parseMarkdown(message.content);
 
   return (

@@ -200,7 +200,8 @@ const TaskBriefing = () => {
         <div style={{ display: 'flex', gap: '15px', marginTop: 'auto' }}>
           <button
             onClick={() => {
-              toQuestion()
+              // toQuestion()
+              window.location.href = '/tabs/ai'
             }}
             style={{
               flex: 1,

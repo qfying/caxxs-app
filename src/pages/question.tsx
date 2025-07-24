@@ -119,7 +119,7 @@ const Question = () => {
     }}>
       {/* 头部 */}
 
-      <div style={{ height: "calc(100% - 80px)", background: "linear-gradient(180deg, rgba(194, 74, 74, 0.15) 0%, rgba(160, 139, 139, 0.93) 100%", padding: "0 20px", borderRadius: "0 0 20px 20px" }}>
+      <div style={{ height: "calc(100% - 80px)", background: "linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(102, 95, 95, 0.15) 100%", padding: "0 20px", borderRadius: "0 0 20px 20px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", height: "70px" }}>
           <IonButtons slot="start" onClick={goBack} style={{ cursor: 'pointer', color: "white" }}>
             <img src="/assets/icon/Back.svg" alt="" style={{ width: '38px', height: '38px', filter: 'brightness(0) invert(1)' }} />
@@ -288,6 +288,37 @@ const Question = () => {
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
+              transition: 'background 0.3s ease',
+              marginRight: "6px"
+            }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "linear-gradient(0deg, var(--base-white-15, rgba(255, 255, 255, 0.15)), var(--base-white-15, rgba(255, 255, 255, 0.15))),linear-gradient(158.13deg, #30247C -14.18%, #00033E 88.47%)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "linear-gradient(0deg, var(--base-white-15, rgba(255, 255, 255, 0.15)), var(--base-white-15, rgba(255, 255, 255, 0.15))),linear-gradient(158.13deg, #30247C -14.18%, #00033E 88.47%)";
+              }}
+
+              onClick={() => {
+                // router.push("/tabs/ai")
+                window.location.href = '/tabs/ai'
+              }}
+            >
+              <img src="/assets/icon/question.svg" alt="" style={{ width: '16px', height: '16px' }} />
+              {/* {currentSection === 0 ? '我明白啦' : currentSection === 1 ? '确认齐全' : '维修完成'} */}
+              {"向天工提问"}
+            </button>
+            <button style={{
+              padding: '15px 30px',
+              borderRadius: '12px',
+              background: "linear-gradient(0deg, var(--base-white-15, rgba(255, 255, 255, 0.15)), var(--base-white-15, rgba(255, 255, 255, 0.15))),linear-gradient(158.13deg, #30247C -14.18%, #00033E 88.47%)",
+              color: 'white',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
               transition: 'background 0.3s ease'
             }}
               onMouseEnter={(e) => {
@@ -295,6 +326,26 @@ const Question = () => {
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.background = "linear-gradient(0deg, var(--base-white-15, rgba(255, 255, 255, 0.15)), var(--base-white-15, rgba(255, 255, 255, 0.15))),linear-gradient(158.13deg, #30247C -14.18%, #00033E 88.47%)";
+              }}
+
+              onClick={() => {
+                // router.push("/tabs/ai")
+                if (currentSection == 0) {
+                  setCurrentSection(1)
+
+                }
+                if (currentSection == 1) {
+                  setCurrentSection(2)
+
+                }
+
+                if (currentSection == 2) {
+                  window.location.href = '/task-briefing'
+
+                }
+
+
+
               }}
             >
               <img src="/assets/icon/dagou.svg" alt="" style={{ width: '16px', height: '16px' }} />

@@ -31,8 +31,11 @@ const Task = () => {
 
   const cardFn = (item: any) => {
     console.log("item=========", item);
-    setNextIndex(3)
+    // setNextIndex(3)
+    router.push('/question', 'root');
   }
+
+
 
 
 

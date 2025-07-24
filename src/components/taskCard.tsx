@@ -12,9 +12,7 @@ type TaskItem = {
 type Props = {
   carditem: TaskItem;
   onDelete?: (id: number) => void;
-  cardFn?: () => void;
-
-
+  cardFn?: (item: any) => void;
 }
 
 const TaskCard = ({ carditem, onDelete, cardFn }: Props) => {
@@ -98,9 +96,12 @@ const TaskCard = ({ carditem, onDelete, cardFn }: Props) => {
   };
 
 
+  const cardclick = () => {
+    cardFn(carditem)
+  }
 
   return (
-    <div onClick={cardFn} style={{
+    <div style={{
       position: 'relative',
       marginBottom: '10px',
       overflow: 'hidden',
@@ -113,6 +114,7 @@ const TaskCard = ({ carditem, onDelete, cardFn }: Props) => {
       {/* 任务卡片 */}
       <div
         ref={cardRef}
+        onClick={cardclick}
         style={{
           width: touchitem?.id == carditem.id ? 'calc(100% - 70px)' : "100%",
           height: '106px',
