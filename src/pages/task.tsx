@@ -1,28 +1,90 @@
 import { IonModal, IonPage, IonTextarea, useIonRouter } from "@ionic/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import TaskCard from "../components/taskCard";
-import { taskCreate } from '../services/api';
+import { getTaskList, taskCreate, taskUpdate } from '../services/api';
+import { useUserStore } from '../stores/userStore';
 
 
 const Task = () => {
   const modal = useRef<HTMLIonModalElement>(null);
   const router = useIonRouter();
+  const { userId } = useUserStore();
   const [nextIndex, setNextIndex] = useState(0)
   const [taskCreateValue, setTaskCreateValue] = useState("")
+  const [taskList, setTaskList] = useState<any[]>([])
 
+  const [formData, setFormData] = useState({
+    customer: "",
+    address: "",
+    order_id: "",
+    product: "",
+    description: "",
+    create: "",
+    end: "",
+    executeId: "",
+    id: "",
+    start: "",
+    status: "",
+    deleted: false
+  })
+
+
+  useEffect(() => {
+    getTaskListFn()
+  }, [userId])
+
+  const getTaskListFn = async () => {
+    try {
+      // 使用zustand store中的用户ID
+      const executeId = userId || "6870ef9d56c8d927b668ad95";
+      const res = await getTaskList({ executeId })
+      console.log("res=============", res);
+      setTaskList(res.data || [])
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
 
 
   const taskCreateFn = async () => {
     const data = {
       // content: "订单号是 2025-07-18，客户为山东蓝海环保设备有限公司，地址在山东省济南市高新区工业南路 88 号。产品名称是高温耐腐风机，描述部分写着：风机型号为 D1200，叶轮出现轻微异响，已更换轴承并调整对中，测试运转正常，客户现场确认通过验收。",
-      executeId: "6870ef9d56c8d927b668ad95",
+      executeId: userId || "6870ef9d56c8d927b668ad95",
       content: taskCreateValue
     }
     try {
-      const res = await taskCreate(data)
+      const res = await taskCreate({ data })
       setNextIndex(1)
       console.log("res=============", res);
+
+      // 如果API返回了数据，映射到表单中
+      if (res && res.data) {
+        console.log("API返回的完整数据:", res);
+        console.log("API返回的data字段:", res.data);
+
+        // 假设API返回的数据结构包含表单字段
+        // 根据实际API返回的数据结构调整这里的映射
+        const apiData = res.data as any;
+        console.log("解析后的API数据:", apiData);
+
+        setFormData({
+          customer: apiData.customer || apiData.company || "",
+          address: apiData.address || apiData.location || "",
+          order_id: apiData.order_id || apiData.order_id || "",
+          product: apiData.product || apiData.productName || "",
+          description: apiData.description || apiData.content || "",
+          create: apiData.create || "",
+          end: apiData.end || "",
+          executeId: apiData.executeId || "",
+          id: apiData.id || "",
+          start: apiData.start || "",
+          status: apiData.status || "",
+          deleted: apiData.deleted || false
+        });
+
+
+      }
     } catch (err) {
       console.log(err);
     }
@@ -33,6 +95,18 @@ const Task = () => {
     console.log("item=========", item);
     // setNextIndex(3)
     router.push('/question', 'root');
+  }
+
+  const handleFormSubmit = async () => {
+    // 这里可以添加表单验证逻辑
+    console.log("表单数据:", formData);
+
+    const res = await taskUpdate({ data: formData })
+    console.log("更新表单数据=============", res);
+    setNextIndex(2);
+    if (res.code == 200) {
+      setNextIndex(3)
+    }
   }
 
 
@@ -178,7 +252,7 @@ const Task = () => {
                       clearOnEdit={true}
                       value={taskCreateValue}
                       rows={4}
-                      onIonChange={(e) => {
+                      onIonInput={(e) => {
                         console.log("e=====", e);
                         setTaskCreateValue(e.detail.value || "")
                       }}
@@ -187,7 +261,7 @@ const Task = () => {
 
                   <div onClick={() => {
                     taskCreateFn()
-                    setNextIndex(1)
+                    // setNextIndex(1)
                   }} style={{ borderRadius: "18px", marginTop: "10px", height: "60px", width: "100%", border: "1px solid #FFFFFF80", backgroundColor: "#FFFFFF26", display: "flex", justifyContent: "center", alignItems: "center" }}>
                     <div>发送</div>
                   </div>
@@ -202,7 +276,9 @@ const Task = () => {
                     <label style={{ fontSize: "14px", color: "white", minWidth: "60px", opacity: 0.5 }}>客户</label>
                     <input
                       type="text"
-                      defaultValue="河南方圆工业炉设计制造有限公司"
+                      value={formData.customer}
+                      onChange={(e) => setFormData(prev => ({ ...prev, customer: e.target.value }))}
+                      placeholder="请输入客户名称"
                       style={{
                         flex: 1,
                         padding: "12px",
@@ -220,7 +296,9 @@ const Task = () => {
                     <label style={{ fontSize: "14px", color: "white", minWidth: "60px", opacity: 0.5 }}>地址</label>
                     <input
                       type="text"
-                      defaultValue="浙江省温州市滨海园区六道397号"
+                      value={formData.address}
+                      onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                      placeholder="请输入地址"
                       style={{
                         flex: 1,
                         padding: "12px",
@@ -238,7 +316,9 @@ const Task = () => {
                     <label style={{ fontSize: "14px", color: "white", minWidth: "60px", opacity: 0.5 }}>订单号</label>
                     <input
                       type="text"
-                      defaultValue="2024-50-12"
+                      value={formData.order_id}
+                      onChange={(e) => setFormData(prev => ({ ...prev, order_id: e.target.value }))}
+                      placeholder="请输入订单号"
                       style={{
                         flex: 1,
                         padding: "12px",
@@ -256,7 +336,9 @@ const Task = () => {
                     <label style={{ fontSize: "14px", color: "white", minWidth: "60px", opacity: 0.5 }}>产品</label>
                     <input
                       type="text"
-                      defaultValue="小风机"
+                      value={formData.product}
+                      onChange={(e) => setFormData(prev => ({ ...prev, product: e.target.value }))}
+                      placeholder="请输入产品名称"
                       style={{
                         flex: 1,
                         padding: "12px",
@@ -273,7 +355,9 @@ const Task = () => {
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <label style={{ fontSize: "14px", color: "white", minWidth: "60px", marginTop: "12px", opacity: 0.5 }}>描述</label>
                     <textarea
-                      defaultValue="1120 风机调节门执行器换方向,叶轮蹭壳,已调整,电机对中业主验收通过"
+                      value={formData.description}
+                      onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="请输入任务描述"
                       rows={3}
                       style={{
                         flex: 1,
@@ -328,7 +412,7 @@ const Task = () => {
                         cursor: "pointer",
                         height: "62px"
                       }}
-                      onClick={() => setNextIndex(2)}
+                      onClick={handleFormSubmit}
                     >
                       确认
                     </button>
@@ -442,7 +526,7 @@ const Task = () => {
         </div>
 
         <div style={{ marginTop: "15px", height: "calc(100% - 310px)", overflowY: "auto", scrollbarWidth: "none" }}>
-          {demoList.map(item => (
+          {taskList.map((item: any) => (
             <TaskCard key={item.id} carditem={item} onDelete={handleDelete} cardFn={cardFn} />
           ))}
         </div>

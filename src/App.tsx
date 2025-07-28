@@ -71,6 +71,7 @@ import Tutorial from './pages/Tutorial';
 import Question from './pages/question';
 import TaskBriefing from './pages/taskBriefing';
 import { loginByPassword } from './services/api';
+import { useUserStore } from './stores/userStore';
 
 
 setupIonicReact();
@@ -105,6 +106,8 @@ const IonicApp: React.FC<IonicAppProps> = ({
   loadConfData,
   loadUserData,
 }) => {
+  const { setUser } = useUserStore();
+
   useEffect(() => {
     initLogin()
     loadUserData();
@@ -115,7 +118,12 @@ const IonicApp: React.FC<IonicAppProps> = ({
   const initLogin = async () => {
     try {
       const response = await loginByPassword('root', '53e880894f3cc53d5071c679f1afcd223a3faca09148c6898da13f0afc3535ad');
-      localStorage.setItem('token', response.data.token)
+      localStorage.setItem('token', response.data.token);
+
+      // 存储用户ID到zustand store
+      if (response.data.user && response.data.user._id) {
+        setUser(response.data.user._id, response.data.token);
+      }
     } catch (error) {
       console.log(error);
     }

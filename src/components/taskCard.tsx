@@ -3,10 +3,13 @@ import React, { useRef, useState } from 'react';
 type TaskItem = {
   name: string;
   time: string;
-  state: string;
+  status: string;
   company: string;
   lacate: string;
   id: number;
+  customer: string;
+  start: string;
+  address: string;
 }
 
 type Props = {
@@ -22,9 +25,6 @@ const TaskCard = ({ carditem, onDelete, cardFn }: Props) => {
   const cardRef = useRef<HTMLDivElement>(null);
 
   const [touchitem, setTouchitem] = useState<TaskItem | null>(null);
-
-
-
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchitem(carditem)
@@ -97,7 +97,9 @@ const TaskCard = ({ carditem, onDelete, cardFn }: Props) => {
 
 
   const cardclick = () => {
-    cardFn(carditem)
+    if (cardFn) {
+      cardFn(carditem)
+    }
   }
 
   return (
@@ -150,18 +152,18 @@ const TaskCard = ({ carditem, onDelete, cardFn }: Props) => {
             whiteSpace: "nowrap",
             textOverflow: "ellipsis"
           }}>
-            {carditem.name}
+            {carditem.customer}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '14px', color: 'white' }}>⏰ {carditem.time}</span>
+            <span style={{ fontSize: '14px', color: 'white' }}>⏰ {carditem.start.split("T")[0]}</span>
             <div style={{
               padding: '4px 8px',
               borderRadius: '12px',
               fontSize: '12px',
               color: 'white',
-              backgroundColor: getStatusColor(carditem.state)
+              backgroundColor: getStatusColor(carditem.status)
             }}>
-              {getStatusText(carditem.state)}
+              {getStatusText(carditem.status)}
             </div>
           </div>
         </div>
@@ -169,13 +171,13 @@ const TaskCard = ({ carditem, onDelete, cardFn }: Props) => {
         {/* 第二行：公司信息 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{ fontSize: '12px', color: 'white' }}>👤</span>
-          <span style={{ fontSize: '14px', color: 'white' }}>{carditem.company}</span>
+          <span style={{ fontSize: '14px', color: 'white' }}>{carditem.customer}</span>
         </div>
 
         {/* 第三行：位置信息 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{ fontSize: '12px', color: 'white' }}>📍</span>
-          <span style={{ fontSize: '14px', color: 'white' }}>{carditem.lacate}</span>
+          <span style={{ fontSize: '14px', color: 'white' }}>{carditem.address}</span>
         </div>
       </div>
 

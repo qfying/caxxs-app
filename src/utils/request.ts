@@ -88,7 +88,7 @@ class HttpRequest {
   public async request<T = any>(
     url: string,
     options: RequestOptions = {}
-  ): Promise<Response> {
+  ): Promise<ApiResponse<T>> {
     const token = this.getToken();
     const headers = new Headers(this.defaultHeaders);
 
@@ -110,11 +110,7 @@ class HttpRequest {
         finalOptions
       );
 
-      if (!response.ok) {
-        throw new RequestError(response.status, response.statusText);
-      }
-
-      return response;
+      return await this.handleResponse<T>(response);
     } catch (error: any) {
       if (error instanceof RequestError) {
         throw error;
@@ -129,7 +125,7 @@ class HttpRequest {
   public async get<T = any>(
     url: string,
     options: RequestOptions = {}
-  ): Promise<ApiResponse<T> | Response> {
+  ): Promise<ApiResponse<T>> {
     return this.request<T>(url, { ...options, method: 'GET' });
   }
 
@@ -137,7 +133,7 @@ class HttpRequest {
     url: string,
     data?: any,
     options: RequestOptions = {}
-  ): Promise<ApiResponse<T> | Response> {
+  ): Promise<ApiResponse<T>> {
     return this.request<T>(url, {
       ...options,
       method: 'POST',
@@ -149,7 +145,7 @@ class HttpRequest {
     url: string,
     data?: any,
     options: RequestOptions = {}
-  ): Promise<ApiResponse<T> | Response> {
+  ): Promise<ApiResponse<T>> {
     return this.request<T>(url, {
       ...options,
       method: 'PUT',
@@ -160,9 +156,9 @@ class HttpRequest {
   public async delete<T = any>(
     url: string,
     options: RequestOptions = {}
-  ): Promise<ApiResponse<T> | Response> {
+  ): Promise<ApiResponse<T>> {
     return this.request<T>(url, { ...options, method: 'DELETE' });
   }
 }
 
-export const http = new HttpRequest(); 
+export const http = new HttpRequest();

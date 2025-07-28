@@ -14,7 +14,7 @@ import {
   personCircle
 } from 'ionicons/icons';
 import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
-import { ChatCompletionRequest, loginByPassword, sendChatMessage } from '../services/api';
+import { ChatCompletionRequest, sendChatMessage } from '../services/api';
 import './chat.css';
 
 
@@ -606,23 +606,23 @@ const Chat: React.FC = () => {
 
 
 
-  useEffect(() => {
-    initLogin();
-  }, []);
+  // useEffect(() => {
+  //   initLogin();
+  // }, []);
 
   // 监听消息变化，自动滚动到底部
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
-  const initLogin = async () => {
-    try {
-      const response = await loginByPassword('root', '53e880894f3cc53d5071c679f1afcd223a3faca09148c6898da13f0afc3535ad');
-      localStorage.setItem('token', response.data.token)
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const initLogin = async () => {
+  //   try {
+  //     const response = await loginByPassword('root', '53e880894f3cc53d5071c679f1afcd223a3faca09148c6898da13f0afc3535ad');
+  //     localStorage.setItem('token', response.data.token)
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   const toggleInput = () => {
     setShowInputType(1);
