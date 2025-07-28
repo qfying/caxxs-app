@@ -85,7 +85,10 @@ export const getTaskList = ({ executeId }: { executeId: string }): Promise<ApiTa
   return http.get<TaskData[]>(`/openapi/v2/task/list?executeId=${executeId}`);
 };
 
-// http://172.30.232.95:23081/openapi/v2/task/list?executeId=123
+export const getHealth = (): Promise<ApiTaskListResponse> => {
+  return http.get<TaskData[]>(`/openapi/chat/test`);
+};
+
 
 
 

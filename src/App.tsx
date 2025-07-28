@@ -70,7 +70,7 @@ import Support from './pages/Support';
 import Tutorial from './pages/Tutorial';
 import Question from './pages/question';
 import TaskBriefing from './pages/taskBriefing';
-import { loginByPassword } from './services/api';
+import { getHealth, loginByPassword } from './services/api';
 import { useUserStore } from './stores/userStore';
 
 
@@ -109,11 +109,21 @@ const IonicApp: React.FC<IonicAppProps> = ({
   const { setUser } = useUserStore();
 
   useEffect(() => {
+    checkHealth()
     initLogin()
     loadUserData();
     loadConfData();
     // eslint-disable-next-line
   }, []);
+
+  const checkHealth = async () => {
+    try {
+      const response = await getHealth();
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const initLogin = async () => {
     try {
