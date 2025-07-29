@@ -14,7 +14,9 @@ import {
   personCircle
 } from 'ionicons/icons';
 import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
+import ChatVoiceRecorder from '../components/ChatVoiceRecorder';
 import { ChatCompletionRequest, sendChatMessage } from '../services/api';
+import '../styles/chat-voice-recorder.css';
 import './chat.css';
 
 
@@ -736,7 +738,7 @@ const Chat: React.FC = () => {
         feedback: variablesFeedback ? iptvalue : ""
       },
       responseChatItemId: "iwE8mnTwNkOLjnCoZwLcNeA6",
-      shareId: "iedjfub8493w7wyvk00fv4rh",
+      shareId: "6e6q0y0lnlw9t247jl2y9fbi",
       chatId: chatId,
       appType: "advanced",
       outLinkUid: "shareChat-1753087419979-S1TS4Yh1x1daxImmOkYMxvg",
@@ -760,6 +762,9 @@ const Chat: React.FC = () => {
 
     // 设置AI正在响应状态
     setIsAIResponding(true);
+
+    console.log("调用接口前");
+
 
     try {
       const response = await sendChatMessage(messagebody);
@@ -1101,7 +1106,7 @@ const Chat: React.FC = () => {
                 />
               </div>
               <div className="action-buttons">
-                <IonButton fill="clear" disabled={isAIResponding}>
+                <IonButton fill="clear" disabled={isAIResponding} onClick={()=>{setShowInputType(2)}}>
                   <img src="/assets/icon/voice.svg" alt="" style={{ width: '32px', height: '32px', opacity: isAIResponding ? 0.5 : 1 }} />
                 </IonButton>
                 <IonButton fill="clear" disabled={isAIResponding}>
@@ -1112,46 +1117,25 @@ const Chat: React.FC = () => {
           </div>
         ) :
           showInputType === 2 ? (
-            <div onTouchStart={isAIResponding ? undefined : handleLongPress}
-              onTouchEnd={isAIResponding ? undefined : handleLongPressEnd}
-              onMouseDown={isAIResponding ? undefined : handleLongPress}
-              onMouseUp={isAIResponding ? undefined : handleLongPressEnd}
-              onMouseLeave={isAIResponding ? undefined : handleLongPressEnd}
-              style={{ opacity: isAIResponding ? 0.5 : 1, pointerEvents: isAIResponding ? 'none' : 'auto' }}>
-              {!isRecording ? <div className='voice-input'>
-                <div onClick={(e) => {
-                  e.stopPropagation();
-                  if (!isAIResponding) setShowInputType(1)
-                }}
-                  onTouchStart={(e) => e.stopPropagation()}
-                  onTouchEnd={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onMouseUp={(e) => e.stopPropagation()}
-                  style={{ opacity: isAIResponding ? 0.5 : 1, pointerEvents: isAIResponding ? 'none' : 'auto' }}>
-                  <img src="/assets/icon/keyboard.svg" alt="" style={{ width: '48px', height: '48px' }} />
-                </div>
-                <div style={{ fontSize: '14px', color: '#F9F9F9' }}>长按说出您的问题</div>
-                <div onClick={(e) => {
-                  e.stopPropagation();
-                  if (!isAIResponding) setShowInputType(0)
-                }}
-                  onTouchStart={(e) => e.stopPropagation()}
-                  onTouchEnd={(e) => e.stopPropagation()}
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onMouseUp={(e) => e.stopPropagation()}
-                  style={{ opacity: isAIResponding ? 0.5 : 1, pointerEvents: isAIResponding ? 'none' : 'auto' }}>
-                  <img src="/assets/icon/delet.svg" alt="" style={{ width: '48px', height: '48px' }} />
-                </div>
-              </div> : <div className='voice-input2'>
-                <div>
-                  <img src="/assets/icon/VoiceWave.svg" alt="" style={{ width: '48px', height: '48px' }} />
-                </div>
-                <div style={{ fontSize: '14px', color: '#F9F9F9' }}>
-                  {formatTime(recordingTime)}
-                </div>
-              </div>}
-            </div>
-
+            <ChatVoiceRecorder
+              onStop={(text) => {
+                if (text && text.trim()) {
+                  sendMessage(text);
+                }
+                setShowInputType(0);
+              }}
+              onSwitch={() => setShowInputType(1)}
+              isMessageSend={isAIResponding}
+              onInterrupt={() => {
+                // 处理中断逻辑
+                setShowInputType(0);
+              }}
+              onSTT={(text) => {
+                // 处理语音转文字结果
+                console.log('语音识别结果:', text);
+              }}
+              className="chat-voice-recorder-container"
+            />
           ) : (
             <div className="footer-buttons">
               <div style={{ opacity: isAIResponding ? 0.5 : 1, pointerEvents: isAIResponding ? 'none' : 'auto' }}>

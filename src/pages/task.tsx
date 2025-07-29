@@ -36,7 +36,7 @@ const Task = () => {
   const getTaskListFn = async () => {
     try {
       // 使用zustand store中的用户ID
-      const executeId = userId || "6870ef9d56c8d927b668ad95";
+      const executeId = userId || "6887301624c99b8092c67e5e";
       const res = await getTaskList({ executeId })
       console.log("res=============", res);
       setTaskList(res.data || [])
@@ -50,13 +50,14 @@ const Task = () => {
   const taskCreateFn = async () => {
     const data = {
       // content: "订单号是 2025-07-18，客户为山东蓝海环保设备有限公司，地址在山东省济南市高新区工业南路 88 号。产品名称是高温耐腐风机，描述部分写着：风机型号为 D1200，叶轮出现轻微异响，已更换轴承并调整对中，测试运转正常，客户现场确认通过验收。",
-      executeId: userId || "6870ef9d56c8d927b668ad95",
+      executeId: userId || "6887301624c99b8092c67e5e",
       content: taskCreateValue
     }
     try {
       const res = await taskCreate({ data })
+
       setNextIndex(1)
-      console.log("res=============", res);
+      console.log("res任务创建=============", res);
 
       // 如果API返回了数据，映射到表单中
       if (res && res.data) {

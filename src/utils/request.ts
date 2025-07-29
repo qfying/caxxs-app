@@ -82,6 +82,7 @@ class HttpRequest {
     }
 
     const data = await response.json();
+
     return data;
   }
 
@@ -109,6 +110,13 @@ class HttpRequest {
         `${this.baseURL}${url}`,
         finalOptions
       );
+
+      console.log("response===========",response);
+
+      // 如果是流式输出，直接返回响应，不进行JSON解析
+      if (options.isStream) {
+        return response as any;
+      }
 
       return await this.handleResponse<T>(response);
     } catch (error: any) {

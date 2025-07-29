@@ -286,6 +286,7 @@ ion-toolbar {
   font-size: 12px;
   color: rgb(255, 99, 71);
   left: 50%;
+  width: 50px;
   transform: translateX(-50%);
 }
 

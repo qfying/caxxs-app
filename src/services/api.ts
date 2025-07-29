@@ -70,7 +70,7 @@ export const loginByPassword = (username: string, password: string): Promise<Api
 };
 
 export const sendChatMessage = (request: ChatCompletionRequest): Promise<any> => {
-  return http.post('/openapi/chat/completions', request);
+  return http.post('/openapi/v0/chat/completions', request, { isStream: true });
 };
 
 export const taskCreate = ({ data }: any): Promise<ApiTaskResponse> => {
@@ -86,7 +86,7 @@ export const getTaskList = ({ executeId }: { executeId: string }): Promise<ApiTa
 };
 
 export const getHealth = (): Promise<ApiTaskListResponse> => {
-  return http.get<TaskData[]>(`/openapi/chat/test`);
+  return http.get<TaskData[]>(`/openapi/v0/chat/test`);
 };
 
 
