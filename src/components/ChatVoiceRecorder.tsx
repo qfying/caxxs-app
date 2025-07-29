@@ -171,7 +171,7 @@ const ChatVoiceRecorder: React.FC<ChatVoiceRecorderProps> = ({
   const [text, setText] = useState('');
   const [currentIconIndex, setCurrentIconIndex] = useState(0);
   const iconNumber = 20;
-  const ws = useRef<WebSocket>();
+  const ws = useRef<WebSocket | null>(null);
   const audioRecorder = useRef<AudioRecorder>(new AudioRecorder());
   const [present] = useIonToast();
 
