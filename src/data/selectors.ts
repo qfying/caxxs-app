@@ -42,8 +42,8 @@ export const getFilteredSchedule = createSelector(
 
     sortedGroups.forEach((group: ScheduleGroup) => {
       const sessions: Session[] = [];
-      group.sessions.forEach((session) => {
-        session.tracks.forEach((track) => {
+      group.sessions.forEach(session => {
+        session.tracks.forEach(track => {
           if (filteredTracks.indexOf(track) > -1) {
             sessions.push(session);
           }
@@ -81,9 +81,9 @@ export const getSearchedSchedule = createSelector(
       return schedule;
     }
     const groups: ScheduleGroup[] = [];
-    schedule.groups.forEach((group) => {
+    schedule.groups.forEach(group => {
       const sessions = group.sessions.filter(
-        (s) => s.name.toLowerCase().indexOf(searchText.toLowerCase()) > -1
+        s => s.name.toLowerCase().indexOf(searchText.toLowerCase()) > -1
       );
       if (sessions.length) {
         const groupToAdd: ScheduleGroup = {
@@ -102,7 +102,7 @@ export const getSearchedSchedule = createSelector(
 
 export const getScheduleList = createSelector(
   getSearchedSchedule,
-  (schedule) => schedule
+  schedule => schedule
 );
 
 export const getGroupedFavorites = createSelector(
@@ -110,9 +110,9 @@ export const getGroupedFavorites = createSelector(
   getFavoriteIds,
   (schedule, favoriteIds) => {
     const groups: ScheduleGroup[] = [];
-    schedule.groups.forEach((group) => {
+    schedule.groups.forEach(group => {
       const sessions = group.sessions.filter(
-        (s) => favoriteIds.indexOf(s.id) > -1
+        s => favoriteIds.indexOf(s.id) > -1
       );
       if (sessions.length) {
         const groupToAdd: ScheduleGroup = {
@@ -147,12 +147,12 @@ export const getSpeaker = createSelector(
   (speakers, id) => speakers.find((x: Speaker) => x.id === id)
 );
 
-export const getSpeakerSessions = createSelector(getSessions, (sessions) => {
+export const getSpeakerSessions = createSelector(getSessions, sessions => {
   const speakerSessions: { [key: string]: Session[] } = {};
 
   sessions.forEach((session: Session) => {
     session.speakerNames &&
-      session.speakerNames.forEach((name) => {
+      session.speakerNames.forEach(name => {
         if (speakerSessions[name]) {
           speakerSessions[name].push(session);
         } else {

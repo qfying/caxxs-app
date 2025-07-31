@@ -32,7 +32,7 @@ import * as selectors from '../data/selectors';
 import { setSearchText } from '../data/sessions/sessions.actions';
 import { Schedule } from '../models/Schedule';
 
-interface OwnProps { }
+interface OwnProps {}
 
 interface StateProps {
   schedule: Schedule;
@@ -70,37 +70,37 @@ const SchedulePage: React.FC<SchedulePageProps> = ({
   };
 
   return (
-    <IonPage ref={pageRef} id="schedule-page">
+    <IonPage ref={pageRef} id='schedule-page'>
       <IonHeader translucent={true}>
         <IonToolbar>
           {!showSearchbar && (
-            <IonButtons slot="start">
+            <IonButtons slot='start'>
               <IonMenuButton />
             </IonButtons>
           )}
           {ios && (
             <IonSegment
               value={segment}
-              onIonChange={(e) => setSegment(e.detail.value as any)}
+              onIonChange={e => setSegment(e.detail.value as any)}
             >
-              <IonSegmentButton value="all">All</IonSegmentButton>
-              <IonSegmentButton value="favorites">Favorites</IonSegmentButton>
+              <IonSegmentButton value='all'>All</IonSegmentButton>
+              <IonSegmentButton value='favorites'>Favorites</IonSegmentButton>
             </IonSegment>
           )}
           {!ios && !showSearchbar && <IonTitle>Schedule</IonTitle>}
           {showSearchbar && (
             <IonSearchbar
-              showCancelButton="always"
-              placeholder="Search"
+              showCancelButton='always'
+              placeholder='Search'
               onIonInput={(e: CustomEvent) => setSearchText(e.detail.value)}
               onIonCancel={() => setShowSearchbar(false)}
             ></IonSearchbar>
           )}
 
-          <IonButtons slot="end">
+          <IonButtons slot='end'>
             {!ios && !showSearchbar && (
               <IonButton onClick={() => setShowSearchbar(true)}>
-                <IonIcon slot="icon-only" icon={search}></IonIcon>
+                <IonIcon slot='icon-only' icon={search}></IonIcon>
               </IonButton>
             )}
             {!showSearchbar && (
@@ -108,7 +108,7 @@ const SchedulePage: React.FC<SchedulePageProps> = ({
                 {mode === 'ios' ? (
                   'Filter'
                 ) : (
-                  <IonIcon icon={options} slot="icon-only" />
+                  <IonIcon icon={options} slot='icon-only' />
                 )}
               </IonButton>
             )}
@@ -119,30 +119,30 @@ const SchedulePage: React.FC<SchedulePageProps> = ({
           <IonToolbar>
             <IonSegment
               value={segment}
-              onIonChange={(e) => setSegment(e.detail.value as any)}
+              onIonChange={e => setSegment(e.detail.value as any)}
             >
-              <IonSegmentButton value="all">All</IonSegmentButton>
-              <IonSegmentButton value="favorites">Favorites</IonSegmentButton>
+              <IonSegmentButton value='all'>All</IonSegmentButton>
+              <IonSegmentButton value='favorites'>Favorites</IonSegmentButton>
             </IonSegment>
           </IonToolbar>
         )}
       </IonHeader>
 
       <IonContent fullscreen={true}>
-        <IonHeader collapse="condense">
+        <IonHeader collapse='condense'>
           <IonToolbar>
-            <IonTitle size="large">Schedule</IonTitle>
+            <IonTitle size='large'>Schedule</IonTitle>
           </IonToolbar>
           <IonToolbar>
             <IonSearchbar
-              placeholder="Search"
+              placeholder='Search'
               onIonInput={(e: CustomEvent) => setSearchText(e.detail.value)}
             ></IonSearchbar>
           </IonToolbar>
         </IonHeader>
 
         <IonRefresher
-          slot="fixed"
+          slot='fixed'
           ref={ionRefresherRef}
           onIonRefresh={doRefresh}
         >
@@ -151,7 +151,7 @@ const SchedulePage: React.FC<SchedulePageProps> = ({
 
         <IonToast
           isOpen={showCompleteToast}
-          message="Refresh complete"
+          message='Refresh complete'
           duration={2000}
           onDidDismiss={() => setShowCompleteToast(false)}
         />
@@ -182,7 +182,7 @@ const SchedulePage: React.FC<SchedulePageProps> = ({
 };
 
 export default connect<OwnProps, StateProps, DispatchProps>({
-  mapStateToProps: (state) => ({
+  mapStateToProps: state => ({
     schedule: selectors.getSearchedSchedule(state),
     favoritesSchedule: selectors.getGroupedFavorites(state),
     mode: getConfig()!.get('mode'),

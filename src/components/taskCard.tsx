@@ -10,15 +10,16 @@ type TaskItem = {
   customer: string;
   start: string;
   address: string;
-}
+};
 
 type Props = {
   carditem: TaskItem;
   onDelete?: (id: number) => void;
   cardFn?: (item: any) => void;
-}
+  isborder?: boolean;
+};
 
-const TaskCard = ({ carditem, onDelete, cardFn }: Props) => {
+const TaskCard = ({ carditem, onDelete, cardFn, isborder }: Props) => {
   const [isSwiped, setIsSwiped] = useState(false);
   const [startX, setStartX] = useState(0);
   const [currentX, setCurrentX] = useState(0);
@@ -27,7 +28,7 @@ const TaskCard = ({ carditem, onDelete, cardFn }: Props) => {
   const [touchitem, setTouchitem] = useState<TaskItem | null>(null);
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchitem(carditem)
+    setTouchitem(carditem);
     setStartX(e.touches[0].clientX);
   };
 
@@ -56,8 +57,7 @@ const TaskCard = ({ carditem, onDelete, cardFn }: Props) => {
       setIsSwiped(false);
       if (cardRef.current) {
         // cardRef.current.style.transform = 'translateX(0px)';
-        setTouchitem(null)
-
+        setTouchitem(null);
       }
     }
     setCurrentX(0);
@@ -95,38 +95,35 @@ const TaskCard = ({ carditem, onDelete, cardFn }: Props) => {
     }
   };
 
-
   const cardclick = () => {
     if (cardFn) {
-      cardFn(carditem)
+      cardFn(carditem);
     }
-  }
+  };
 
   return (
-    <div style={{
-      position: 'relative',
-      marginBottom: '10px',
-      overflow: 'hidden',
-      display: 'flex',
-      justifyContent: "space-between"
-    }}>
-
-
-
+    <div
+      style={{
+        position: 'relative',
+        marginBottom: '10px',
+        overflow: 'hidden',
+        display: 'flex',
+        justifyContent: 'space-between',
+      }}
+    >
       {/* 任务卡片 */}
       <div
         ref={cardRef}
         onClick={cardclick}
         style={{
-          width: touchitem?.id == carditem.id ? 'calc(100% - 70px)' : "100%",
+          width: touchitem?.id == carditem.id ? 'calc(100% - 70px)' : '100%',
           height: '106px',
-          padding: "15px",
+          padding: '15px',
           gap: '8px',
-          opacity: 1,
-          borderRadius: '20px',
+          borderRadius: isborder ? '20px' : '0px',
           borderWidth: '0.5px',
-          background: '#0000001A',
-          border: '0.5px solid rgba(255, 255, 255, 0.5)',
+          backgroundColor: '#00033E',
+          border: isborder ? '0.5px solid rgba(255, 255, 255, 0.5)' : 'none',
           // borderImageSource: 'linear-gradient(124.34deg, rgba(255, 255, 255, 0.135) 29.71%, rgba(255, 255, 255, 0.27) 55.17%, rgba(255, 255, 255, 0.135) 81.42%)',
           display: 'flex',
           flexDirection: 'column',
@@ -134,35 +131,47 @@ const TaskCard = ({ carditem, onDelete, cardFn }: Props) => {
           transition: 'transform 0.3s ease',
           position: 'relative',
           zIndex: 2,
-          cursor: 'pointer'
+          cursor: 'pointer',
         }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
         {/* 第一行：任务名称、时间、状态 */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{
-            fontSize: '14px',
-            fontWeight: 'bold',
-            color: 'white',
-            flex: 1,
-            marginRight: '10px',
-            overflow: "hidden",
-            whiteSpace: "nowrap",
-            textOverflow: "ellipsis"
-          }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <div
+            style={{
+              fontSize: '14px',
+              fontWeight: 'bold',
+              color: 'white',
+              flex: 1,
+              marginRight: '10px',
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+              textOverflow: 'ellipsis',
+            }}
+          >
             {carditem.customer}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '14px', color: 'white' }}>⏰ {carditem.start.split("T")[0]}</span>
-            <div style={{
-              padding: '4px 8px',
-              borderRadius: '12px',
-              fontSize: '12px',
-              color: 'white',
-              backgroundColor: getStatusColor(carditem.status)
-            }}>
+            <span style={{ fontSize: '14px', color: 'white' }}>
+              ⏰ {carditem.start.split('T')[0]}
+            </span>
+            <div
+              style={{
+                padding: '4px 8px',
+                borderRadius: '12px',
+                fontSize: '12px',
+                color: 'white',
+                backgroundColor: getStatusColor(carditem.status),
+              }}
+            >
               {getStatusText(carditem.status)}
             </div>
           </div>
@@ -171,44 +180,55 @@ const TaskCard = ({ carditem, onDelete, cardFn }: Props) => {
         {/* 第二行：公司信息 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{ fontSize: '12px', color: 'white' }}>👤</span>
-          <span style={{ fontSize: '14px', color: 'white' }}>{carditem.customer}</span>
+          <span style={{ fontSize: '14px', color: 'white' }}>
+            {carditem.customer}
+          </span>
         </div>
 
         {/* 第三行：位置信息 */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span style={{ fontSize: '12px', color: 'white' }}>📍</span>
-          <span style={{ fontSize: '14px', color: 'white' }}>{carditem.address}</span>
+          <span style={{ fontSize: '14px', color: 'white' }}>
+            {carditem.address}
+          </span>
         </div>
       </div>
 
       {/* 删除按钮 */}
-      {touchitem?.id == carditem.id && <div style={{
-        // position: 'absolute',
-        // right: '-60px',
-        // top: '0',
-        width: '60px',
-        height: '106px',
-        paddingTop: '17px',
-        paddingRight: '15px',
-        paddingBottom: '17px',
-        paddingLeft: '15px',
-        gap: '10px',
-        opacity: 1,
-        borderRadius: '20px',
-        borderWidth: '0.5px',
-        background: 'linear-gradient(0deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), linear-gradient(0deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15))',
-        border: '0.5px solid #FFFFFF80',
-        borderImageSource: 'linear-gradient(124.34deg, rgba(255, 255, 255, 0.135) 29.71%, rgba(255, 255, 255, 0.27) 55.17%, rgba(255, 255, 255, 0.135) 81.42%)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1,
-        cursor: 'pointer'
-      }} onClick={handleDelete}>
-        <div style={{ fontSize: '16px', marginBottom: '4px' }}>🗑️</div>
-        <div style={{ fontSize: '12px', color: 'white' }}>删除</div>
-      </div>}
+      {touchitem?.id == carditem.id && (
+        <div
+          style={{
+            // position: 'absolute',
+            // right: '-60px',
+            // top: '0',
+            width: '60px',
+            height: '106px',
+            paddingTop: '17px',
+            paddingRight: '15px',
+            paddingBottom: '17px',
+            paddingLeft: '15px',
+            gap: '10px',
+            opacity: 1,
+            borderRadius: '20px',
+            borderWidth: '0.5px',
+            background:
+              'linear-gradient(0deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.1)), linear-gradient(0deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15))',
+            border: '0.5px solid #FFFFFF80',
+            borderImageSource:
+              'linear-gradient(124.34deg, rgba(255, 255, 255, 0.135) 29.71%, rgba(255, 255, 255, 0.27) 55.17%, rgba(255, 255, 255, 0.135) 81.42%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1,
+            cursor: 'pointer',
+          }}
+          onClick={handleDelete}
+        >
+          <div style={{ fontSize: '16px', marginBottom: '4px' }}>🗑️</div>
+          <div style={{ fontSize: '12px', color: 'white' }}>删除</div>
+        </div>
+      )}
     </div>
   );
 };

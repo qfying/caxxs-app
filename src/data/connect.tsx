@@ -28,7 +28,7 @@ export function connect<
     const dispatchFuncs = useMemo(() => {
       const dispatchFuncs: { [key: string]: any } = {};
       if (mapDispatchToProps) {
-        Object.keys(mapDispatchToProps).forEach((key) => {
+        Object.keys(mapDispatchToProps).forEach(key => {
           const oldFunc = (mapDispatchToProps as any)[key];
           const newFunc = (...args: any) => {
             const dispatchFunc = oldFunc(...args);

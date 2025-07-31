@@ -29,27 +29,27 @@ const ShareSocialFab: React.FC = () => {
         isOpen={showLoading}
         message={loadingMessage}
         duration={2000}
-        spinner="crescent"
+        spinner='crescent'
         onDidDismiss={() => setShowLoading(false)}
       />
-      <IonFab slot="fixed" vertical="bottom" horizontal="end">
+      <IonFab slot='fixed' vertical='bottom' horizontal='end'>
         <IonFabButton>
           <IonIcon icon={shareSocial} />
         </IonFabButton>
-        <IonFabList side="top">
-          <IonFabButton color="vimeo" onClick={() => openSocial('Vimeo')}>
+        <IonFabList side='top'>
+          <IonFabButton color='vimeo' onClick={() => openSocial('Vimeo')}>
             <IonIcon icon={logoVimeo} />
           </IonFabButton>
           <IonFabButton
-            color="instagram"
+            color='instagram'
             onClick={() => openSocial('Instagram')}
           >
             <IonIcon icon={logoInstagram} />
           </IonFabButton>
-          <IonFabButton color="twitter" onClick={() => openSocial('Twitter')}>
+          <IonFabButton color='twitter' onClick={() => openSocial('Twitter')}>
             <IonIcon icon={logoTwitter} />
           </IonFabButton>
-          <IonFabButton color="facebook" onClick={() => openSocial('Facebook')}>
+          <IonFabButton color='facebook' onClick={() => openSocial('Facebook')}>
             <IonIcon icon={logoFacebook} />
           </IonFabButton>
         </IonFabList>

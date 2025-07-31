@@ -68,7 +68,7 @@ interface DispatchProps {
   setDarkMode: typeof setDarkMode;
 }
 
-interface MenuProps extends RouteComponentProps, StateProps, DispatchProps { }
+interface MenuProps extends RouteComponentProps, StateProps, DispatchProps {}
 
 const Menu: React.FC<MenuProps> = ({
   darkMode,
@@ -81,18 +81,18 @@ const Menu: React.FC<MenuProps> = ({
 
   function renderlistItems(list: Pages[]) {
     return list
-      .filter((route) => !!route.path)
-      .map((p) => (
-        <IonMenuToggle key={p.title} auto-hide="false">
+      .filter(route => !!route.path)
+      .map(p => (
+        <IonMenuToggle key={p.title} auto-hide='false'>
           <IonItem
             detail={false}
             routerLink={p.path}
-            routerDirection="none"
+            routerDirection='none'
             className={
               location.pathname.startsWith(p.path) ? 'selected' : undefined
             }
           >
-            <IonIcon slot="start" icon={p.icon} />
+            <IonIcon slot='start' icon={p.icon} />
             <IonLabel>{p.title}</IonLabel>
           </IonItem>
         </IonMenuToggle>
@@ -100,22 +100,22 @@ const Menu: React.FC<MenuProps> = ({
   }
 
   return (
-    <IonMenu type="overlay" disabled={!menuEnabled} contentId="main">
+    <IonMenu type='overlay' disabled={!menuEnabled} contentId='main'>
       <IonContent forceOverscroll={false}>
-        <IonList lines="none">
+        <IonList lines='none'>
           <IonListHeader>Conference</IonListHeader>
           {renderlistItems(routes.appPages)}
         </IonList>
-        <IonList lines="none">
+        <IonList lines='none'>
           <IonListHeader>Account</IonListHeader>
           {isAuthenticated
             ? renderlistItems(routes.loggedInPages)
             : renderlistItems(routes.loggedOutPages)}
           <IonItem>
             <IonIcon
-              slot="start"
+              slot='start'
               icon={moonOutline}
-              aria-hidden="true"
+              aria-hidden='true'
             ></IonIcon>
             <IonToggle
               checked={darkMode}
@@ -125,7 +125,7 @@ const Menu: React.FC<MenuProps> = ({
             </IonToggle>
           </IonItem>
         </IonList>
-        <IonList lines="none">
+        <IonList lines='none'>
           <IonListHeader>Tutorial</IonListHeader>
           <IonItem
             button
@@ -134,7 +134,7 @@ const Menu: React.FC<MenuProps> = ({
               history.push('/tutorial');
             }}
           >
-            <IonIcon slot="start" icon={hammer} />
+            <IonIcon slot='start' icon={hammer} />
             <IonLabel>Show Tutorial</IonLabel>
           </IonItem>
         </IonList>
@@ -144,7 +144,7 @@ const Menu: React.FC<MenuProps> = ({
 };
 
 export default connect<{}, StateProps, {}>({
-  mapStateToProps: (state) => ({
+  mapStateToProps: state => ({
     darkMode: state.user.darkMode,
     isAuthenticated: state.user.isLoggedin,
     menuEnabled: state.data.menuEnabled,

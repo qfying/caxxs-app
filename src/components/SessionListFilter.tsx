@@ -1,8 +1,18 @@
 import React from 'react';
 
 import {
-  IonButton, IonButtons, IonCheckbox, IonContent, IonFooter, IonHeader, IonIcon, IonItem, IonList,
-  IonListHeader, IonTitle, IonToolbar
+  IonButton,
+  IonButtons,
+  IonCheckbox,
+  IonContent,
+  IonFooter,
+  IonHeader,
+  IonIcon,
+  IonItem,
+  IonList,
+  IonListHeader,
+  IonTitle,
+  IonToolbar,
 } from '@ionic/react';
 import {
   call,
@@ -43,11 +53,13 @@ const SessionListFilter: React.FC<SessionListFilterProps> = ({
   onDismissModal,
   updateFilteredTracks,
 }) => {
-  const ios = window.navigator.userAgent.includes('iPhone') || window.navigator.userAgent.includes('iPad');
+  const ios =
+    window.navigator.userAgent.includes('iPhone') ||
+    window.navigator.userAgent.includes('iPad');
 
   const toggleTrackFilter = (track: string) => {
     if (filteredTracks.indexOf(track) > -1) {
-      updateFilteredTracks(filteredTracks.filter((x) => x !== track));
+      updateFilteredTracks(filteredTracks.filter(x => x !== track));
     } else {
       updateFilteredTracks([...filteredTracks, track]);
     }
@@ -76,16 +88,16 @@ const SessionListFilter: React.FC<SessionListFilterProps> = ({
 
   return (
     <>
-      <IonHeader translucent={true} className="session-list-filter">
+      <IonHeader translucent={true} className='session-list-filter'>
         <IonToolbar>
-          <IonButtons slot="start">
+          <IonButtons slot='start'>
             {ios && <IonButton onClick={onDismissModal}>Cancel</IonButton>}
             {!ios && <IonButton onClick={handleDeselectAll}>Reset</IonButton>}
           </IonButtons>
 
           <IonTitle>Filter Sessions</IonTitle>
 
-          <IonButtons slot="end">
+          <IonButtons slot='end'>
             <IonButton onClick={onDismissModal} strong>
               Done
             </IonButton>
@@ -93,24 +105,24 @@ const SessionListFilter: React.FC<SessionListFilterProps> = ({
         </IonToolbar>
       </IonHeader>
 
-      <IonContent className="session-list-filter">
+      <IonContent className='session-list-filter'>
         <IonList lines={ios ? 'inset' : 'full'}>
           <IonListHeader>Tracks</IonListHeader>
 
-          {allTracks.map((track) => (
+          {allTracks.map(track => (
             <IonItem key={track}>
               {ios && (
                 <IonIcon
-                  slot="start"
+                  slot='start'
                   icon={iconMap[track]}
-                  color="medium"
-                  aria-hidden="true"
+                  color='medium'
+                  aria-hidden='true'
                 />
               )}
               <IonCheckbox
                 onIonChange={() => toggleTrackFilter(track)}
                 checked={filteredTracks.indexOf(track) !== -1}
-                color="primary"
+                color='primary'
                 value={track}
               >
                 {track}
@@ -123,10 +135,10 @@ const SessionListFilter: React.FC<SessionListFilterProps> = ({
       {ios && (
         <IonFooter>
           <IonToolbar>
-            <IonButtons slot="start">
+            <IonButtons slot='start'>
               <IonButton onClick={handleDeselectAll}>Deselect All</IonButton>
             </IonButtons>
-            <IonButtons slot="end">
+            <IonButtons slot='end'>
               <IonButton onClick={handleSelectAll}>Select All</IonButton>
             </IonButtons>
           </IonToolbar>
@@ -137,7 +149,7 @@ const SessionListFilter: React.FC<SessionListFilterProps> = ({
 };
 
 export default connect<OwnProps, StateProps, DispatchProps>({
-  mapStateToProps: (state) => ({
+  mapStateToProps: state => ({
     allTracks: state.data.allTracks,
     filteredTracks: state.data.filteredTracks,
   }),

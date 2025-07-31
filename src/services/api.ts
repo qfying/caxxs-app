@@ -62,14 +62,19 @@ interface ApiTaskListResponse {
   data: TaskData[];
 }
 
-export const loginByPassword = (username: string, password: string): Promise<ApiLoginResponse> => {
+export const loginByPassword = (
+  username: string,
+  password: string
+): Promise<ApiLoginResponse> => {
   return http.post<LoginResponse>('/openapi/v1/user/loginByPassword', {
     username,
     password,
   }) as Promise<ApiLoginResponse>;
 };
 
-export const sendChatMessage = (request: ChatCompletionRequest): Promise<any> => {
+export const sendChatMessage = (
+  request: ChatCompletionRequest
+): Promise<any> => {
   return http.post('/openapi/v0/chat/completions', request, { isStream: true });
 };
 
@@ -81,14 +86,14 @@ export const taskUpdate = ({ data }: any): Promise<ApiTaskResponse> => {
   return http.put<TaskData>('/openapi/v2/task/update', data);
 };
 
-export const getTaskList = ({ executeId }: { executeId: string }): Promise<ApiTaskListResponse> => {
+export const getTaskList = ({
+  executeId,
+}: {
+  executeId: string;
+}): Promise<ApiTaskListResponse> => {
   return http.get<TaskData[]>(`/openapi/v2/task/list?executeId=${executeId}`);
 };
 
 export const getHealth = (): Promise<ApiTaskListResponse> => {
   return http.get<TaskData[]>(`/openapi/v0/chat/test`);
 };
-
-
-
-

@@ -50,7 +50,7 @@ class WebSocketManager {
         this.attemptReconnect(endpoint);
       };
 
-      this.ws.onerror = (error) => {
+      this.ws.onerror = error => {
         console.error('WebSocket error:', error);
       };
 
@@ -65,7 +65,9 @@ class WebSocketManager {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
       setTimeout(() => {
-        console.log(`Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+        console.log(
+          `Attempting to reconnect (${this.reconnectAttempts}/${this.maxReconnectAttempts})`
+        );
         this.connect(endpoint);
       }, this.reconnectDelay * this.reconnectAttempts);
     }
@@ -94,8 +96,8 @@ class AudioRecorder {
           sampleRate: 16000,
           channelCount: 1,
           echoCancellation: false,
-          noiseSuppression: false
-        }
+          noiseSuppression: false,
+        },
       });
       this.onDataAvailable = onData;
 
@@ -106,7 +108,7 @@ class AudioRecorder {
       // 创建ScriptProcessor来处理音频数据
       this.processor = this.audioContext.createScriptProcessor(4096, 1, 1);
 
-      this.processor.onaudioprocess = (event) => {
+      this.processor.onaudioprocess = event => {
         const inputBuffer = event.inputBuffer;
         const inputData = inputBuffer.getChannelData(0);
 
@@ -115,7 +117,7 @@ class AudioRecorder {
         for (let i = 0; i < inputData.length; i++) {
           // 将-1到1的浮点数转换为-32768到32767的整数
           const sample = Math.max(-1, Math.min(1, inputData[i]));
-          pcmData[i] = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+          pcmData[i] = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
         }
 
         this.onDataAvailable?.(pcmData);
@@ -178,11 +180,11 @@ const ChatVoiceRecorder: React.FC<ChatVoiceRecorderProps> = ({
   // 模拟语音识别结果（当WebSocket不可用时使用）
   const mockVoiceRecognition = () => {
     const mockTexts = [
-      "你好，我想了解一下这个项目",
-      "请帮我分析一下代码结构",
-      "这个功能怎么实现比较好",
-      "能给我一些建议吗",
-      "谢谢你的帮助"
+      '你好，我想了解一下这个项目',
+      '请帮我分析一下代码结构',
+      '这个功能怎么实现比较好',
+      '能给我一些建议吗',
+      '谢谢你的帮助',
     ];
     return mockTexts[Math.floor(Math.random() * mockTexts.length)];
   };
@@ -206,7 +208,7 @@ const ChatVoiceRecorder: React.FC<ChatVoiceRecorderProps> = ({
   const checkMicrophonePermission = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach((track) => track.stop());
+      stream.getTracks().forEach(track => track.stop());
       return true;
     } catch (error) {
       console.error('Microphone permission denied:', error);
@@ -253,7 +255,7 @@ const ChatVoiceRecorder: React.FC<ChatVoiceRecorderProps> = ({
             present({
               message: '没有检测到语音',
               duration: 3500,
-              position:"top",
+              position: 'top',
             });
           }
           resetRecord();
@@ -288,7 +290,7 @@ const ChatVoiceRecorder: React.FC<ChatVoiceRecorderProps> = ({
     isCanceledRef.current = false;
     try {
       navigator.vibrate(300);
-    } catch (err) { }
+    } catch (err) {}
 
     setIsRecording(true);
     recordingRef.current = true;
@@ -300,24 +302,24 @@ const ChatVoiceRecorder: React.FC<ChatVoiceRecorderProps> = ({
       // 使用WebSocket进行实时语音识别
       sendInitData();
 
-              // 开始录音
-        try {
-          await audioRecorder.current.start((pcmData) => {
-            if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-              console.log("发送PCM数据，长度:", pcmData.length);
-              ws.current.send(pcmData);
-            }
-          });
-        } catch (error) {
-          console.error('Failed to start audio recording:', error);
-          // 如果录音失败，使用模拟识别
-          setTimeout(() => {
-            if (recordingRef.current && !isCanceledRef.current) {
-              const recognizedText = mockVoiceRecognition();
-              setText(recognizedText);
-            }
-          }, 2000);
-        }
+      // 开始录音
+      try {
+        await audioRecorder.current.start(pcmData => {
+          if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+            console.log('发送PCM数据，长度:', pcmData.length);
+            ws.current.send(pcmData);
+          }
+        });
+      } catch (error) {
+        console.error('Failed to start audio recording:', error);
+        // 如果录音失败，使用模拟识别
+        setTimeout(() => {
+          if (recordingRef.current && !isCanceledRef.current) {
+            const recognizedText = mockVoiceRecognition();
+            setText(recognizedText);
+          }
+        }, 2000);
+      }
     } else {
       // WebSocket连接失败，使用模拟识别
       setTimeout(() => {
@@ -356,7 +358,7 @@ const ChatVoiceRecorder: React.FC<ChatVoiceRecorderProps> = ({
     present({
       message: '语音输入已取消',
       duration: 1500,
-      position:"top",
+      position: 'top',
     });
 
     isCanceledRef.current = true;
@@ -375,7 +377,7 @@ const ChatVoiceRecorder: React.FC<ChatVoiceRecorderProps> = ({
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    console.log("e==============", e);
+    console.log('e==============', e);
 
     if (isMessageSend) {
       return;
@@ -386,7 +388,7 @@ const ChatVoiceRecorder: React.FC<ChatVoiceRecorderProps> = ({
     e.stopPropagation();
     setIsCancelArea(false);
     if (e.touches && e.touches.length > 0) {
-      console.log("e.touches[0].clientY=======", e.touches[0].clientY);
+      console.log('e.touches[0].clientY=======', e.touches[0].clientY);
       setStartY(e.touches[0].clientY);
       start();
     }
@@ -457,7 +459,7 @@ const ChatVoiceRecorder: React.FC<ChatVoiceRecorderProps> = ({
           alignItems: 'center',
           justifyContent: 'center',
           fontSize: '24px',
-          color: '#333'
+          color: '#333',
         }}
       >
         🎤
@@ -465,7 +467,9 @@ const ChatVoiceRecorder: React.FC<ChatVoiceRecorderProps> = ({
     );
   };
 
-  const icons = Array.from({ length: iconNumber }, (_, index) => generateIcon(index));
+  const icons = Array.from({ length: iconNumber }, (_, index) =>
+    generateIcon(index)
+  );
 
   // 清理WebSocket连接
   useEffect(() => {
@@ -475,9 +479,12 @@ const ChatVoiceRecorder: React.FC<ChatVoiceRecorderProps> = ({
   }, []);
 
   return (
-    <div className={`chat-voice-recorder ${className || ''}`}>
+    <div>
       <div
-        className="voice-button-container"
+        style={{
+          opacity: isMessageSend ? 0.5 : 1,
+          pointerEvents: isMessageSend ? 'none' : 'auto',
+        }}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onTouchCancel={cancel}
@@ -485,61 +492,90 @@ const ChatVoiceRecorder: React.FC<ChatVoiceRecorderProps> = ({
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
-        style={{
-          opacity: isMessageSend ? 0.5 : 1,
-          pointerEvents: isMessageSend ? 'none' : 'auto',
-        }}
       >
         {!isRecording ? (
-          <div className="voice-input" >
+          <div
+            style={{
+              width: 'calc(100% - 40px)',
+              height: '68px',
+              backdropFilter: 'blur(60px)',
+              border: '0.5px solid #FFFFFF80',
+              borderRadius: '35px',
+              zIndex: 1000,
+              display: 'flex',
+              padding: '10px',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              margin: '0 auto',
+            }}
+          >
             <div
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 if (!isMessageSend) onSwitch();
               }}
-              onTouchStart={(e)=>e.stopPropagation()}
-              onTouchEnd={(e)=>e.stopPropagation()}
-              onTouchCancel={(e)=>e.stopPropagation()}
-              onTouchMove={(e)=>e.stopPropagation()}
-              onMouseDown={(e)=>e.stopPropagation()}
-              onMouseUp={(e)=>e.stopPropagation()}
-              onMouseLeave={(e)=>e.stopPropagation()}
-
-
-
+              onTouchStart={e => e.stopPropagation()}
+              onTouchEnd={e => e.stopPropagation()}
+              onTouchCancel={e => e.stopPropagation()}
+              onTouchMove={e => e.stopPropagation()}
+              onMouseDown={e => e.stopPropagation()}
+              onMouseUp={e => e.stopPropagation()}
+              onMouseLeave={e => e.stopPropagation()}
               style={{
                 opacity: isMessageSend ? 0.5 : 1,
-                pointerEvents: isMessageSend ? 'none' : 'auto'
+                pointerEvents: isMessageSend ? 'none' : 'auto',
               }}
             >
-              <img src="/assets/icon/keyboard.svg" alt="" style={{ width: '48px', height: '48px' }} />
+              <img
+                src='/assets/icon/keyboard.svg'
+                alt=''
+                style={{ width: '48px', height: '48px' }}
+              />
             </div>
-            <div style={{ fontSize: '14px', color: '#F9F9F9' }}>长按说出您的问题</div>
+            <div style={{ fontSize: '14px', color: '#F9F9F9' }}>
+              长按说出您的问题
+            </div>
             <div
-              onClick={(e) => {
+              onClick={e => {
                 e.stopPropagation();
                 if (!isMessageSend) onSwitch();
               }}
               style={{
                 opacity: isMessageSend ? 0.5 : 1,
-                pointerEvents: isMessageSend ? 'none' : 'auto'
+                pointerEvents: isMessageSend ? 'none' : 'auto',
               }}
-              onTouchStart={(e)=>e.stopPropagation()}
-              onTouchEnd={(e)=>e.stopPropagation()}
-              onTouchCancel={(e)=>e.stopPropagation()}
-              onTouchMove={(e)=>e.stopPropagation()}
-              onMouseDown={(e)=>e.stopPropagation()}
-              onMouseUp={(e)=>e.stopPropagation()}
-              onMouseLeave={(e)=>e.stopPropagation()}
+              onTouchStart={e => e.stopPropagation()}
+              onTouchEnd={e => e.stopPropagation()}
+              onTouchCancel={e => e.stopPropagation()}
+              onTouchMove={e => e.stopPropagation()}
+              onMouseDown={e => e.stopPropagation()}
+              onMouseUp={e => e.stopPropagation()}
+              onMouseLeave={e => e.stopPropagation()}
             >
-              <img src="/assets/icon/delet.svg" alt="" style={{ width: '48px', height: '48px' }} />
+              <img
+                src='/assets/icon/delet.svg'
+                alt=''
+                style={{ width: '48px', height: '48px' }}
+              />
             </div>
           </div>
         ) : (
-          <div className="voice-input2">
-            <div>
-              {icons[currentIconIndex]}
-            </div>
+          <div
+            style={{
+              width: 'calc(100% - 40px)',
+              height: '68px',
+              backdropFilter: 'blur(60px)',
+              border: '0.5px solid #FFFFFF80',
+              borderRadius: '35px',
+              zIndex: 1000,
+              display: 'flex',
+              padding: '10px 30px',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              margin: '0 auto',
+            }}
+          >
+            <div>{icons[currentIconIndex]}</div>
             <div style={{ fontSize: '14px', color: '#F9F9F9' }}>
               {isCancelArea ? '松开取消' : '松开结束'}
             </div>
@@ -548,9 +584,40 @@ const ChatVoiceRecorder: React.FC<ChatVoiceRecorderProps> = ({
       </div>
 
       {isRecording && (
-        <div className="voice-overlay">
-          <div className="voice-text">{text || '正在识别语音...'}</div>
-          <div className="voice-hint">
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 2000,
+          }}
+        >
+          <div
+            style={{
+              fontSize: '18px',
+              color: '#FFFFFF',
+              textAlign: 'center',
+              marginBottom: '20px',
+              padding: '0 20px',
+            }}
+          >
+            {text || '正在识别语音...'}
+          </div>
+          <div
+            style={{
+              fontSize: '14px',
+              color: '#FFFFFF',
+              opacity: 0.8,
+              textAlign: 'center',
+            }}
+          >
             {isCancelArea ? '松开取消' : '松开结束'}
           </div>
         </div>

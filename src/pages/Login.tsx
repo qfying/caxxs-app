@@ -46,51 +46,51 @@ const Login: React.FC<LoginProps> = ({
   };
 
   return (
-    <IonPage id="login-page">
+    <IonPage id='login-page'>
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot="start">
+          <IonButtons slot='start'>
             <IonMenuButton></IonMenuButton>
           </IonButtons>
           <IonTitle>Login</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <div className="login-logo">
-          <img src="/assets/img/appicon.svg" alt="Ionic logo" />
+        <div className='login-logo'>
+          <img src='/assets/img/appicon.svg' alt='Ionic logo' />
         </div>
 
-        <div className="login-form">
+        <div className='login-form'>
           <form onSubmit={onLogin} noValidate>
             <IonInput
-              label="Username"
-              labelPlacement="stacked"
-              fill="solid"
+              label='Username'
+              labelPlacement='stacked'
+              fill='solid'
               value={login.username}
-              name="username"
-              type="text"
+              name='username'
+              type='text'
               spellCheck={false}
-              autocapitalize="off"
+              autocapitalize='off'
               errorText={
                 submitted && !login.username ? 'Username is required' : ''
               }
-              onIonInput={(e) =>
+              onIonInput={e =>
                 setLogin({ ...login, username: e.detail.value! })
               }
               required
             />
 
             <IonInput
-              label="Password"
-              labelPlacement="stacked"
-              fill="solid"
+              label='Password'
+              labelPlacement='stacked'
+              fill='solid'
               value={login.password}
-              name="password"
-              type="password"
+              name='password'
+              type='password'
               errorText={
                 submitted && !login.password ? 'Password is required' : ''
               }
-              onIonInput={(e) =>
+              onIonInput={e =>
                 setLogin({ ...login, password: e.detail.value! })
               }
               required
@@ -98,12 +98,12 @@ const Login: React.FC<LoginProps> = ({
 
             <IonRow>
               <IonCol>
-                <IonButton type="submit" expand="block">
+                <IonButton type='submit' expand='block'>
                   Login
                 </IonButton>
               </IonCol>
               <IonCol>
-                <IonButton onClick={onSignup} color="light" expand="block">
+                <IonButton onClick={onSignup} color='light' expand='block'>
                   Signup
                 </IonButton>
               </IonCol>

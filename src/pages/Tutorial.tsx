@@ -16,13 +16,13 @@ import { setMenuEnabled } from '../data/sessions/sessions.actions';
 import { setHasSeenTutorial } from '../data/user/user.actions';
 import './Tutorial.scss';
 
-interface OwnProps extends RouteComponentProps { }
+interface OwnProps extends RouteComponentProps {}
 interface DispatchProps {
   setHasSeenTutorial: typeof setHasSeenTutorial;
   setMenuEnabled: typeof setMenuEnabled;
 }
 
-interface TutorialProps extends OwnProps, DispatchProps { }
+interface TutorialProps extends OwnProps, DispatchProps {}
 
 const Tutorial: React.FC<TutorialProps> = ({
   history,
@@ -37,7 +37,7 @@ const Tutorial: React.FC<TutorialProps> = ({
     if (sliderRef.current) {
       sliderRef.current.scrollTo({
         left: 0,
-        behavior: 'smooth'
+        behavior: 'smooth',
       });
     }
   });
@@ -49,26 +49,26 @@ const Tutorial: React.FC<TutorialProps> = ({
   };
 
   return (
-    <IonPage id="tutorial-page">
-      <IonHeader className="ion-no-border">
+    <IonPage id='tutorial-page'>
+      <IonHeader className='ion-no-border'>
         <IonToolbar>
-          <IonButtons slot="end">
-            <IonButton color="primary" onClick={startApp}>
+          <IonButtons slot='end'>
+            <IonButton color='primary' onClick={startApp}>
               Skip
             </IonButton>
           </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen>
-        <div className="slider" ref={sliderRef}>
+        <div className='slider' ref={sliderRef}>
           <section>
-            <div className="swiper-item">
+            <div className='swiper-item'>
               <img
-                src="assets/img/ica-slidebox-img-1.png"
-                alt=""
-                className="slide-image"
+                src='assets/img/ica-slidebox-img-1.png'
+                alt=''
+                className='slide-image'
               />
-              <h2 className="slide-title">
+              <h2 className='slide-title'>
                 Welcome to <b>ICA</b>
               </h2>
               <p>
@@ -79,13 +79,13 @@ const Tutorial: React.FC<TutorialProps> = ({
             </div>
           </section>
           <section>
-            <div className="swiper-item">
+            <div className='swiper-item'>
               <img
-                src="assets/img/ica-slidebox-img-2.png"
-                alt=""
-                className="slide-image"
+                src='assets/img/ica-slidebox-img-2.png'
+                alt=''
+                className='slide-image'
               />
-              <h2 className="slide-title">What is Ionic?</h2>
+              <h2 className='slide-title'>What is Ionic?</h2>
               <p>
                 <b>Ionic Framework</b> is an open source SDK that enables
                 developers to build high quality mobile apps with web
@@ -94,13 +94,13 @@ const Tutorial: React.FC<TutorialProps> = ({
             </div>
           </section>
           <section>
-            <div className="swiper-item">
+            <div className='swiper-item'>
               <img
-                src="assets/img/ica-slidebox-img-3.png"
-                alt=""
-                className="slide-image"
+                src='assets/img/ica-slidebox-img-3.png'
+                alt=''
+                className='slide-image'
               />
-              <h2 className="slide-title">What is Ionic Appflow?</h2>
+              <h2 className='slide-title'>What is Ionic Appflow?</h2>
               <p>
                 <b>Ionic Appflow</b> is a powerful set of services and features
                 built on top of Ionic Framework that brings a totally new level
@@ -109,16 +109,16 @@ const Tutorial: React.FC<TutorialProps> = ({
             </div>
           </section>
           <section>
-            <div className="swiper-item">
+            <div className='swiper-item'>
               <img
-                src="assets/img/ica-slidebox-img-4.png"
-                alt=""
-                className="slide-image"
+                src='assets/img/ica-slidebox-img-4.png'
+                alt=''
+                className='slide-image'
               />
-              <h2 className="slide-title">Ready to Play?</h2>
-              <IonButton fill="clear" onClick={startApp}>
+              <h2 className='slide-title'>Ready to Play?</h2>
+              <IonButton fill='clear' onClick={startApp}>
                 Continue
-                <IonIcon slot="end" icon={arrowForward} />
+                <IonIcon slot='end' icon={arrowForward} />
               </IonButton>
             </div>
           </section>

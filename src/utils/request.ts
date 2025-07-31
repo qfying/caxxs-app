@@ -69,7 +69,10 @@ class HttpRequest {
       switch (response.status) {
         case HTTP_STATUS.UNAUTHORIZED:
           // 不缓存token，无需清除
-          throw new RequestError(HTTP_STATUS.UNAUTHORIZED, '未授权或token已过期');
+          throw new RequestError(
+            HTTP_STATUS.UNAUTHORIZED,
+            '未授权或token已过期'
+          );
         case HTTP_STATUS.FORBIDDEN:
           throw new RequestError(HTTP_STATUS.FORBIDDEN, '无访问权限');
         case HTTP_STATUS.NOT_FOUND:
@@ -111,7 +114,7 @@ class HttpRequest {
         finalOptions
       );
 
-      console.log("response===========",response);
+      console.log('response===========', response);
 
       // 如果是流式输出，直接返回响应，不进行JSON解析
       if (options.isStream) {

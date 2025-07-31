@@ -36,10 +36,10 @@ const Account: React.FC<AccountProps> = ({ setUsername, username }) => {
   };
 
   return (
-    <IonPage id="account-page">
+    <IonPage id='account-page'>
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot="start">
+          <IonButtons slot='start'>
             <IonMenuButton></IonMenuButton>
           </IonButtons>
           <IonTitle>Account</IonTitle>
@@ -47,10 +47,10 @@ const Account: React.FC<AccountProps> = ({ setUsername, username }) => {
       </IonHeader>
       <IonContent>
         {username && (
-          <div className="ion-padding-top ion-text-center">
+          <div className='ion-padding-top ion-text-center'>
             <img
-              src="https://www.gravatar.com/avatar?d=mm&s=140"
-              alt="avatar"
+              src='https://www.gravatar.com/avatar?d=mm&s=140'
+              alt='avatar'
             />
             <h2>{username}</h2>
             <IonList inset>
@@ -63,10 +63,10 @@ const Account: React.FC<AccountProps> = ({ setUsername, username }) => {
               <IonItem onClick={() => clicked('Change Password')}>
                 Change Password
               </IonItem>
-              <IonItem routerLink="/support" routerDirection="none">
+              <IonItem routerLink='/support' routerDirection='none'>
                 Support
               </IonItem>
-              <IonItem routerLink="/logout" routerDirection="none">
+              <IonItem routerLink='/logout' routerDirection='none'>
                 Logout
               </IonItem>
             </IonList>
@@ -75,12 +75,12 @@ const Account: React.FC<AccountProps> = ({ setUsername, username }) => {
       </IonContent>
       <IonAlert
         isOpen={showAlert}
-        header="Change Username"
+        header='Change Username'
         buttons={[
           'Cancel',
           {
             text: 'Ok',
-            handler: (data) => {
+            handler: data => {
               setUsername(data.username);
             },
           },
@@ -100,7 +100,7 @@ const Account: React.FC<AccountProps> = ({ setUsername, username }) => {
 };
 
 export default connect<OwnProps, StateProps, DispatchProps>({
-  mapStateToProps: (state) => ({
+  mapStateToProps: state => ({
     username: state.user.username,
   }),
   mapDispatchToProps: {

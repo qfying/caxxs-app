@@ -4,26 +4,26 @@ import { RouteComponentProps } from 'react-router';
 import './SpeakerDetail.scss';
 
 import {
-    IonActionSheet,
-    IonBackButton,
-    IonButton,
-    IonButtons,
-    IonChip,
-    IonContent,
-    IonHeader,
-    IonIcon,
-    IonLabel,
-    IonPage,
-    IonToolbar
+  IonActionSheet,
+  IonBackButton,
+  IonButton,
+  IonButtons,
+  IonChip,
+  IonContent,
+  IonHeader,
+  IonIcon,
+  IonLabel,
+  IonPage,
+  IonToolbar,
 } from '@ionic/react';
 import {
-    callOutline,
-    callSharp,
-    logoGithub,
-    logoInstagram,
-    logoTwitter,
-    shareOutline,
-    shareSharp,
+  callOutline,
+  callSharp,
+  logoGithub,
+  logoInstagram,
+  logoTwitter,
+  shareOutline,
+  shareSharp,
 } from 'ionicons/icons';
 
 import { connect } from '../data/connect';
@@ -35,17 +35,15 @@ interface OwnProps extends RouteComponentProps {
   speaker?: Speaker;
 }
 
-interface StateProps { }
+interface StateProps {}
 
-interface DispatchProps { }
+interface DispatchProps {}
 
-interface SpeakerDetailProps extends OwnProps, StateProps, DispatchProps { }
+interface SpeakerDetailProps extends OwnProps, StateProps, DispatchProps {}
 
 const SpeakerDetail: React.FC<SpeakerDetailProps> = ({ speaker }) => {
   const [showActionSheet, setShowActionSheet] = useState(false);
-  const [actionSheetButtons, setActionSheetButtons] = useState<
-    any[]
-  >([]);
+  const [actionSheetButtons, setActionSheetButtons] = useState<any[]>([]);
   const [actionSheetHeader, setActionSheetHeader] = useState('');
 
   function openSpeakerShare(speaker: Speaker) {
@@ -102,24 +100,24 @@ const SpeakerDetail: React.FC<SpeakerDetailProps> = ({ speaker }) => {
   }
 
   return (
-    <IonPage id="speaker-detail">
+    <IonPage id='speaker-detail'>
       <IonContent>
-        <IonHeader className="ion-no-border">
+        <IonHeader className='ion-no-border'>
           <IonToolbar>
-            <IonButtons slot="start">
-              <IonBackButton defaultHref="/tabs/speakers" />
+            <IonButtons slot='start'>
+              <IonBackButton defaultHref='/tabs/speakers' />
             </IonButtons>
-            <IonButtons slot="end">
+            <IonButtons slot='end'>
               <IonButton onClick={() => openContact(speaker)}>
                 <IonIcon
-                  slot="icon-only"
+                  slot='icon-only'
                   ios={callOutline}
                   md={callSharp}
                 ></IonIcon>
               </IonButton>
               <IonButton onClick={() => openSpeakerShare(speaker)}>
                 <IonIcon
-                  slot="icon-only"
+                  slot='icon-only'
                   ios={shareOutline}
                   md={shareSharp}
                 ></IonIcon>
@@ -128,18 +126,18 @@ const SpeakerDetail: React.FC<SpeakerDetailProps> = ({ speaker }) => {
           </IonToolbar>
         </IonHeader>
 
-        <div className="speaker-background">
+        <div className='speaker-background'>
           <img src={speaker.profilePic} alt={speaker.name} />
           <h2>{speaker.name}</h2>
         </div>
 
-        <div className="ion-padding speaker-detail">
+        <div className='ion-padding speaker-detail'>
           <p>{speaker.about} Say hello on social media!</p>
 
           <hr />
 
           <IonChip
-            color="twitter"
+            color='twitter'
             onClick={() =>
               openExternalUrl(`https://twitter.com/${speaker.twitter}`)
             }
@@ -149,7 +147,7 @@ const SpeakerDetail: React.FC<SpeakerDetailProps> = ({ speaker }) => {
           </IonChip>
 
           <IonChip
-            color="dark"
+            color='dark'
             onClick={() =>
               openExternalUrl('https://github.com/ionic-team/ionic-framework')
             }
@@ -159,7 +157,7 @@ const SpeakerDetail: React.FC<SpeakerDetailProps> = ({ speaker }) => {
           </IonChip>
 
           <IonChip
-            color="instagram"
+            color='instagram'
             onClick={() =>
               openExternalUrl('https://instagram.com/ionicframework')
             }

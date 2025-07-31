@@ -64,7 +64,8 @@ ion-toolbar {
 }
 
 .chatbody {
-  height: calc(100% - 64px - 77px);
+  height: calc(100% - 64px - 97px);
+  /* border: 1px solid red; */
 }
 
 .welcome-container {
@@ -120,111 +121,7 @@ ion-toolbar {
   line-height: 1.5;
 }
 
-.footer-buttons {
-  display: flex;
-  justify-content: space-around;
-  border-top: none;
-  position: fixed;
-  bottom: 87px;
-  left: 0;
-  right: 0;
-  width: 300px;
-  margin: 0 auto;
-}
 
-.input-area {
-  background: var(--chat-bg-color);
-  width: 100%;
-  height: 52px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px 20px 0px 0px;
-  position: fixed;
-  bottom: 77px;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-}
-
-.input-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 0 20px;
-  background: transparent;
-}
-
-.input-wrapper {
-  width: 100%;
-
-}
-
-.chat-input {
-  color: #ffffff;
-}
-
-.chatblock.sc-ion-input-ios-h {
-  display: none;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 8px;
-}
-
-.action-buttons ion-button {
-  --padding-start: 0;
-  --padding-end: 0;
-  margin: 0;
-  height: 40px;
-  width: 40px;
-  --background: transparent;
-}
-
-.action-buttons ion-button::part(native) {
-  padding: 0;
-}
-
-.action-buttons ion-icon {
-  font-size: 24px;
-  color: var(--chat-secondary-text-color);
-  opacity: 0.9;
-}
-
-.emoji-button,
-.input-buttons ion-button {
-  --padding-start: 8px;
-  --padding-end: 8px;
-  height: 36px;
-  margin: 0;
-}
-
-.emoji-button ion-icon,
-.input-buttons ion-icon {
-  font-size: 24px;
-  color: var(--chat-secondary-text-color);
-}
-
-.input-buttons {
-  display: flex;
-  gap: 4px;
-}
-
-.send-button {
-  --background: var(--chat-send-button-bg);
-  --background-activated: var(--chat-send-button-bg);
-  --background-hover: var(--chat-send-button-bg);
-  --border-radius: 50%;
-  margin: 0;
-  height: 36px;
-  width: 36px;
-  --padding-start: 0;
-  --padding-end: 0;
-}
-
-.send-button ion-icon {
-  font-size: 18px;
-  margin-left: 2px;
-}
 
 .message-container {
   padding: 8px 16px;
@@ -290,39 +187,7 @@ ion-toolbar {
   transform: translateX(-50%);
 }
 
-.voice-input {
-  width: calc(100% - 40px);
-  height: 68px;
-  position: fixed;
-  left: 20px;
-  right: 20px;
-  bottom: 87px;
-  backdrop-filter: blur(60px);
-  border: 0.5px solid #FFFFFF80;
-  border-radius: 35px;
-  z-index: 1000;
-  display: flex;
-  padding: 10px;
-  justify-content: space-between;
-  align-items: center;
-}
 
-.voice-input2 {
-  width: calc(100% - 40px);
-  height: 68px;
-  position: fixed;
-  left: 20px;
-  right: 20px;
-  bottom: 87px;
-  backdrop-filter: blur(60px);
-  border: 0.5px solid #FFFFFF80;
-  border-radius: 35px;
-  z-index: 1000;
-  display: flex;
-  padding: 10px 30px;
-  justify-content: space-between;
-  align-items: center;
-}
 
 @keyframes loading {
   0% {

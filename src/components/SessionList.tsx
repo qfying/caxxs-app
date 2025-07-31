@@ -104,7 +104,7 @@ const SessionList: React.FC<SessionListProps> = ({
 };
 
 export default connect<OwnProps, StateProps, DispatchProps>({
-  mapStateToProps: (state) => ({
+  mapStateToProps: state => ({
     favoriteSessions: state.data.favorites,
   }),
   mapDispatchToProps: {

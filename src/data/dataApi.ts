@@ -71,8 +71,8 @@ export const setUsernameData = async (username?: string) => {
 
 function parseSessions(schedule: Schedule) {
   const sessions: Session[] = [];
-  schedule.groups.forEach((g) => {
-    g.sessions.forEach((s) => sessions.push(s));
+  schedule.groups.forEach(g => {
+    g.sessions.forEach(s => sessions.push(s));
   });
   return sessions;
 }

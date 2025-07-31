@@ -17,7 +17,7 @@ export default defineConfig({
         secure: false,
       },
       '/openapi/v2': {
-        target: 'http://172.30.232.95:21080',
+        target: 'http://172.30.232.95:22080',
         // target: 'http://192.168.137.24:8000',
         // target: 'http://10.110.163.79:8787',
         changeOrigin: true,

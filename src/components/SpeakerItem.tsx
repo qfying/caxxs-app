@@ -19,17 +19,17 @@ interface SpeakerItemProps {
 const SpeakerItem: React.FC<SpeakerItemProps> = ({ speaker, sessions }) => {
   return (
     <>
-      <IonCard className="speaker-card">
+      <IonCard className='speaker-card'>
         <IonCardHeader>
           <IonItem
             button
             detail={false}
-            lines="none"
-            className="speaker-item"
+            lines='none'
+            className='speaker-item'
             routerLink={`/tabs/speakers/${speaker.id}`}
           >
-            <IonAvatar slot="start">
-              <img src={speaker.profilePic} alt="Speaker profile pic" />
+            <IonAvatar slot='start'>
+              <img src={speaker.profilePic} alt='Speaker profile pic' />
             </IonAvatar>
             <IonLabel>
               <h2>{speaker.name}</h2>
@@ -39,8 +39,8 @@ const SpeakerItem: React.FC<SpeakerItemProps> = ({ speaker, sessions }) => {
         </IonCardHeader>
 
         <IonCardContent>
-          <IonList lines="none">
-            {sessions.map((session) => (
+          <IonList lines='none'>
+            {sessions.map(session => (
               <IonItem
                 detail={false}
                 routerLink={`/tabs/speakers/sessions/${session.id}`}

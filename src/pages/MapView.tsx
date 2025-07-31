@@ -12,16 +12,16 @@ import { connect } from '../data/connect';
 import { loadLocations } from '../data/locations/locations.actions';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import markerIconUrl from "leaflet/dist/images/marker-icon.png";
-import markerIconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
-import markerShadowUrl from "leaflet/dist/images/marker-shadow.png";
+import markerIconUrl from 'leaflet/dist/images/marker-icon.png';
+import markerIconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
+import markerShadowUrl from 'leaflet/dist/images/marker-shadow.png';
 import './MapView.scss';
 
 // Fix for marker icons in Vite
 L.Icon.Default.prototype.options.iconUrl = markerIconUrl;
 L.Icon.Default.prototype.options.iconRetinaUrl = markerIconRetinaUrl;
 L.Icon.Default.prototype.options.shadowUrl = markerShadowUrl;
-L.Icon.Default.imagePath = "";
+L.Icon.Default.imagePath = '';
 
 interface StateProps {
   locations: Location[];
@@ -53,7 +53,7 @@ const MapView: React.FC<StateProps & DispatchProps> = ({
     });
 
     // Get the center location (first item marked as center, or first item if none marked)
-    const centerLocation = locations.find((loc) => loc.center) || locations[0];
+    const centerLocation = locations.find(loc => loc.center) || locations[0];
     map.current.setView([centerLocation.lat, centerLocation.lng], 16);
 
     // Add tile layer
@@ -84,7 +84,7 @@ const MapView: React.FC<StateProps & DispatchProps> = ({
     initMap();
     return () => {
       if (map.current) {
-        markers.current.forEach((marker) => marker.remove());
+        markers.current.forEach(marker => marker.remove());
         map.current.remove();
         map.current = null;
       }
@@ -112,14 +112,14 @@ const MapView: React.FC<StateProps & DispatchProps> = ({
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <div ref={mapCanvas} className="map-canvas"></div>
+        <div ref={mapCanvas} className='map-canvas'></div>
       </IonContent>
     </IonPage>
   );
 };
 
 export default connect<{}, StateProps, DispatchProps>({
-  mapStateToProps: (state) => ({
+  mapStateToProps: state => ({
     locations: state.locations.locations,
   }),
   mapDispatchToProps: {

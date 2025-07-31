@@ -8,7 +8,7 @@ export function combineReducers(reducers: R) {
   const combinedReducer = (state: any, action: any) => {
     const newState: returnType = {} as any;
     const keys = Object.keys(reducers);
-    keys.forEach((key) => {
+    keys.forEach(key => {
       const result = reducers[key](state[key], action);
       newState[key as keys] = result || state[key];
     });

@@ -34,10 +34,10 @@ const SpeakerList: React.FC<SpeakerListProps> = ({
   speakerSessions,
 }) => {
   return (
-    <IonPage id="speaker-list">
+    <IonPage id='speaker-list'>
       <IonHeader translucent={true}>
         <IonToolbar>
-          <IonButtons slot="start">
+          <IonButtons slot='start'>
             <IonMenuButton />
           </IonButtons>
           <IonTitle>Speakers</IonTitle>
@@ -45,16 +45,16 @@ const SpeakerList: React.FC<SpeakerListProps> = ({
       </IonHeader>
 
       <IonContent fullscreen={true}>
-        <IonHeader collapse="condense">
+        <IonHeader collapse='condense'>
           <IonToolbar>
-            <IonTitle size="large">Speakers</IonTitle>
+            <IonTitle size='large'>Speakers</IonTitle>
           </IonToolbar>
         </IonHeader>
 
         <IonGrid fixed>
           <IonRow>
-            {speakers.map((speaker) => (
-              <IonCol size="12" size-md="6" key={speaker.id}>
+            {speakers.map(speaker => (
+              <IonCol size='12' size-md='6' key={speaker.id}>
                 <SpeakerItem
                   key={speaker.id}
                   speaker={speaker}
@@ -70,7 +70,7 @@ const SpeakerList: React.FC<SpeakerListProps> = ({
 };
 
 export default connect<OwnProps, StateProps, DispatchProps>({
-  mapStateToProps: (state) => ({
+  mapStateToProps: state => ({
     speakers: selectors.getSpeakers(state),
     speakerSessions: selectors.getSpeakerSessions(state),
   }),

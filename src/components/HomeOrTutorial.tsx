@@ -8,14 +8,14 @@ interface StateProps {
 
 const HomeOrTutorial: React.FC<StateProps> = ({ hasSeenTutorial }) => {
   return hasSeenTutorial ? (
-    <Redirect to="/tabs/task" />
+    <Redirect to='/task' />
   ) : (
-    <Redirect to="/tutorial" />
+    <Redirect to='/tutorial' />
   );
 };
 
 export default connect<{}, StateProps, {}>({
-  mapStateToProps: (state) => ({
+  mapStateToProps: state => ({
     hasSeenTutorial: state.user.hasSeenTutorial,
   }),
   component: HomeOrTutorial,

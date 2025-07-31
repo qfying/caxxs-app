@@ -12,10 +12,6 @@ import Menu from './components/Menu';
 // import Chat from './pages/chat';
 import Menudemo from './pages/menudemo';
 
-
-
-
-
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 
@@ -68,11 +64,14 @@ import MainTabs from './pages/MainTabs';
 import Signup from './pages/Signup';
 import Support from './pages/Support';
 import Tutorial from './pages/Tutorial';
+import Chat from './pages/chat';
+import Evalution from './pages/evalution';
 import Question from './pages/question';
+import Task from './pages/task';
 import TaskBriefing from './pages/taskBriefing';
+import TaskListPage from './pages/taskListPage';
 import { getHealth, loginByPassword } from './services/api';
 import { useUserStore } from './stores/userStore';
-
 
 setupIonicReact();
 
@@ -96,7 +95,7 @@ interface DispatchProps {
   setUsername: typeof setUsername;
 }
 
-interface IonicAppProps extends StateProps, DispatchProps { }
+interface IonicAppProps extends StateProps, DispatchProps {}
 
 const IonicApp: React.FC<IonicAppProps> = ({
   darkMode,
@@ -109,8 +108,8 @@ const IonicApp: React.FC<IonicAppProps> = ({
   const { setUser } = useUserStore();
 
   useEffect(() => {
-    checkHealth()
-    initLogin()
+    checkHealth();
+    initLogin();
     loadUserData();
     loadConfData();
     // eslint-disable-next-line
@@ -123,11 +122,14 @@ const IonicApp: React.FC<IonicAppProps> = ({
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
   const initLogin = async () => {
     try {
-      const response = await loginByPassword('root', '53e880894f3cc53d5071c679f1afcd223a3faca09148c6898da13f0afc3535ad');
+      const response = await loginByPassword(
+        'root',
+        '53e880894f3cc53d5071c679f1afcd223a3faca09148c6898da13f0afc3535ad'
+      );
       localStorage.setItem('token', response.data.token);
 
       // 存储用户ID到zustand store
@@ -144,27 +146,29 @@ const IonicApp: React.FC<IonicAppProps> = ({
   ) : (
     <IonApp className={`${darkMode ? 'ion-palette-dark' : ''}`}>
       <IonReactRouter>
-        <IonSplitPane contentId="main">
+        <IonSplitPane contentId='main'>
           <Menu />
-          <IonRouterOutlet id="main">
+          <IonRouterOutlet id='main'>
             {/*
                 We use IonRoute here to keep the tabs state intact,
                 which makes transitions between tabs and non tab pages smooth
                 */}
-            <Route path="/tabs" render={() => <MainTabs />} />
-            <Route path="/account" component={Account} />
-            <Route path="/login" component={Login} />
-            <Route path="/signup" component={Signup} />
-            <Route path="/support" component={Support} />
-            <Route path="/tutorial" component={Tutorial} />
-            <Route path="/task-briefing" component={TaskBriefing} />
-            <Route path="/question" component={Question} />
+            <Route path='/tabs' render={() => <MainTabs />} />
+            <Route path='/account' component={Account} />
+            <Route path='/login' component={Login} />
+            <Route path='/signup' component={Signup} />
+            <Route path='/support' component={Support} />
+            <Route path='/tutorial' component={Tutorial} />
+            <Route path='/task-briefing' component={TaskBriefing} />
+            <Route path='/question' component={Question} />
 
-
-            {/* <Route path="/chat" component={Chat} /> */}
-            <Route path="/menudemo" component={Menudemo} />
+            <Route path='/task' component={Task} />
+            <Route path='/taskListPage' component={TaskListPage} />
+            <Route path='/evalution' component={Evalution} />
+            <Route path='/chat' component={Chat} />
+            <Route path='/menudemo' component={Menudemo} />
             <Route
-              path="/logout"
+              path='/logout'
               render={() => {
                 return (
                   <RedirectToLogin
@@ -174,7 +178,7 @@ const IonicApp: React.FC<IonicAppProps> = ({
                 );
               }}
             />
-            <Route path="/" component={HomeOrTutorial} exact />
+            <Route path='/' component={HomeOrTutorial} exact />
           </IonRouterOutlet>
         </IonSplitPane>
       </IonReactRouter>
@@ -185,7 +189,7 @@ const IonicApp: React.FC<IonicAppProps> = ({
 export default App;
 
 const IonicAppConnected = connect<{}, StateProps, DispatchProps>({
-  mapStateToProps: (state) => ({
+  mapStateToProps: state => ({
     darkMode: state.user.darkMode,
     schedule: state.data.schedule,
   }),

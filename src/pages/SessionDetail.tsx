@@ -56,30 +56,30 @@ const SessionDetail: React.FC<SessionDetailProps> = ({
   };
 
   return (
-    <IonPage id="session-detail-page">
+    <IonPage id='session-detail-page'>
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/tabs/schedule"></IonBackButton>
+          <IonButtons slot='start'>
+            <IonBackButton defaultHref='/tabs/schedule'></IonBackButton>
           </IonButtons>
-          <IonButtons slot="end">
+          <IonButtons slot='end'>
             <IonButton onClick={() => toggleFavorite()}>
               {isFavorite ? (
-                <IonIcon slot="icon-only" icon={star}></IonIcon>
+                <IonIcon slot='icon-only' icon={star}></IonIcon>
               ) : (
-                <IonIcon slot="icon-only" icon={starOutline}></IonIcon>
+                <IonIcon slot='icon-only' icon={starOutline}></IonIcon>
               )}
             </IonButton>
             <IonButton onClick={() => shareSession}>
-              <IonIcon slot="icon-only" icon={share}></IonIcon>
+              <IonIcon slot='icon-only' icon={share}></IonIcon>
             </IonButton>
           </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <div className="ion-padding">
+        <div className='ion-padding'>
           <h1>{session.name}</h1>
-          {session.tracks.map((track) => (
+          {session.tracks.map(track => (
             <span
               key={track}
               className={`session-track-${track.toLowerCase()}`}
@@ -88,7 +88,7 @@ const SessionDetail: React.FC<SessionDetailProps> = ({
             </span>
           ))}
           <p>{session.description}</p>
-          <IonText color="medium">
+          <IonText color='medium'>
             {session.timeStart} &ndash; {session.timeEnd}
             <br />
             {session.location}
@@ -96,25 +96,25 @@ const SessionDetail: React.FC<SessionDetailProps> = ({
         </div>
         <IonList>
           <IonItem onClick={() => sessionClick('watch')} button>
-            <IonLabel color="primary">Watch</IonLabel>
+            <IonLabel color='primary'>Watch</IonLabel>
           </IonItem>
           <IonItem onClick={() => sessionClick('add to calendar')} button>
-            <IonLabel color="primary">Add to Calendar</IonLabel>
+            <IonLabel color='primary'>Add to Calendar</IonLabel>
           </IonItem>
           <IonItem onClick={() => sessionClick('mark as unwatched')} button>
-            <IonLabel color="primary">Mark as Unwatched</IonLabel>
+            <IonLabel color='primary'>Mark as Unwatched</IonLabel>
           </IonItem>
           <IonItem onClick={() => sessionClick('download video')} button>
-            <IonLabel color="primary">Download Video</IonLabel>
+            <IonLabel color='primary'>Download Video</IonLabel>
             <IonIcon
-              slot="end"
-              color="primary"
-              size="small"
+              slot='end'
+              color='primary'
+              size='small'
               icon={cloudDownload}
             ></IonIcon>
           </IonItem>
           <IonItem onClick={() => sessionClick('leave feedback')} button>
-            <IonLabel color="primary">Leave Feedback</IonLabel>
+            <IonLabel color='primary'>Leave Feedback</IonLabel>
           </IonItem>
         </IonList>
       </IonContent>
@@ -125,7 +125,7 @@ const SessionDetail: React.FC<SessionDetailProps> = ({
 export default connect<OwnProps, StateProps, DispatchProps>({
   mapStateToProps: (state, ownProps) => ({
     session: selectors.getSession(state, ownProps),
-    favoriteSessions: state.data.favorites
+    favoriteSessions: state.data.favorites,
   }),
   mapDispatchToProps: {
     addFavorite,

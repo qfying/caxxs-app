@@ -18,7 +18,7 @@ export const sessionsReducer = (
     case 'remove-favorite': {
       return {
         ...state,
-        favorites: [...state.favorites.filter((x) => x !== action.sessionId)],
+        favorites: [...state.favorites.filter(x => x !== action.sessionId)],
       };
     }
     case 'update-filtered-tracks': {

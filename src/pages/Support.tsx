@@ -44,41 +44,41 @@ const Support: React.FC = () => {
   };
 
   return (
-    <IonPage id="support-page">
+    <IonPage id='support-page'>
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot="start">
+          <IonButtons slot='start'>
             <IonMenuButton></IonMenuButton>
           </IonButtons>
           <IonTitle>Support</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <div className="support-logo">
-          <img src="/assets/img/appicon.svg" alt="Ionic Logo" />
+        <div className='support-logo'>
+          <img src='/assets/img/appicon.svg' alt='Ionic Logo' />
         </div>
 
-        <div className="support-form">
+        <div className='support-form'>
           <form onSubmit={submit} noValidate>
             <IonTextarea
-              label="Enter your support message below"
-              labelPlacement="stacked"
-              fill="solid"
+              label='Enter your support message below'
+              labelPlacement='stacked'
+              fill='solid'
               value={supportMessage}
-              name="supportQuestion"
+              name='supportQuestion'
               rows={6}
               errorText={
                 submitted && !supportMessage
                   ? 'Support message is required'
                   : ''
               }
-              onIonInput={(e) => setSupportMessage(e.detail.value!)}
+              onIonInput={e => setSupportMessage(e.detail.value!)}
               required
             />
 
             <IonRow>
               <IonCol>
-                <IonButton expand="block" type="submit">
+                <IonButton expand='block' type='submit'>
                   Submit
                 </IonButton>
               </IonCol>

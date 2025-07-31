@@ -1,24 +1,17 @@
 import {
   IonButton,
   IonButtons,
-  IonContent,
   IonIcon,
-  IonInput,
   IonMenu,
   IonMenuButton,
   IonPage,
-  IonPopover,
-  useIonToast
+  useIonToast,
 } from '@ionic/react';
-import {
-  personCircle
-} from 'ionicons/icons';
+import { personCircle } from 'ionicons/icons';
 import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
-import ChatVoiceRecorder from '../components/ChatVoiceRecorder';
+import ChatInputArea from '../components/ChatInputArea';
 import { ChatCompletionRequest, sendChatMessage } from '../services/api';
-import '../styles/chat-voice-recorder.css';
 import './chat.css';
-
 
 interface StreamEvent {
   event: string;
@@ -36,79 +29,203 @@ interface Message {
   reasoningContent?: string;
   isStreaming?: boolean;
   isMatch?: boolean;
+  options?: any[];
 }
 
 type Prop = {
-  message: Message,
-  buttosearch: () => void
-}
+  message: Message;
+  buttosearch: (option: any) => void;
+};
 
 // 消息渲染组件
 const MessageItem = ({ message, buttosearch }: Prop) => {
-  console.log("123456", message);
+  console.log('123456', message);
 
   // 处理不同类型的 agent
 
   const renderMessageByAgent = () => {
     switch (message.agent) {
-      case "planner":
+      case 'planner':
         return <PlannerMessage message={message} />;
-      case "podcast":
+      case 'podcast':
         return <PodcastMessage message={message} />;
-      case "coordinator":
+      case 'coordinator':
         return <CoordinatorMessage message={message} />;
-      case "researcher":
+      case 'researcher':
         return <ResearcherMessage message={message} />;
-      case "coder":
+      case 'coder':
         return <CoderMessage message={message} />;
-      case "debug_planner":
-        return <LoadMessage message={message} msg={"排障计划正在生成中..."} />;
-      case "debug_answer_analysis":
+      case 'debug_planner':
+        return <LoadMessage message={message} msg={'排障计划正在生成中...'} />;
+      case 'debug_answer_analysis':
         return null;
       default:
         return <DefaultMessage message={message} />;
     }
   };
 
-  return (
-
-    (message.agent === 'debug_planner' && message.status === 'sent' && message.content && message.content.trim() !== '') || (message.agent === 'debug_answer_analysis') ? null :
-
-      <div
-        className={`message-container ${message.isUser ? 'user' : ''}`}
+  return (message.agent === 'debug_planner' &&
+    message.status === 'sent' &&
+    message.content &&
+    message.content.trim() !== '') ||
+    message.agent === 'debug_answer_analysis' ? null : (
+    <div
+      className={`message-container ${message.isUser ? 'user' : ''}`}
       // style={{
       //   border: "1px solid rgba(255, 255, 255, 0.5)",
       //   borderRadius: "2px 14px 14px 14px"
       // }}
+    >
+      <div
+        className={`message-bubble ${message.isUser ? 'user' : 'bot'} ${
+          message.status
+        }`}
       >
-        <div className={`message-bubble ${message.isUser ? 'user' : 'bot'} ${message.status}`}>
-          {renderMessageByAgent()}
-          {message.isUser !== true && message.isMatch && (<div style={{ display: "flex", marginTop: "10px", justifyContent: "flex-end" }}>
-            <div onClick={(e) => {
-              console.log("确认");
-              e.stopPropagation();
-              buttosearch()
-            }} style={{ width: "60px", borderRadius: "10px", height: "30px", display: "flex", justifyContent: "center", alignItems: "center", cursor: "pointer", border: "1px solid rgba(255, 255, 255, 0.2)" }}>确认</div>
-            <div onClick={(e) => {
-              console.log("修改");
-              e.stopPropagation();
+        {renderMessageByAgent()}
+        {message.isUser !== true &&
+          message.options &&
+          message.options.length > 0 && (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: message.options.length > 2 ? 'column' : 'row',
+                gap: '6px',
+                justifyContent: message.options.length > 2 ? '' : 'flex-end',
+                marginTop: '10px',
+              }}
+            >
+              {message.options.map((option: any) => (
+                <div
+                  style={{
+                    borderRadius: '10px',
+                    height: '30px',
 
-            }} style={{ marginLeft: "10px", width: "60px", borderRadius: "10px", height: "30px", display: "flex", justifyContent: "center", alignItems: "center", cursor: "pointer", border: "1px solid rgba(255, 255, 255, 0.2)" }}>修改</div>
-          </div>)
-          }
-        </div>
+                    minWidth: '60px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    overflow: 'hidden',
+                    padding: '0 8px',
+                  }}
+                  key={option}
+                  onClick={e => {
+                    e.stopPropagation();
+                    buttosearch(option);
+                  }}
+                >
+                  <span
+                    style={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      maxWidth: '100%',
+                    }}
+                  >
+                    {option}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            // <div
+            //   style={{
+            //     display: 'flex',
+            //     marginTop: '10px',
+            //     justifyContent: 'flex-end',
+            //   }}
+            // >
+            //   <div
+            //     onClick={e => {
+            //       console.log('确认');
+            //       e.stopPropagation();
+            //       buttosearch();
+            //     }}
+            //     style={{
+            //       width: '60px',
+            //       borderRadius: '10px',
+            //       height: '30px',
+            //       display: 'flex',
+            //       justifyContent: 'center',
+            //       alignItems: 'center',
+            //       cursor: 'pointer',
+            //       border: '1px solid rgba(255, 255, 255, 0.2)',
+            //     }}
+            //   >
+            //     确认
+            //   </div>
+            //   <div
+            //     onClick={e => {
+            //       console.log('修改');
+            //       e.stopPropagation();
+            //     }}
+            //     style={{
+            //       marginLeft: '10px',
+            //       width: '60px',
+            //       borderRadius: '10px',
+            //       height: '30px',
+            //       display: 'flex',
+            //       justifyContent: 'center',
+            //       alignItems: 'center',
+            //       cursor: 'pointer',
+            //       border: '1px solid rgba(255, 255, 255, 0.2)',
+            //     }}
+            //   >
+            //     修改
+            //   </div>
+            // </div>
+          )}
       </div>
-  )
+    </div>
+  );
 };
 
 // 默认消息组件
 const DefaultMessage: React.FC<{ message: Message }> = ({ message }) => {
-  console.log("渲染============");
+  console.log('test_answer==========', message.content);
 
   const parsedContent = parseMarkdown(message.content);
+
+  // const text = "这是一个问题。\n\n" +
+  // "A. 第一个选项\n" +
+  // "B. 第二个选项\n" +
+  // "C. 第三个选项\n" +
+  // "D. 第四个选项";
+
+  // const parsedContent = parseMarkdown(text);
+
+  // // 处理选项按钮点击事件
+  // const handleOptionClick = (option: string) => {
+  //   console.log("选择的选项==========",option);
+  //   // 这里可以添加选项点击的处理逻辑
+  // };
+
+  // // 添加事件监听器
+  // React.useEffect(() => {
+  //   const optionButtons = document.querySelectorAll('.option-btn');
+  //   console.log("optionButtons==========",optionButtons);
+
+  //   optionButtons.forEach(button => {
+  //     button.addEventListener('click', (e) => {
+  //       e.preventDefault();
+  //       const option = (e.target as HTMLElement).closest('.option-btn')?.getAttribute('data-option');
+  //       if (option) {
+  //         handleOptionClick(option);
+  //       }
+  //     });
+  //   });
+
+  //   return () => {
+  //     optionButtons.forEach(button => {
+  //       button.removeEventListener('click', () => {});
+  //     });
+  //   };
+  // }, [parsedContent]);
+
   return (
-    <div >
-      <div >
+    <div>
+      <div>
         <div dangerouslySetInnerHTML={{ __html: parsedContent }} />
       </div>
     </div>
@@ -117,26 +234,41 @@ const DefaultMessage: React.FC<{ message: Message }> = ({ message }) => {
 
 type props1 = {
   message: any;
-  msg: string
-}
+  msg: string;
+};
 
 const LoadMessage = ({ message, msg }: props1) => {
-  console.log("LoadMessage 渲染============", message.status, message.content, message.agent);
+  console.log(
+    'LoadMessage 渲染============',
+    message.status,
+    message.content,
+    message.agent
+  );
 
   // 如果是 debug_planner 类型且消息已完成且有内容，返回 null
-  if (message.agent === 'debug_planner' && message.status === 'sent' && message.content && message.content.trim() !== '') {
+  if (
+    message.agent === 'debug_planner' &&
+    message.status === 'sent' &&
+    message.content &&
+    message.content.trim() !== ''
+  ) {
     return null;
   }
 
   // 如果是 debug_answer_analysis 类型且消息已完成且有内容，返回 null
-  if (message.agent === 'debug_answer_analysis' && message.status === 'sent' && message.content && message.content.trim() !== '') {
+  if (
+    message.agent === 'debug_answer_analysis' &&
+    message.status === 'sent' &&
+    message.content &&
+    message.content.trim() !== ''
+  ) {
     return null;
   }
 
   // 其他情况显示加载提示
   return (
-    <div >
-      <div >
+    <div>
+      <div>
         <div>{msg}</div>
       </div>
     </div>
@@ -152,30 +284,34 @@ const PlannerMessage: React.FC<{ message: Message }> = ({ message }) => {
     try {
       return JSON.parse(content);
     } catch {
-      return { title: "计划", thought: content, steps: [] };
+      return { title: '计划', thought: content, steps: [] };
     }
   };
 
   const plan = parsePlan(message.content);
-  const hasMainContent = Boolean(message.content && message.content.trim() !== "");
+  const hasMainContent = Boolean(
+    message.content && message.content.trim() !== ''
+  );
   const isThinking = Boolean(message.reasoningContent && !hasMainContent);
 
   return (
-    <div >
+    <div>
       {/* 推理内容 */}
-      <div >
+      <div>
         {message.reasoningContent && (
-          <div className="thought-block">
+          <div className='thought-block'>
             <div
               className={`thought-header ${isThinking ? 'thinking' : ''}`}
               onClick={() => setIsThoughtOpen(!isThoughtOpen)}
             >
               <span>💭 深度思考</span>
-              {isThinking && <span className="thinking-indicator">思考中...</span>}
-              <span className="toggle-icon">{isThoughtOpen ? '▼' : '▶'}</span>
+              {isThinking && (
+                <span className='thinking-indicator'>思考中...</span>
+              )}
+              <span className='toggle-icon'>{isThoughtOpen ? '▼' : '▶'}</span>
             </div>
             {isThoughtOpen && (
-              <div className="thought-content">
+              <div className='thought-content'>
                 <p>{message.reasoningContent}</p>
               </div>
             )}
@@ -184,17 +320,19 @@ const PlannerMessage: React.FC<{ message: Message }> = ({ message }) => {
 
         {/* 计划内容 */}
         {hasMainContent && (
-          <div className="plan-card">
-            <div className="plan-header">
-              <span className="researcher-title">{plan.title || "深度研究计划"}</span>
+          <div className='plan-card'>
+            <div className='plan-header'>
+              <span className='researcher-title'>
+                {plan.title || '深度研究计划'}
+              </span>
             </div>
-            <div className="plan-content">
+            <div className='plan-content'>
               {/* {plan.thought && <p className="plan-thought">{plan.thought}</p>} */}
               {plan.steps && plan.steps.length > 0 && (
-                <ol className="plan-steps">
+                <ol className='plan-steps'>
                   {plan.steps.map((step: any, index: number) => (
                     <li key={index}>
-                      <p style={{ color: "white" }}>{step.title}</p>
+                      <p style={{ color: 'white' }}>{step.title}</p>
                       {/* <p>{step.description}</p> */}
                     </li>
                   ))}
@@ -203,9 +341,7 @@ const PlannerMessage: React.FC<{ message: Message }> = ({ message }) => {
             </div>
           </div>
         )}
-
       </div>
-
     </div>
   );
 };
@@ -218,7 +354,7 @@ const PodcastMessage: React.FC<{ message: Message }> = ({ message }) => {
     try {
       return JSON.parse(content);
     } catch {
-      return { title: "播客", audioUrl: "", error: "解析失败" };
+      return { title: '播客', audioUrl: '', error: '解析失败' };
     }
   };
 
@@ -227,40 +363,40 @@ const PodcastMessage: React.FC<{ message: Message }> = ({ message }) => {
   const hasError = podcast.error !== undefined;
 
   return (
-    <div >
-      <div >
-        <div className="podcast-header">
-          <div className="podcast-info">
+    <div>
+      <div>
+        <div className='podcast-header'>
+          <div className='podcast-info'>
             {isGenerating ? (
-              <span className="generating">🎙️ 生成播客中...</span>
+              <span className='generating'>🎙️ 生成播客中...</span>
             ) : (
-              <span className="podcast-icon">🎧 播客</span>
+              <span className='podcast-icon'>🎧 播客</span>
             )}
             {!hasError && !isGenerating && (
               <a
                 href={podcast.audioUrl}
                 download={`${podcast.title || 'podcast'}.mp3`}
-                className="download-btn"
+                className='download-btn'
               >
                 📥 下载
               </a>
             )}
           </div>
-          <h3 className="podcast-title">{podcast.title || "播客"}</h3>
+          <h3 className='podcast-title'>{podcast.title || '播客'}</h3>
         </div>
-        <div className="podcast-content">
+        <div className='podcast-content'>
           {hasError ? (
-            <div className="error-message">生成播客时出错，请重试。</div>
+            <div className='error-message'>生成播客时出错，请重试。</div>
           ) : podcast.audioUrl ? (
             <audio
-              className="podcast-audio"
+              className='podcast-audio'
               src={podcast.audioUrl}
               controls
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
             />
           ) : (
-            <div className="audio-placeholder">音频加载中...</div>
+            <div className='audio-placeholder'>音频加载中...</div>
           )}
         </div>
       </div>
@@ -285,7 +421,6 @@ const extractSupplementReply = (content: string) => {
 //   const regex = /"supplement_reply"\s*:\s*"((?:\\["\\/bfnrt]|\\u[0-9a-fA-F]{4}|[^"\\])*?)"(?=\s*[,}])/;
 
 //   const match = content.match(regex);
-
 
 //   if (!match) return '';
 
@@ -330,14 +465,16 @@ const extractPlanner = (content: string) => {
         steps = JSON.parse(stepsMatch[1]);
       } catch {
         // 如果解析失败，尝试手动构建步骤
-        const stepItems = content.match(/"title"\s*:\s*"([^"]*?)".*?"description"\s*:\s*"([^"]*?)"/g);
+        const stepItems = content.match(
+          /"title"\s*:\s*"([^"]*?)".*?"description"\s*:\s*"([^"]*?)"/g
+        );
         if (stepItems) {
           steps = stepItems.map((item, index) => {
             const titleMatch = item.match(/"title"\s*:\s*"([^"]*?)"/);
             const descMatch = item.match(/"description"\s*:\s*"([^"]*?)"/);
             return {
               title: titleMatch ? titleMatch[1] : `步骤 ${index + 1}`,
-              description: descMatch ? descMatch[1] : ''
+              description: descMatch ? descMatch[1] : '',
             };
           });
         }
@@ -350,7 +487,7 @@ const extractPlanner = (content: string) => {
       if (stepLines) {
         steps = stepLines.map((line, index) => ({
           title: `步骤 ${index + 1}`,
-          description: line.replace(/^\d+\.\s*/, '')
+          description: line.replace(/^\d+\.\s*/, ''),
         }));
       }
     }
@@ -358,18 +495,19 @@ const extractPlanner = (content: string) => {
     const result = {
       title: title || '深度研究计划',
       thought: thought,
-      steps: steps
+      steps: steps,
     };
 
-    console.log("提取的 planner 数据:", result);
+    console.log('提取的 planner 数据:', result);
     return JSON.stringify(result);
   }
 };
 
 const extractResearcher = (content: string) => {
-  const regextitle = /"title"\s*:\s*"((?:\\["\\/bfnrt]|\\u[0-9a-fA-F]{4}|[^"\\])*?)"(?=\s*[,}])/;
-  const regexcontent = /"content"\s*:\s*"((?:\\["\\/bfnrt]|\\u[0-9a-fA-F]{4}|[^"\\])*?)"(?=\s*[,}])/;
-
+  const regextitle =
+    /"title"\s*:\s*"((?:\\["\\/bfnrt]|\\u[0-9a-fA-F]{4}|[^"\\])*?)"(?=\s*[,}])/;
+  const regexcontent =
+    /"content"\s*:\s*"((?:\\["\\/bfnrt]|\\u[0-9a-fA-F]{4}|[^"\\])*?)"(?=\s*[,}])/;
 
   const matchtitle = content.match(regextitle);
   const matchcontent = content.match(regexcontent);
@@ -377,43 +515,51 @@ const extractResearcher = (content: string) => {
   const data = {
     title: matchtitle && matchtitle[1],
     content: matchcontent && matchcontent[1],
-  }
+  };
 
-  console.log("extractResearcher=========", matchtitle, matchcontent);
+  console.log('extractResearcher=========', matchtitle, matchcontent);
 
-  return JSON.stringify(data)
+  return JSON.stringify(data);
 };
-
-
 
 interface PlannerResult {
   title: string;
   steps: any[];
 }
 
-
 // 简单的 Markdown 解析函数
 const parseMarkdown = (text: string) => {
   if (!text) return '';
 
-  return text
-    // 处理标题
-    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-    // 处理粗体
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    // 处理斜体
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    // 处理代码块
-    .replace(/```([\s\S]*?)```/g, '<pre class="markdown-code"><code>$1</code></pre>')
-    // 处理行内代码
-    .replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
-    // 处理列表
-    .replace(/^\* (.*$)/gim, '<li>$1</li>')
-    .replace(/^- (.*$)/gim, '<li>$1</li>')
-    // 处理换行
-    .replace(/\n/g, '<br/>');
+  return (
+    text
+      // 处理标题
+      .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+      .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+      .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+      // 处理粗体
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      // 处理斜体
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      // 处理代码块
+      .replace(
+        /```([\s\S]*?)```/g,
+        '<pre class="markdown-code"><code>$1</code></pre>'
+      )
+      // 处理行内代码
+      .replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
+      // 处理图片
+      .replace(
+        /!\[([^\]]*)\]\(([^)]+)\)/g,
+        '<img src="$2" alt="$1" style="max-width: 100%; height: auto; border-radius: 8px; margin: 8px 0;" />'
+      )
+
+      // 处理列表
+      .replace(/^\* (.*$)/gim, '<li>$1</li>')
+      .replace(/^- (.*$)/gim, '<li>$1</li>')
+      // 处理换行
+      .replace(/\n/g, '<br/>')
+  );
 };
 
 // Coordinator 消息组件
@@ -422,7 +568,7 @@ const CoordinatorMessage: React.FC<{ message: Message }> = ({ message }) => {
   // console.log("supplementReply===========", supplementReply);
 
   // 解析 markdown 格式
-  console.log("parseMarkdown222=========", message.content);
+  console.log('parseMarkdown222=========', message.content);
 
   // 判断是否正在流式输出
   const isStreaming = message.isStreaming || message.status === 'sending';
@@ -430,13 +576,13 @@ const CoordinatorMessage: React.FC<{ message: Message }> = ({ message }) => {
   // 如果正在流式输出，直接显示原始内容
   if (isStreaming) {
     return (
-      <div >
-        <div >
-          <div className="coordinator-header">
+      <div>
+        <div>
+          <div className='coordinator-header'>
             {/* <span className="coordinator-icon">🤖</span> */}
-            <span className="coordinator-title">协调专家</span>
+            <span className='coordinator-title'>协调专家</span>
           </div>
-          <div className="coordinator-content">
+          <div className='coordinator-content'>
             <div>{message.content}</div>
           </div>
         </div>
@@ -448,7 +594,7 @@ const CoordinatorMessage: React.FC<{ message: Message }> = ({ message }) => {
   let parsedContent = '';
   try {
     const parsedContentbofore = JSON.parse(`"${message.content}"`)
-      .replace(/\\n/g, '\n')  // 将 \n 转义符转为实际换行
+      .replace(/\\n/g, '\n') // 将 \n 转义符转为实际换行
       .replace(/\\t/g, '\t'); // 处理制表符等其他转义
 
     parsedContent = parseMarkdown(parsedContentbofore);
@@ -458,17 +604,21 @@ const CoordinatorMessage: React.FC<{ message: Message }> = ({ message }) => {
     parsedContent = '';
   }
 
-  console.log("parseMarkdown=========", parsedContent);
+  console.log('parseMarkdown=========', parsedContent);
 
   return (
-    <div >
-      <div >
-        <div className="coordinator-header">
+    <div>
+      <div>
+        <div className='coordinator-header'>
           {/* <span className="coordinator-icon">🤖</span> */}
-          <span className="coordinator-title">协调专家</span>
+          <span className='coordinator-title'>协调专家</span>
         </div>
-        <div className="coordinator-content">
-          {parsedContent ? <div dangerouslySetInnerHTML={{ __html: parsedContent }} /> : <div>{message.content}</div>}
+        <div className='coordinator-content'>
+          {parsedContent ? (
+            <div dangerouslySetInnerHTML={{ __html: parsedContent }} />
+          ) : (
+            <div>{message.content}</div>
+          )}
         </div>
       </div>
     </div>
@@ -477,12 +627,11 @@ const CoordinatorMessage: React.FC<{ message: Message }> = ({ message }) => {
 
 // Researcher 消息组件
 const ResearcherMessage: React.FC<{ message: Message }> = ({ message }) => {
-  console.log("researchermessage========", message);
+  console.log('researchermessage========', message);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
-
   useEffect(() => {
-    console.log("message.dataId==================", message.dataId);
+    console.log('message.dataId==================', message.dataId);
     if (message.dataId) {
       setIsCollapsed(true);
     }
@@ -492,7 +641,7 @@ const ResearcherMessage: React.FC<{ message: Message }> = ({ message }) => {
   useEffect(() => {
     // 当消息状态为 'sent' 且不再流式输出时，自动收起盒子
     if (message.status === 'sent' && !message.isStreaming && message.dataId) {
-      console.log("Researcher 流式输出完成，自动收起盒子", message.dataId);
+      console.log('Researcher 流式输出完成，自动收起盒子', message.dataId);
       setIsCollapsed(true);
     }
   }, [message.status, message.isStreaming, message.dataId]);
@@ -500,25 +649,39 @@ const ResearcherMessage: React.FC<{ message: Message }> = ({ message }) => {
   const parsedContent = parseMarkdown(message.content);
 
   return (
-    <div >
-      <div >
+    <div>
+      <div>
         <div
-          className="researcher-header"
+          className='researcher-header'
           onClick={() => setIsCollapsed(!isCollapsed)}
-          style={{ cursor: 'pointer', userSelect: 'none', width: "100%" }}
+          style={{ cursor: 'pointer', userSelect: 'none', width: '100%' }}
         >
           {/* <span className="researcher-title">研究专家</span> */}
-          <div style={{ marginTop: "6px", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis", fontSize: "16px" }}  >{message.content}</div>
+          <div
+            style={{
+              marginTop: '6px',
+              display: '-webkit-box',
+              WebkitLineClamp: 1,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              fontSize: '16px',
+            }}
+          >
+            {message.content}
+          </div>
           <span style={{ marginLeft: '8px', fontSize: '12px', opacity: 0.7 }}>
             {isCollapsed ? '▶' : '▼'}
           </span>
         </div>
 
-
-        <div className="researcher-content">
-          {
-            !isCollapsed && <div style={{ marginTop: "6px" }} dangerouslySetInnerHTML={{ __html: parsedContent }} />
-          }
+        <div className='researcher-content'>
+          {!isCollapsed && (
+            <div
+              style={{ marginTop: '6px' }}
+              dangerouslySetInnerHTML={{ __html: parsedContent }}
+            />
+          )}
         </div>
       </div>
     </div>
@@ -528,14 +691,14 @@ const ResearcherMessage: React.FC<{ message: Message }> = ({ message }) => {
 // Coder 消息组件
 const CoderMessage: React.FC<{ message: Message }> = ({ message }) => {
   return (
-    <div >
+    <div>
       <div>
-        <div className="coder-header">
-          <span className="coder-icon">💻</span>
-          <span className="coder-title">代码专家</span>
+        <div className='coder-header'>
+          <span className='coder-icon'>💻</span>
+          <span className='coder-title'>代码专家</span>
         </div>
-        <div className="coder-content">
-          <pre className="code-block">
+        <div className='coder-content'>
+          <pre className='code-block'>
             <code>{message.content}</code>
           </pre>
         </div>
@@ -556,31 +719,36 @@ const Chat: React.FC = () => {
   const isTouchDevice = useRef(false);
   const [selecthisItem, setSelecthisItem] = useState<any>(null);
   const [variablesFeedback, setVariablesFeedback] = useState<any>(false);
-  const currentInputRef = useRef("")
-  const chatid = useRef("")
+  const currentInputRef = useRef('');
+  const chatid = useRef('');
   const [isbtn, setisbtn] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isAIResponding, setIsAIResponding] = useState(false);
-
+  const [showtag, setShowtag] = useState(false);
 
   useEffect(() => {
-    chatid.current = generateRandomString(8)
-  }, [])
+    chatid.current = generateRandomString(8);
+  }, []);
 
-  const buttosearch = () => {
+  const buttosearch = (option: any) => {
+    console.log('buttosearchoption==============', option);
     // setInputValue("ok")
-
-    sendMessage("OK")
-  }
+    if (option == '修改') {
+      setShowtag(true);
+    } else {
+      sendMessage(option);
+    }
+  };
 
   // 滚动到底部的函数
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
   // 生成随机 chatId：时间戳 + 随机字符串
   const generateRandomString = (length: number) => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
     for (let i = 0; i < length; i++) {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -588,25 +756,20 @@ const Chat: React.FC = () => {
     return result;
   };
 
-
-
-
   const demoList = [
     {
       id: 1,
-      name: '对话历史1'
+      name: '对话历史1',
     },
     {
       id: 2,
-      name: '对话历史2'
+      name: '对话历史2',
     },
     {
       id: 3,
-      name: '对话历史3'
-    }
-  ]
-
-
+      name: '对话历史3',
+    },
+  ];
 
   // useEffect(() => {
   //   initLogin();
@@ -693,11 +856,11 @@ const Chat: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log("messages========", messages);
-
+    console.log('messages========', messages);
   }, [messages]);
 
   const sendMessage = async (iptvalue: any) => {
+    setShowtag(false);
     if (!iptvalue.trim()) return;
 
     // 如果AI正在响应，阻止发送新消息
@@ -706,55 +869,55 @@ const Chat: React.FC = () => {
         message: 'AI正在输出中，请稍候...',
         duration: 2000,
         position: 'top',
-        color: 'warning'
+        color: 'warning',
       });
       return;
     }
-
-
 
     const timestamp = Date.now();
     const randomString = chatid.current;
     const chatId = `${randomString}123`;
 
-
     if (variablesFeedback == false) {
-
-      currentInputRef.current = iptvalue
+      currentInputRef.current = iptvalue;
     }
 
-    console.log("currentInputRef.current===============", currentInputRef.current);
-
+    console.log(
+      'currentInputRef.current===============',
+      currentInputRef.current
+    );
 
     const messagebody: ChatCompletionRequest = {
-      messages: [{
-        dataId: chatId + 456,
-        role: "user",
-        // content: variablesFeedback ? currentInputRef.current : inputValue
-        content: iptvalue
-      }],
+      messages: [
+        {
+          dataId: chatId + 456,
+          role: 'user',
+          // content: variablesFeedback ? currentInputRef.current : inputValue
+          content: iptvalue,
+        },
+      ],
       variables: {
         // feedback: variablesFeedback,
-        feedback: variablesFeedback ? iptvalue : ""
+        feedback: variablesFeedback ? iptvalue : '',
       },
-      responseChatItemId: "iwE8mnTwNkOLjnCoZwLcNeA6",
-      shareId: "6e6q0y0lnlw9t247jl2y9fbi",
+      responseChatItemId: 'iwE8mnTwNkOLjnCoZwLcNeA6',
+      shareId: '6e6q0y0lnlw9t247jl2y9fbi',
       chatId: chatId,
-      appType: "advanced",
-      outLinkUid: "shareChat-1753087419979-S1TS4Yh1x1daxImmOkYMxvg",
+      appType: 'advanced',
+      outLinkUid: 'shareChat-1753087419979-S1TS4Yh1x1daxImmOkYMxvg',
       detail: true,
       stream: true,
-      finish_reason_type: 0
+      finish_reason_type: 0,
     };
 
     // 创建用户消息
     const userMessage: Message = {
       id: Date.now().toString(),
-      dataId: "f3ours7VSQVJRGENhmJGw7",
-      role: "user",
+      dataId: 'f3ours7VSQVJRGENhmJGw7',
+      role: 'user',
       content: iptvalue,
       isUser: true,
-      status: 'sending'
+      status: 'sending',
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -763,13 +926,10 @@ const Chat: React.FC = () => {
     // 设置AI正在响应状态
     setIsAIResponding(true);
 
-    console.log("调用接口前");
-
+    console.log('调用接口前');
 
     try {
       const response = await sendChatMessage(messagebody);
-
-      console.log(11111111111, response.body);
 
       if (!response.body) {
         throw new Error('无法读取响应流');
@@ -779,9 +939,11 @@ const Chat: React.FC = () => {
       const decoder = new TextDecoder();
 
       // 更新用户消息状态为已发送
-      setMessages(prev => prev.map(msg =>
-        msg.id === userMessage.id ? { ...msg, status: 'sent' } : msg
-      ));
+      setMessages(prev =>
+        prev.map(msg =>
+          msg.id === userMessage.id ? { ...msg, status: 'sent' } : msg
+        )
+      );
 
       // 用于跟踪不同 agent 的消息
       const agentMessages = new Map<string, string>();
@@ -791,18 +953,17 @@ const Chat: React.FC = () => {
       console.log(22222);
 
       while (reader) {
-        console.log("执行次数");
+        console.log('执行次数');
 
         const { done, value } = await reader.read();
-        console.log("done=========", done, value);
+        console.log('done=========', done, value);
 
         if (done) break;
 
         const chunk = decoder.decode(value, { stream: false });
-        console.log("chunk=========", chunk);
+        console.log('chunk=========', chunk);
 
         // 将新数据添加到缓冲区
-
 
         // 解析 chunk 中的事件 - 支持多个事件
         try {
@@ -813,11 +974,11 @@ const Chat: React.FC = () => {
             if (!eventChunk.trim()) continue;
 
             const eventMatch = eventChunk.match(/event: (\w+)/);
-            console.log("eventMatch================", eventMatch);
+            console.log('eventMatch================', eventMatch);
 
             if (eventMatch) {
               const eventType = eventMatch[1];
-              console.log("event type=========", eventType);
+              console.log('event type=========', eventType);
 
               // 只处理 message 类型的事件
               if (eventType === 'message_chunk') {
@@ -826,28 +987,38 @@ const Chat: React.FC = () => {
                   const jsonStr = dataMatch[1].trim();
                   if (jsonStr && jsonStr !== '[DONE]') {
                     const data = JSON.parse(jsonStr);
-                    console.log("message data=========", data);
-                    console.log("agent===========", data.agent);
+                    console.log('message data=========', data);
+                    console.log('agent===========', data.agent);
 
                     if (data.content) {
                       const content = data.content;
                       const agent = data.agent || 'default';
 
-                      let researcherAgentid = "";
+                      let researcherAgentid = '';
 
-                      if (agent == "researcher") {
-                        researcherAgentid = data.id
+                      if (agent == 'researcher') {
+                        researcherAgentid = data.id;
                       }
 
-                      console.log("researcherAgentid==============", researcherAgentid);
+                      console.log(
+                        'researcherAgentid==============',
+                        researcherAgentid
+                      );
 
                       // 更新 agent 消息内容
-                      if (agent === "researcher") {
+                      if (agent === 'researcher') {
                         // 对于 researcher，使用 researcherAgentid 作为 key
-                        const currentContent = researcherMessages.get(researcherAgentid) || '';
-                        console.log("currentContent===========", currentContent);
+                        const currentContent =
+                          researcherMessages.get(researcherAgentid) || '';
+                        console.log(
+                          'currentContent===========',
+                          currentContent
+                        );
 
-                        researcherMessages.set(researcherAgentid, currentContent + content);
+                        researcherMessages.set(
+                          researcherAgentid,
+                          currentContent + content
+                        );
                       } else {
                         // 其他 agent 使用原来的逻辑
                         const currentContent = agentMessages.get(agent) || '';
@@ -858,63 +1029,90 @@ const Chat: React.FC = () => {
                         // 对于 researcher agent，需要根据 researcherAgentid 查找现有消息
                         let existingMessageIndex = -1;
 
-                        if (agent === "researcher") {
+                        if (agent === 'researcher') {
                           // 查找具有相同 researcherAgentid 的消息
-                          existingMessageIndex = prev.findIndex(msg =>
-                            !msg.isUser &&
-                            msg.agent === agent &&
-                            msg.status === 'sending' &&
-                            msg.dataId === researcherAgentid
+                          existingMessageIndex = prev.findIndex(
+                            msg =>
+                              !msg.isUser &&
+                              msg.agent === agent &&
+                              msg.status === 'sending' &&
+                              msg.dataId === researcherAgentid
                           );
                         } else {
                           // 其他 agent 使用原来的逻辑
-                          existingMessageIndex = prev.findIndex(msg =>
-                            !msg.isUser && msg.agent === agent && msg.status === 'sending'
+                          existingMessageIndex = prev.findIndex(
+                            msg =>
+                              !msg.isUser &&
+                              msg.agent === agent &&
+                              msg.status === 'sending'
                           );
                         }
 
                         if (existingMessageIndex !== -1) {
                           // 更新现有消息
-                          let filterdata = null
-                          if (agent == "coordinator") {
-                            filterdata = extractSupplementReply(agentMessages.get(agent) || "")
+                          let filterdata = null;
+                          if (agent == 'coordinator') {
+                            filterdata = extractSupplementReply(
+                              agentMessages.get(agent) || ''
+                            );
                             // filterdata = agentMessages.get(agent) || ""
-                            console.log("555555555555=========", agentMessages.get(agent), filterdata);
-                          } else if (agent == "planner") {
+                            console.log(
+                              '555555555555=========',
+                              agentMessages.get(agent),
+                              filterdata
+                            );
+                          } else if (agent == 'planner') {
                             // extractPlanner
-                            filterdata = extractPlanner(agentMessages.get(agent) || "")
+                            filterdata = extractPlanner(
+                              agentMessages.get(agent) || ''
+                            );
                             // filterdata = agentMessages.get(agent) || ""
-                          } else if (agent == "researcher") {
+                          } else if (agent == 'researcher') {
                             // filterdata = extractResearcher(researcherMessages.get(researcherAgentid) || "")
-                            console.log("currentContent===========", researcherMessages.get(researcherAgentid));
+                            console.log(
+                              'currentContent===========',
+                              researcherMessages.get(researcherAgentid)
+                            );
                             // console.log("currentContent111===========", filterdata);
-                            filterdata = researcherMessages.get(researcherAgentid) || ""
+                            filterdata =
+                              researcherMessages.get(researcherAgentid) || '';
+                          } else {
+                            filterdata = agentMessages.get(agent) || '';
                           }
-                          else {
-                            filterdata = agentMessages.get(agent) || ""
-                          }
-                          console.log("agentMessages.get(agent)===========",);
+                          console.log('agentMessages.get(agent)===========');
 
                           const newMessages = [...prev];
                           newMessages[existingMessageIndex] = {
                             ...newMessages[existingMessageIndex],
                             content: filterdata || '',
-                            reasoningContent: data.reasoningContent || newMessages[existingMessageIndex].reasoningContent
+                            reasoningContent:
+                              data.reasoningContent ||
+                              newMessages[existingMessageIndex]
+                                .reasoningContent,
                           };
                           return newMessages;
                         } else {
                           // 创建新的 agent 消息
-                          const newMessageId = Date.now() + Math.random().toString(36).substr(2, 9);
+                          const newMessageId =
+                            Date.now() +
+                            Math.random().toString(36).substr(2, 9);
                           const newMessage: Message = {
                             id: newMessageId,
-                            dataId: agent === "researcher" ? researcherAgentid : (data.id || ''),
+                            dataId:
+                              agent === 'researcher'
+                                ? researcherAgentid
+                                : data.id || '',
                             role: 'assistant',
-                            content: agent === "researcher" ? (researcherMessages.get(researcherAgentid) || '') : (agentMessages.get(agent) || ''),
+                            content:
+                              agent === 'researcher'
+                                ? researcherMessages.get(researcherAgentid) ||
+                                  ''
+                                : agentMessages.get(agent) || '',
                             isUser: false,
                             status: 'sending',
                             agent: agent,
                             reasoningContent: data.reasoningContent,
-                            isStreaming: true
+                            isStreaming: true,
                           };
                           return [...prev, newMessage];
                         }
@@ -923,7 +1121,7 @@ const Chat: React.FC = () => {
                   }
                 }
               } else if (eventType == 'interrupt') {
-                console.log("收到 interrupt 事件，暂不处理");
+                console.log('收到 interrupt 事件，暂不处理');
                 // interrupt 事件暂不处理
                 const dataMatch = eventChunk.match(/data: (.+)/);
 
@@ -931,32 +1129,50 @@ const Chat: React.FC = () => {
                   const jsonStr = dataMatch[1].trim();
                   if (jsonStr && jsonStr !== '[DONE]') {
                     const data = JSON.parse(jsonStr);
-                    console.log("interruptdata============", data);
-
-                    if (data.id) {
-                      const isMatch = /^repeat_human_feedback:/.test(data.id) || /^human_feedback:/.test(data.id) || /^summary_human_feedback:/.test(data.id);
-
-                      console.log("isMatch===============", isMatch);
-                      setisbtn(isMatch);
-
-                      // 将isMatch状态添加到最新的消息中
-                      setMessages(prev => {
-                        const newMessages = [...prev];
-                        if (newMessages.length > 0) {
-                          const lastMessage = newMessages[newMessages.length - 1];
-                          if (!lastMessage.isUser) {
-                            newMessages[newMessages.length - 1] = {
-                              ...lastMessage,
-                              isMatch: isMatch
-                            };
-                          }
+                    console.log('interruptdata============', data);
+                    const btnOption = data.options;
+                    setMessages(prev => {
+                      const newMessages = [...prev];
+                      if (newMessages.length > 0) {
+                        const lastMessage = newMessages[newMessages.length - 1];
+                        if (!lastMessage.isUser) {
+                          newMessages[newMessages.length - 1] = {
+                            ...lastMessage,
+                            options: btnOption,
+                          };
                         }
-                        return newMessages;
-                      });
-                    }
+                      }
+                      return newMessages;
+                    });
 
-                    if (data.finish_reason == "interrupt") {
-                      console.log("发送===========");
+                    // if (data.id) {
+                    //   const isMatch =
+                    //     /^repeat_human_feedback:/.test(data.id) ||
+                    //     /^human_feedback:/.test(data.id) ||
+                    //     /^summary_human_feedback:/.test(data.id);
+
+                    //   console.log('isMatch===============', isMatch);
+                    //   setisbtn(isMatch);
+
+                    //   // 将isMatch状态添加到最新的消息中
+                    //   setMessages(prev => {
+                    //     const newMessages = [...prev];
+                    //     if (newMessages.length > 0) {
+                    //       const lastMessage =
+                    //         newMessages[newMessages.length - 1];
+                    //       if (!lastMessage.isUser) {
+                    //         newMessages[newMessages.length - 1] = {
+                    //           ...lastMessage,
+                    //           isMatch: isMatch,
+                    //         };
+                    //       }
+                    //     }
+                    //     return newMessages;
+                    //   });
+                    // }
+
+                    if (data.finish_reason == 'interrupt') {
+                      console.log('发送===========');
                       setVariablesFeedback(true);
                     }
                   }
@@ -970,20 +1186,25 @@ const Chat: React.FC = () => {
       }
 
       // 完成后更新所有正在发送的消息状态
-      setMessages(prev => prev.map(msg =>
-        !msg.isUser && msg.status === 'sending' ? { ...msg, status: 'sent', isStreaming: false } : msg
-      ));
+      setMessages(prev =>
+        prev.map(msg =>
+          !msg.isUser && msg.status === 'sending'
+            ? { ...msg, status: 'sent', isStreaming: false }
+            : msg
+        )
+      );
 
       // AI响应完成，重置状态
       setIsAIResponding(false);
-
     } catch (error: any) {
       // 更新消息状态为错误
-      setMessages(prev => prev.map(msg =>
-        msg.id === userMessage.id || msg.id === currentBotMessageId.current
-          ? { ...msg, status: 'error' }
-          : msg
-      ));
+      setMessages(prev =>
+        prev.map(msg =>
+          msg.id === userMessage.id || msg.id === currentBotMessageId.current
+            ? { ...msg, status: 'error' }
+            : msg
+        )
+      );
 
       // AI响应出错，重置状态
       setIsAIResponding(false);
@@ -992,84 +1213,136 @@ const Chat: React.FC = () => {
         message: error.message || '发送失败，请重试',
         duration: 2000,
         position: 'top',
-        color: 'danger'
+        color: 'danger',
       });
     }
   };
 
   const histotyitemFn = (item: any) => {
     console.log(item);
-    setSelecthisItem(item)
-  }
-
+    setSelecthisItem(item);
+  };
 
   return (
     <IonPage>
-      <IonMenu className='menubg' menuId="second-menu" contentId="main2-content">
-        <div className='history-menu' >
+      <IonMenu
+        className='menubg'
+        menuId='second-menu'
+        contentId='main2-content'
+      >
+        <div className='history-menu'>
           <div className='history-menu-title'>对话历史</div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: "20px" }}>
-            {demoList.map((item) => {
-              return <div onClick={() => { histotyitemFn(item) }} key={item.id}>{item.name}</div>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              marginTop: '20px',
+            }}
+          >
+            {demoList.map(item => {
+              return (
+                <div
+                  onClick={() => {
+                    histotyitemFn(item);
+                  }}
+                  key={item.id}
+                >
+                  {item.name}
+                </div>
+              );
             })}
           </div>
-
         </div>
       </IonMenu>
-      <div className='body-container' id="main2-content">
-        <div className="header-content">
-          <div className="user-info">
-            <IonIcon icon={personCircle} className="user-avatar" />
+      <div className='body-container' id='main2-content'>
+        <div className='header-content'>
+          <div className='user-info'>
+            <IonIcon icon={personCircle} className='user-avatar' />
             <div>
-              <span className="user-title">老王</span>
-              <span className="user-subtitle">资深技术专家</span>
+              <span className='user-title'>老王</span>
+              <span className='user-subtitle'>资深技术专家</span>
             </div>
           </div>
-          <IonButtons slot="end">
-            <IonMenuButton menu="second-menu">
-              <img src="/assets/icon/History.svg" alt="历史" style={{ width: '20px', height: '20px', filter: 'brightness(0) invert(1)' }} />
+          <IonButtons slot='end'>
+            <IonMenuButton menu='second-menu'>
+              <img
+                src='/assets/icon/History.svg'
+                alt='历史'
+                style={{
+                  width: '20px',
+                  height: '20px',
+                  filter: 'brightness(0) invert(1)',
+                }}
+              />
             </IonMenuButton>
 
             <IonButton>
-              <img src="/assets/icon/add.svg" alt="添加" style={{ width: '20px', height: '20px', filter: 'brightness(0) invert(1)' }} />
+              <img
+                src='/assets/icon/add.svg'
+                alt='添加'
+                style={{
+                  width: '20px',
+                  height: '20px',
+                  filter: 'brightness(0) invert(1)',
+                }}
+              />
             </IonButton>
           </IonButtons>
         </div>
 
-        <div className='chatbody' onClick={(e) => {
-          e.stopPropagation();
-          if (!isAIResponding) setShowInputType(0)
-        }}>
+        <div
+          className='chatbody'
+          onClick={e => {
+            e.stopPropagation();
+            if (!isAIResponding) setShowInputType(0);
+          }}
+        >
           {messages.length === 0 ? (
-            <div className="welcome-container">
-              <div className="welcome-circle"></div>
-              <h2 className="welcome-text">Hi, 老王</h2>
-              <p className="welcome-subtitle">欢迎您的到来，今日请事顺利</p>
+            <div className='welcome-container'>
+              <div className='welcome-circle'></div>
+              <h2 className='welcome-text'>Hi, 老王</h2>
+              <p className='welcome-subtitle'>欢迎您的到来，今日请事顺利</p>
             </div>
           ) : (
-            <div className="messages-container" style={{ height: "calc(100% - 53px)", overflowY: "auto", padding: "8px 16px" }}>
+            <div
+              className='messages-container'
+              style={{
+                height: 'calc(100% - 20px)',
+                overflowY: 'auto',
+                padding: '8px 16px',
+              }}
+            >
               {messages.map(message => (
-                <MessageItem key={message.id} message={message} buttosearch={buttosearch} />
+                <MessageItem
+                  key={message.id}
+                  message={message}
+                  buttosearch={buttosearch}
+                />
               ))}
               {isAIResponding && (
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '20px',
-                  color: '#fff',
-                  fontSize: '14px'
-                }}>
-                  <div style={{
-                    width: '20px',
-                    height: '20px',
-                    border: '2px solid #fff',
-                    borderTop: '2px solid transparent',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite',
-                    marginRight: '10px'
-                  }}></div>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '20px',
+                    color: '#fff',
+                    fontSize: '14px',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '20px',
+                      height: '20px',
+                      border: '2px solid #fff',
+                      borderTop: '2px solid transparent',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite',
+                      marginRight: '10px',
+                    }}
+                  ></div>
                   AI正在思考中...
                 </div>
               )}
@@ -1078,86 +1351,17 @@ const Chat: React.FC = () => {
           )}
         </div>
 
-
-        {showInputType === 4 && (
-          <div className='flag-container'>
-            <div style={{ display: "flex", color: "#fff" }}>
-              <div>不锈钢管道系统安装<img src="/assets/icon/clock.svg" alt="" style={{ width: '10px', height: '10px' }} /><span>2-3h</span>
-              </div>
-              <div>进行中</div>
-            </div>
-          </div>
-        )}
-
-
-
-        {showInputType === 1 ? (
-          <div className="input-area">
-            <div className="input-container">
-              <div className="input-wrapper">
-                <IonInput
-                  label={isAIResponding ? 'AI正在输出中...' : '输入中'}
-                  className="chat-input"
-                  value={inputValue}
-                  onIonInput={handleInputChange}
-                  onKeyDown={handleKeyDown}
-                  autoFocus={true}
-                  disabled={isAIResponding}
-                />
-              </div>
-              <div className="action-buttons">
-                <IonButton fill="clear" disabled={isAIResponding} onClick={()=>{setShowInputType(2)}}>
-                  <img src="/assets/icon/voice.svg" alt="" style={{ width: '32px', height: '32px', opacity: isAIResponding ? 0.5 : 1 }} />
-                </IonButton>
-                <IonButton fill="clear" disabled={isAIResponding}>
-                  <img src="/assets/icon/cam.svg" alt="" style={{ width: '32px', height: '32px', opacity: isAIResponding ? 0.5 : 1 }} />
-                </IonButton>
-              </div>
-            </div>
-          </div>
-        ) :
-          showInputType === 2 ? (
-            <ChatVoiceRecorder
-              onStop={(text) => {
-                if (text && text.trim()) {
-                  sendMessage(text);
-                }
-                setShowInputType(0);
-              }}
-              onSwitch={() => setShowInputType(1)}
-              isMessageSend={isAIResponding}
-              onInterrupt={() => {
-                // 处理中断逻辑
-                setShowInputType(0);
-              }}
-              onSTT={(text) => {
-                // 处理语音转文字结果
-                console.log('语音识别结果:', text);
-              }}
-              className="chat-voice-recorder-container"
-            />
-          ) : (
-            <div className="footer-buttons">
-              <div style={{ opacity: isAIResponding ? 0.5 : 1, pointerEvents: isAIResponding ? 'none' : 'auto' }}>
-                <img src="/assets/icon/cam.svg" alt="" style={{ width: '48px', height: '48px' }} />
-              </div>
-              <div onClick={() => { if (!isAIResponding) setShowInputType(1) }} style={{ opacity: isAIResponding ? 0.5 : 1, pointerEvents: isAIResponding ? 'none' : 'auto' }}>
-                <img src="/assets/icon/keyboard.svg" alt="" style={{ width: '48px', height: '48px' }} />
-              </div>
-              <div onClick={() => { if (!isAIResponding) setShowInputType(2) }} style={{ opacity: isAIResponding ? 0.5 : 1, pointerEvents: isAIResponding ? 'none' : 'auto' }}>
-                <img src="/assets/icon/voice.svg" alt="" style={{ width: '48px', height: '48px' }} />
-              </div>
-              <div id="top-center" onClick={() => { if (!isAIResponding) setShowInputType(4) }} style={{ opacity: isAIResponding ? 0.5 : 1, pointerEvents: isAIResponding ? 'none' : 'auto' }}>
-                <img src="/assets/icon/flag.svg" alt="" style={{ width: '48px', height: '48px' }} />
-              </div>
-
-              <IonPopover trigger="top-center" side="top" alignment="center">
-                <IonContent class="ion-padding">Hello World!</IonContent>
-              </IonPopover>
-            </div>
-          )}
+        <ChatInputArea
+          showInputType={showInputType}
+          inputValue={inputValue}
+          isAIResponding={isAIResponding}
+          onInputChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          onSendMessage={sendMessage}
+          onSetShowInputType={setShowInputType}
+          showtag={showtag}
+        />
       </div>
-
     </IonPage>
   );
 };
