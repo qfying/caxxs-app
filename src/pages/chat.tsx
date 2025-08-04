@@ -1373,7 +1373,7 @@ const Chat: React.FC = () => {
   };
 
   return (
-    <IonPage>
+    <IonPage style={{ height: '100%' }}>
       <IonMenu
         className='menubg'
         menuId='second-menu'
