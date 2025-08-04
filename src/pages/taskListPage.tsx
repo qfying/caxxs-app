@@ -6,7 +6,7 @@ import { useUserStore } from '../stores/userStore';
 
 const TaskListPage = () => {
   const router = useIonRouter();
-  const { userId } = useUserStore();
+  const { userId, setSelectCardItem } = useUserStore();
   const [taskList, setTaskList] = useState<any[]>([]);
 
   useEffect(() => {
@@ -28,7 +28,8 @@ const TaskListPage = () => {
 
   const goBack = () => {
     // router.goBack();
-    router.push('/task');
+    // router.push('/task');
+    router.push('/chat');
   };
 
   function handleDelete(id: number): void {
@@ -38,8 +39,11 @@ const TaskListPage = () => {
 
   function cardFn(item: any): void {
     console.log('点击任务卡片:', item);
+    // 使用 Zustand store 存储选中的卡片项
+    setSelectCardItem(item);
     // TODO: 实现任务卡片点击逻辑
-    window.location.href = '/question';
+    // window.location.href = '/question';
+    router.push('/question');
   }
 
   console.log('TaskListPage 渲染中，taskList:', taskList);
@@ -126,16 +130,6 @@ const TaskListPage = () => {
               isborder={true}
               cardFn={cardFn}
             />
-
-            {index !== taskList.length - 1 && (
-              <div
-                style={{
-                  width: '100%',
-                  height: '1px',
-                  backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                }}
-              ></div>
-            )}
           </div>
         ))}
       </div>

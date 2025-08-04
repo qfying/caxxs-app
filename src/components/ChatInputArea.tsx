@@ -143,6 +143,8 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
       <div
         id='top-center'
         onClick={() => {
+          console.log('点击任务图标');
+
           if (!isAIResponding) onSetShowInputType(4);
         }}
         style={{

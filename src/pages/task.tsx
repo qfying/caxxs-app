@@ -10,7 +10,7 @@ import TaskCard from '../components/taskCard';
 const Task = () => {
   const modal = useRef<HTMLIonModalElement>(null);
   const router = useIonRouter();
-  const { userId } = useUserStore();
+  const { userId, setSelectCardItem } = useUserStore();
   const [nextIndex, setNextIndex] = useState(0);
   const [taskCreateValue, setTaskCreateValue] = useState('');
   const [taskList, setTaskList] = useState<any[]>([]);
@@ -90,6 +90,8 @@ const Task = () => {
 
   const cardFn = (item: any) => {
     console.log('item=========', item);
+    // 使用 Zustand store 存储选中的卡片项
+    setSelectCardItem(item);
     // setNextIndex(3)
     // router.push('/question', 'root');
     window.location.href = '/question';

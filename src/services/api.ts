@@ -44,6 +44,11 @@ export interface ChatCompletionRequest {
   finish_reason_type: number;
 }
 
+export interface chatReq {
+  payload: ChatCompletionRequest;
+  type: string;
+}
+
 interface ApiLoginResponse {
   code: number;
   message: string;
@@ -73,7 +78,7 @@ export const loginByPassword = (
 };
 
 export const sendChatMessage = (
-  request: ChatCompletionRequest
+  request: chatReq
 ): Promise<any> => {
   return http.post('/openapi/v0/chat/completions', request, { isStream: true });
 };
@@ -97,3 +102,10 @@ export const getTaskList = ({
 export const getHealth = (): Promise<ApiTaskListResponse> => {
   return http.get<TaskData[]>(`/openapi/v0/chat/test`);
 };
+
+export const chatUpload = (data: any): Promise<ApiTaskListResponse> => {
+  return http.post<TaskData[]>(`/openapi/v0/chat/upload`, data);
+};
+
+
+

@@ -1,13 +1,35 @@
 import { IonButtons, useIonRouter } from '@ionic/react';
 import { useState } from 'react';
 import BottomDrawer from '../components/BottomDrawer';
+import { useUserStore } from '../stores/userStore';
 
 const Question = () => {
   const router = useIonRouter();
+  const { selectCardItem, setSelectCardItem } = useUserStore();
 
   const [currentSection, setCurrentSection] = useState(0);
   const [showBottomDrawer, setShowBottomDrawer] = useState(false);
   const [selectItem, setSelectItem] = useState({} as any);
+
+  // 示例：使用从其他页面传递过来的选中卡片项
+  console.log('选中的卡片项:', selectCardItem);
+
+  // 测试函数：手动设置 selectCardItem
+  const testSetSelectCardItem = () => {
+    const testItem = {
+      id: 1,
+      customer: '测试客户',
+      address: '测试地址',
+      start: '2024-01-01',
+      status: '1',
+      name: '测试任务',
+      time: '1h',
+      company: '测试公司',
+      lacate: '测试位置',
+    };
+    console.log('手动设置测试数据:', testItem);
+    setSelectCardItem(testItem);
+  };
 
   const sections = [
     {
@@ -15,7 +37,9 @@ const Question = () => {
       title: '安装指导',
       title1: '安装指导',
 
-      subtitle: 'Installation Instructions',
+      subtitle:
+        (selectCardItem && selectCardItem.address) ||
+        'Installation Instructions',
       description: '首先，为保证安装顺利\n我给你准备了三个重点',
       description2: '开始学习它吧 ✊🏻',
       items: [
@@ -44,7 +68,9 @@ const Question = () => {
       id: 3,
       title: '现场安装',
       title1: '',
-      subtitle: 'On-Site Repair',
+
+      subtitle: (selectCardItem && selectCardItem.address) || 'On-Site Repair',
+
       description: '准备就绪，抵达现场',
       description2: '让我们开始维修',
 
@@ -74,7 +100,10 @@ const Question = () => {
       id: 2,
       title: '总结',
       title1: '你成功完成了',
-      subtitle: 'Equipment Checklist',
+
+      subtitle:
+        (selectCardItem && selectCardItem.address) || 'Equipment Checklist',
+
       description: '你的表现非常出色！ \n 不锈钢焊接，技艺进阶',
       description2: '来看看总结吧',
       items: [
@@ -116,7 +145,7 @@ const Question = () => {
   const goBack = () => {
     // router.goBack();
     // router.push('/task-briefing');
-    router.push('/task');
+    router.push('/chat');
   };
 
   return (
@@ -160,7 +189,7 @@ const Question = () => {
         <div style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>
           常见问题
         </div>
-        <div style={{ width: '38px' }}></div> {/* 占位符，保持标题居中 */}
+        <div style={{ width: '38px' }}>{/* 测试按钮 */}</div>
       </div>
 
       <div style={{ width: '100%', height: 'calc(100% - 70px)' }}>
@@ -501,8 +530,13 @@ const Question = () => {
                       'linear-gradient(0deg, var(--base-white-15, rgba(255, 255, 255, 0.15)), var(--base-white-15, rgba(255, 255, 255, 0.15))),linear-gradient(158.13deg, #30247C -14.18%, #00033E 88.47%)';
                   }}
                   onClick={() => {
-                    // router.push("/tabs/ai")
-                    window.location.href = '/tabs/ai';
+                    // 方法1：URL 参数传递（简单数据）
+                    const urlParams = new URLSearchParams({
+                      name: selectCardItem?.address || '',
+                      id: selectCardItem?.id?.toString() || '',
+                      taskType: '1',
+                    });
+                    router.push(`/chat?${urlParams.toString()}`);
                   }}
                 >
                   <img

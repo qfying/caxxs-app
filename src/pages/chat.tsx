@@ -5,13 +5,15 @@ import {
   IonMenu,
   IonMenuButton,
   IonPage,
+  useIonRouter,
   useIonToast,
 } from '@ionic/react';
 import { personCircle } from 'ionicons/icons';
 import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import ChatInputArea from '../components/ChatInputArea';
-import { ChatCompletionRequest, sendChatMessage } from '../services/api';
+import { chatReq, chatUpload, sendChatMessage } from '../services/api';
 import './chat.css';
+import Taskdemo from './taskdemo';
 
 interface StreamEvent {
   event: string;
@@ -30,16 +32,18 @@ interface Message {
   isStreaming?: boolean;
   isMatch?: boolean;
   options?: any[];
+  btnAgent?: string;
+  searchResults?: any[];
 }
 
 type Prop = {
   message: Message;
-  buttosearch: (option: any) => void;
+  buttosearch: (option: any, message: any) => void;
 };
 
 // 消息渲染组件
 const MessageItem = ({ message, buttosearch }: Prop) => {
-  console.log('123456', message);
+  console.log('123456', message, message.btnAgent);
 
   // 处理不同类型的 agent
 
@@ -112,7 +116,7 @@ const MessageItem = ({ message, buttosearch }: Prop) => {
                   key={option}
                   onClick={e => {
                     e.stopPropagation();
-                    buttosearch(option);
+                    buttosearch(option, message);
                   }}
                 >
                   <span
@@ -187,46 +191,11 @@ const DefaultMessage: React.FC<{ message: Message }> = ({ message }) => {
 
   const parsedContent = parseMarkdown(message.content);
 
-  // const text = "这是一个问题。\n\n" +
-  // "A. 第一个选项\n" +
-  // "B. 第二个选项\n" +
-  // "C. 第三个选项\n" +
-  // "D. 第四个选项";
-
-  // const parsedContent = parseMarkdown(text);
-
-  // // 处理选项按钮点击事件
-  // const handleOptionClick = (option: string) => {
-  //   console.log("选择的选项==========",option);
-  //   // 这里可以添加选项点击的处理逻辑
-  // };
-
-  // // 添加事件监听器
-  // React.useEffect(() => {
-  //   const optionButtons = document.querySelectorAll('.option-btn');
-  //   console.log("optionButtons==========",optionButtons);
-
-  //   optionButtons.forEach(button => {
-  //     button.addEventListener('click', (e) => {
-  //       e.preventDefault();
-  //       const option = (e.target as HTMLElement).closest('.option-btn')?.getAttribute('data-option');
-  //       if (option) {
-  //         handleOptionClick(option);
-  //       }
-  //     });
-  //   });
-
-  //   return () => {
-  //     optionButtons.forEach(button => {
-  //       button.removeEventListener('click', () => {});
-  //     });
-  //   };
-  // }, [parsedContent]);
-
   return (
     <div>
       <div>
         <div dangerouslySetInnerHTML={{ __html: parsedContent }} />
+        {/* <div>{message.content}</div> */}
       </div>
     </div>
   );
@@ -413,27 +382,6 @@ const extractSupplementReply = (content: string) => {
   const match = content.match(regex);
   return match?.[1] || '';
 };
-// const extractSupplementReply = (content: string): string => {
-//   // 增强版正则表达式，处理以下情况：
-//   // 1. 包含转义字符（如 \\", \\n）
-//   // 2. 值可能跨多行
-//   // 3. 处理 JSON 未闭合的情况
-//   const regex = /"supplement_reply"\s*:\s*"((?:\\["\\/bfnrt]|\\u[0-9a-fA-F]{4}|[^"\\])*?)"(?=\s*[,}])/;
-
-//   const match = content.match(regex);
-
-//   if (!match) return '';
-
-//   // 处理转义字符
-//   try {
-//     return JSON.parse(`"${match[1]}"`)
-//       .replace(/\\n/g, '\n')  // 将 \n 转义符转为实际换行
-//       .replace(/\\t/g, '\t'); // 处理制表符等其他转义
-//   } catch (e) {
-//     console.warn('转义字符处理失败，返回原始值', e);
-//     return match[1];
-//   }
-// };
 
 const extractPlanner = (content: string) => {
   try {
@@ -533,6 +481,8 @@ const parseMarkdown = (text: string) => {
 
   return (
     text
+      // 去除开头和结尾的空白字符
+      .trim()
       // 处理标题
       .replace(/^### (.*$)/gim, '<h3>$1</h3>')
       .replace(/^## (.*$)/gim, '<h2>$1</h2>')
@@ -549,11 +499,28 @@ const parseMarkdown = (text: string) => {
       // 处理行内代码
       .replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
       // 处理图片
-      .replace(
-        /!\[([^\]]*)\]\(([^)]+)\)/g,
-        '<img src="$2" alt="$1" style="max-width: 100%; height: auto; border-radius: 8px; margin: 8px 0;" />'
-      )
+      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+        // 检查是否为视频链接
+        if (
+          alt.toLowerCase() === 'video' ||
+          src.match(/\.(mp4|webm|ogg|mov|avi)$/i)
+        ) {
+          // 提取时间戳信息
+          const timeMatch = src.match(/#t=([^)]+)$/);
+          const timeParam = timeMatch ? timeMatch[1] : '';
+          const videoSrc = src;
 
+          console.log('videoSrc=================', videoSrc, timeMatch);
+
+          return `<video controls style="max-width: 100%; height: auto; border-radius: 8px; margin: 8px 0;">
+              <source src="${videoSrc}" type="video/mp4">
+              您的浏览器不支持视频播放。
+            </video>`;
+        } else {
+          // 普通图片处理
+          return `<img src="${src}" alt="${alt}" style="max-width: 100%; height: auto; border-radius: 8px; margin: 8px 0;" />`;
+        }
+      })
       // 处理列表
       .replace(/^\* (.*$)/gim, '<li>$1</li>')
       .replace(/^- (.*$)/gim, '<li>$1</li>')
@@ -708,7 +675,7 @@ const CoderMessage: React.FC<{ message: Message }> = ({ message }) => {
 };
 
 const Chat: React.FC = () => {
-  const [showInputType, setShowInputType] = useState(0);
+  const [showInputType, setShowInputType] = useState(4);
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [present] = useIonToast();
@@ -725,18 +692,57 @@ const Chat: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isAIResponding, setIsAIResponding] = useState(false);
   const [showtag, setShowtag] = useState(false);
+  const [sectionName, setSectionName] = useState('');
+  const [type, setType] = useState('1');
+  const router = useIonRouter();
+
+  // 接收URL参数
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const sectionId = searchParams.get('name');
+    const itemId = searchParams.get('id');
+    const taskType = searchParams.get('taskType');
+    setSectionName(sectionId || '');
+
+    if (taskType == '1') {
+      setShowInputType(1);
+    }
+
+    console.log('接收到的URL参数:', {
+      sectionId,
+      itemId,
+      taskType,
+    });
+  }, []);
 
   useEffect(() => {
     chatid.current = generateRandomString(8);
   }, []);
 
-  const buttosearch = (option: any) => {
-    console.log('buttosearchoption==============', option);
+  const buttosearch = (option: any, message: any) => {
+    console.log('buttosearchoption==============', option, message);
     // setInputValue("ok")
     if (option == '修改') {
       setShowtag(true);
     } else {
-      sendMessage(option);
+      if (
+        message.btnAgent &&
+        message.btnAgent.startsWith('summary_human_feedback')
+      ) {
+        upload(message.content);
+      } else {
+        sendMessage(option);
+        // upload(message.content);
+      }
+    }
+  };
+
+  const upload = async (message: any) => {
+    try {
+      const response = await chatUpload({ text: message });
+      console.log('uploadresponse==============', response);
+    } catch (err) {
+      console.log('上传失败');
     }
   };
 
@@ -887,27 +893,33 @@ const Chat: React.FC = () => {
       currentInputRef.current
     );
 
-    const messagebody: ChatCompletionRequest = {
-      messages: [
-        {
-          dataId: chatId + 456,
-          role: 'user',
-          // content: variablesFeedback ? currentInputRef.current : inputValue
-          content: iptvalue,
+    const messagebody: chatReq = {
+      payload: {
+        messages: [
+          {
+            dataId: chatId + 456,
+            role: 'user',
+            // content: variablesFeedback ? currentInputRef.current : inputValue
+            content: iptvalue,
+          },
+        ],
+        variables: {
+          // feedback: variablesFeedback,
+          feedback: variablesFeedback ? iptvalue : '',
         },
-      ],
-      variables: {
-        // feedback: variablesFeedback,
-        feedback: variablesFeedback ? iptvalue : '',
+        responseChatItemId: 'iwE8mnTwNkOLjnCoZwLcNeA6',
+        // shareId: '6e6q0y0lnlw9t247jl2y9fbi',
+        shareId:
+          type == '1' ? '6e6q0y0lnlw9t247jl2y9fbi' : '15d98s8koo1ran5kl82ukar1',
+
+        chatId: chatId,
+        appType: 'advanced',
+        outLinkUid: 'shareChat-1753087419979-S1TS4Yh1x1daxImmOkYMxvg',
+        detail: true,
+        stream: true,
+        finish_reason_type: 0,
       },
-      responseChatItemId: 'iwE8mnTwNkOLjnCoZwLcNeA6',
-      shareId: '6e6q0y0lnlw9t247jl2y9fbi',
-      chatId: chatId,
-      appType: 'advanced',
-      outLinkUid: 'shareChat-1753087419979-S1TS4Yh1x1daxImmOkYMxvg',
-      detail: true,
-      stream: true,
-      finish_reason_type: 0,
+      type: type,
     };
 
     // 创建用户消息
@@ -960,7 +972,7 @@ const Chat: React.FC = () => {
 
         if (done) break;
 
-        const chunk = decoder.decode(value, { stream: false });
+        const chunk = decoder.decode(value, { stream: true });
         console.log('chunk=========', chunk);
 
         // 将新数据添加到缓冲区
@@ -970,15 +982,89 @@ const Chat: React.FC = () => {
           // 使用正则表达式分割多个事件
           const events = chunk.split(/(?=event: )/);
 
+          console.log('events=========', events);
+
           for (const eventChunk of events) {
             if (!eventChunk.trim()) continue;
 
             const eventMatch = eventChunk.match(/event: (\w+)/);
-            console.log('eventMatch================', eventMatch);
 
             if (eventMatch) {
               const eventType = eventMatch[1];
               console.log('event type=========', eventType);
+
+              if (eventType == 'answer') {
+                // 解析 answer 类型的数据流
+                const dataMatch = eventChunk.match(/data: (.+)/);
+
+                console.log('event type1==========', dataMatch);
+                if (dataMatch) {
+                  const jsonStr = dataMatch[1].trim();
+                  console.log('event type2===============', jsonStr);
+
+                  if (jsonStr && jsonStr !== '[DONE]') {
+                    try {
+                      const data = JSON.parse(jsonStr);
+                      // 这里可以根据需要处理 answer 数据
+                      // 例如：将 assistant 的内容追加到消息流
+                      if (
+                        data.choices &&
+                        data.choices[0] &&
+                        data.choices[0].delta &&
+                        typeof data.choices[0].delta.content === 'string'
+                      ) {
+                        const answerContent = data.choices[0].delta.content;
+                        console.log('answerContent=========', answerContent);
+
+                        // 假设 answer 属于 agent: 'default'
+                        const currentContent =
+                          agentMessages.get('default') || '';
+                        const newContent = currentContent + answerContent;
+                        agentMessages.set('default', newContent);
+
+                        setMessages(prev => {
+                          // 查找现有的 default agent 消息
+                          const existingMessageIndex = prev.findIndex(
+                            msg =>
+                              !msg.isUser &&
+                              msg.agent === 'default' &&
+                              msg.status === 'sending'
+                          );
+
+                          if (existingMessageIndex !== -1) {
+                            // 更新现有消息
+                            const newMessages = [...prev];
+                            newMessages[existingMessageIndex] = {
+                              ...newMessages[existingMessageIndex],
+                              content: newContent,
+                              reasoningContent: data.reasoningContent,
+                            };
+                            return newMessages;
+                          } else {
+                            // 创建新的消息
+                            const newmessage: Message = {
+                              id:
+                                Date.now().toString() +
+                                Math.random().toString(36).substr(2, 9),
+                              dataId: data.id || '',
+                              role: 'assistant',
+                              content: newContent,
+                              isUser: false,
+                              status: 'sending',
+                              agent: 'default',
+                              reasoningContent: data.reasoningContent,
+                              isStreaming: true,
+                            };
+                            return [...prev, newmessage];
+                          }
+                        });
+                      }
+                    } catch (e) {
+                      console.warn('解析 answer 数据失败', e);
+                    }
+                  }
+                }
+              }
 
               // 只处理 message 类型的事件
               if (eventType === 'message_chunk') {
@@ -999,11 +1085,6 @@ const Chat: React.FC = () => {
                       if (agent == 'researcher') {
                         researcherAgentid = data.id;
                       }
-
-                      console.log(
-                        'researcherAgentid==============',
-                        researcherAgentid
-                      );
 
                       // 更新 agent 消息内容
                       if (agent === 'researcher') {
@@ -1131,6 +1212,7 @@ const Chat: React.FC = () => {
                     const data = JSON.parse(jsonStr);
                     console.log('interruptdata============', data);
                     const btnOption = data.options;
+                    const btnAgent = data.id;
                     setMessages(prev => {
                       const newMessages = [...prev];
                       if (newMessages.length > 0) {
@@ -1139,6 +1221,7 @@ const Chat: React.FC = () => {
                           newMessages[newMessages.length - 1] = {
                             ...lastMessage,
                             options: btnOption,
+                            btnAgent: btnAgent,
                           };
                         }
                       }
@@ -1174,6 +1257,72 @@ const Chat: React.FC = () => {
                     if (data.finish_reason == 'interrupt') {
                       console.log('发送===========');
                       setVariablesFeedback(true);
+                    }
+                  }
+                }
+              } else if (eventType == 'flowResponses') {
+                console.log('收到 flowResponses 事件');
+                const dataMatch = eventChunk.match(/data: (.+)/);
+
+                if (dataMatch) {
+                  const jsonStr = dataMatch[1].trim();
+                  if (jsonStr && jsonStr !== '[DONE]') {
+                    try {
+                      const data = JSON.parse(jsonStr);
+                      console.log('flowResponses data=========', data);
+
+                      // 处理知识库搜索结果
+                      if (data && Array.isArray(data)) {
+                        data.forEach((response: any) => {
+                          if (
+                            response.moduleType === 'datasetSearchNode' &&
+                            response.quoteList
+                          ) {
+                            console.log('知识库搜索结果:', response.quoteList);
+
+                            // 将搜索结果添加到当前消息中
+                            setMessages(prev => {
+                              const newMessages = [...prev];
+                              if (newMessages.length > 0) {
+                                const lastMessage =
+                                  newMessages[newMessages.length - 1];
+                                if (!lastMessage.isUser) {
+                                  // 将搜索结果添加到消息中
+                                  newMessages[newMessages.length - 1] = {
+                                    ...lastMessage,
+                                    searchResults: response.quoteList,
+                                  };
+                                }
+                              }
+                              return newMessages;
+                            });
+                          }
+                        });
+                      }
+                    } catch (e) {
+                      console.warn('解析 flowResponses 数据失败', e);
+                    }
+                  }
+                }
+              } else if (eventType == 'flowNodeStatus') {
+                console.log('收到 flowNodeStatus 事件');
+                const dataMatch = eventChunk.match(/data: (.+)/);
+
+                if (dataMatch) {
+                  const jsonStr = dataMatch[1].trim();
+                  if (jsonStr && jsonStr !== '[DONE]') {
+                    try {
+                      const data = JSON.parse(jsonStr);
+                      console.log('flowNodeStatus data=========', data);
+
+                      // 可以在这里处理节点状态更新
+                      // 例如：显示当前正在执行的节点名称
+                      if (data.status && data.name) {
+                        console.log(`节点状态: ${data.name} - ${data.status}`);
+                        // 可以根据需要更新UI显示当前执行的节点
+                      }
+                    } catch (e) {
+                      console.warn('解析 flowNodeStatus 数据失败', e);
                     }
                   }
                 }
@@ -1292,14 +1441,93 @@ const Chat: React.FC = () => {
           </IonButtons>
         </div>
 
+        {sectionName && (
+          <div
+            style={{
+              width: '100%',
+              height: '80px',
+              // border: '1px solid red',
+              position: 'absolute',
+              top: '26px',
+              left: '0',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '0 0 16px 16px',
+              color: '#fff',
+              display: 'flex',
+              alignItems: 'end',
+              padding: '0 16px',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                height: '40px',
+                width: '100%',
+              }}
+            >
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+              >
+                <div
+                  style={{
+                    width: '32px',
+                    height: '30px',
+                    borderRadius: '6px',
+                    backgroundColor: '#FFFFFF1A',
+                    fontSize: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  任务
+                </div>
+
+                <div style={{ fontSize: '14px ', fontWeight: 'bold' }}>
+                  {sectionName}
+                </div>
+              </div>
+
+              <div
+                style={{
+                  width: '60px',
+                  height: '30px',
+                  borderRadius: '6px',
+                  backgroundColor: '#FFFFFF1A',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+                onClick={() => {
+                  console.log('返回上一个页面=============');
+                  router.back();
+                  // history.back();
+                  setSectionName('');
+                  // 回到上一个页面
+                }}
+              >
+                {'返回 >'}
+              </div>
+            </div>
+          </div>
+        )}
+
         <div
           className='chatbody'
+          style={{
+            paddingTop: sectionName ? '40px' : '0',
+          }}
           onClick={e => {
             e.stopPropagation();
             if (!isAIResponding) setShowInputType(0);
           }}
         >
-          {messages.length === 0 ? (
+          {showInputType == 4 ? (
+            <Taskdemo />
+          ) : messages.length === 0 ? (
             <div className='welcome-container'>
               <div className='welcome-circle'></div>
               <h2 className='welcome-text'>Hi, 老王</h2>
@@ -1350,6 +1578,40 @@ const Chat: React.FC = () => {
             </div>
           )}
         </div>
+
+        {(showInputType == 1 || showInputType == 2) && (
+          <div
+            style={{
+              color: '#fff',
+              padding: '0 20px',
+              position: 'absolute',
+              bottom: '104px',
+            }}
+          >
+            <div
+              style={{
+                width: '80px',
+                height: '30px',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '15px',
+                fontSize: '12px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: type == '1' ? '#3A3C61' : '',
+              }}
+              onClick={() => {
+                if (type == '1') {
+                  setType('0');
+                } else {
+                  setType('1');
+                }
+              }}
+            >
+              排障模式
+            </div>
+          </div>
+        )}
 
         <ChatInputArea
           showInputType={showInputType}
