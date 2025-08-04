@@ -1585,6 +1585,7 @@ const Chat: React.FC = () => {
             bottom: '40px',
             left: 0,
             right: 0,
+            zIndex: '100',
           }}
         >
           {(showInputType == 1 || showInputType == 2) && (
