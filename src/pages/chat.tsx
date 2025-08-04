@@ -910,7 +910,7 @@ const Chat: React.FC = () => {
         responseChatItemId: 'iwE8mnTwNkOLjnCoZwLcNeA6',
         // shareId: '6e6q0y0lnlw9t247jl2y9fbi',
         shareId:
-          type == '1' ? '6e6q0y0lnlw9t247jl2y9fbi' : '15d98s8koo1ran5kl82ukar1',
+          type == '1' ? 'iuj6er9dbwlvfyvmrtxdg9em' : '15d98s8koo1ran5kl82ukar1',
 
         chatId: chatId,
         appType: 'advanced',
@@ -1579,50 +1579,58 @@ const Chat: React.FC = () => {
           )}
         </div>
 
-        {(showInputType == 1 || showInputType == 2) && (
-          <div
-            style={{
-              color: '#fff',
-              padding: '0 20px',
-              position: 'absolute',
-              bottom: '104px',
-            }}
-          >
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '40px',
+            left: 0,
+            right: 0,
+          }}
+        >
+          {(showInputType == 1 || showInputType == 2) && (
             <div
               style={{
-                width: '80px',
-                height: '30px',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                borderRadius: '15px',
-                fontSize: '12px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: type == '1' ? '#3A3C61' : '',
-              }}
-              onClick={() => {
-                if (type == '1') {
-                  setType('0');
-                } else {
-                  setType('1');
-                }
+                color: '#fff',
+                padding: '0 20px',
+                marginBottom: '12px',
               }}
             >
-              排障模式
+              <div
+                style={{
+                  width: '80px',
+                  height: '30px',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '15px',
+                  fontSize: '12px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: type == '1' ? '#3A3C61' : '',
+                }}
+                onClick={() => {
+                  if (type == '1') {
+                    setType('0');
+                  } else {
+                    setType('1');
+                  }
+                }}
+              >
+                排障模式
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <ChatInputArea
-          showInputType={showInputType}
-          inputValue={inputValue}
-          isAIResponding={isAIResponding}
-          onInputChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          onSendMessage={sendMessage}
-          onSetShowInputType={setShowInputType}
-          showtag={showtag}
-        />
+          <ChatInputArea
+            showInputType={showInputType}
+            inputValue={inputValue}
+            isAIResponding={isAIResponding}
+            onInputChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            onSendMessage={sendMessage}
+            onSetShowInputType={setShowInputType}
+            showtag={showtag}
+          />
+        </div>
       </div>
     </IonPage>
   );

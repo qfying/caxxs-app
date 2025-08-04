@@ -41,32 +41,52 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
             />
           </div>
           <div className='action-buttons'>
-            <IonButton
-              fill='clear'
-              disabled={isAIResponding}
-              onClick={() => onSetShowInputType(2)}
-            >
-              <img
-                src='/assets/icon/voice.svg'
-                alt=''
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  opacity: isAIResponding ? 0.5 : 1,
-                }}
-              />
-            </IonButton>
-            <IonButton fill='clear' disabled={isAIResponding}>
-              <img
-                src='/assets/icon/cam.svg'
-                alt=''
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  opacity: isAIResponding ? 0.5 : 1,
-                }}
-              />
-            </IonButton>
+            {inputValue ? (
+              <IonButton
+                fill='clear'
+                disabled={isAIResponding}
+                onClick={() => onSendMessage(inputValue)}
+              >
+                <img
+                  src='/assets/icon/sendicon.svg'
+                  alt=''
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    opacity: isAIResponding ? 0.5 : 1,
+                  }}
+                />
+              </IonButton>
+            ) : (
+              <div className='action-buttons'>
+                <IonButton
+                  fill='clear'
+                  disabled={isAIResponding}
+                  onClick={() => onSetShowInputType(2)}
+                >
+                  <img
+                    src='/assets/icon/voice.svg'
+                    alt=''
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      opacity: isAIResponding ? 0.5 : 1,
+                    }}
+                  />
+                </IonButton>
+                <IonButton fill='clear' disabled={isAIResponding}>
+                  <img
+                    src='/assets/icon/cam.svg'
+                    alt=''
+                    style={{
+                      width: '32px',
+                      height: '32px',
+                      opacity: isAIResponding ? 0.5 : 1,
+                    }}
+                  />
+                </IonButton>
+              </div>
+            )}
           </div>
         </div>
       </div>
