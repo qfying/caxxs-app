@@ -3,6 +3,7 @@ import {
   IonRouterOutlet,
   IonSplitPane,
   setupIonicReact,
+  useIonToast,
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import React, { useEffect } from 'react';
@@ -106,6 +107,7 @@ const IonicApp: React.FC<IonicAppProps> = ({
   loadUserData,
 }) => {
   const { setUser } = useUserStore();
+  const [presentToast] = useIonToast();
 
   useEffect(() => {
     checkHealth();
@@ -118,15 +120,15 @@ const IonicApp: React.FC<IonicAppProps> = ({
   const checkHealth = async () => {
     try {
       const response = await getHealth();
-      console.log(response);
-      present({
+      console.log('checkHealth============', response);
+      presentToast({
         message: '健康检查成功',
         duration: 3500,
         position: 'top',
       });
     } catch (error) {
       console.log(error);
-      present({
+      presentToast({
         message: error as string,
         duration: 3500,
         position: 'top',
@@ -211,10 +213,3 @@ const IonicAppConnected = connect<{}, StateProps, DispatchProps>({
   },
   component: IonicApp,
 });
-function present(arg0: {
-  message: string;
-  duration: number;
-  position: string;
-}) {
-  throw new Error('Function not implemented.');
-}
