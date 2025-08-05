@@ -48,6 +48,7 @@ const Question = () => {
           title: '完整安装方案预习',
           content: '不锈钢管道系统安装详细步骤和流程说明',
           status: '已完成',
+          warning: '重要提醒',
         },
         {
           id: 2,
@@ -60,6 +61,7 @@ const Question = () => {
           title: '关键注意事项',
           content: '安全提醒和常见问题预防',
           status: '进行中',
+          warning: '安全警告',
         },
       ],
     },
