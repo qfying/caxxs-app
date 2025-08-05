@@ -910,7 +910,7 @@ const Chat: React.FC = () => {
         responseChatItemId: 'iwE8mnTwNkOLjnCoZwLcNeA6',
         // shareId: '6e6q0y0lnlw9t247jl2y9fbi',
         shareId:
-          type == '1' ? 'iuj6er9dbwlvfyvmrtxdg9em' : '15d98s8koo1ran5kl82ukar1',
+          type == '1' ? 'iuj6er9dbwlvfyvmrtxdg9em' : '3re59hoj7py6r1rebjmrrryn',
 
         chatId: chatId,
         appType: 'advanced',
