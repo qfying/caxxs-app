@@ -993,6 +993,29 @@ const Chat: React.FC = () => {
               const eventType = eventMatch[1];
               console.log('event type=========', eventType);
 
+              if (eventType == 'fastAnswer') {
+                const dataMatch = eventChunk.match(/data: (.+)/);
+                console.log('fastAnswer==========', dataMatch);
+                if (dataMatch) {
+                  const jsonStr = dataMatch[1].trim();
+                  console.log('event type2===============', jsonStr);
+                  if (jsonStr) {
+                    const data = JSON.parse(jsonStr);
+                    console.log('fastAnswer data=========', data);
+                    const answerContent = data.choices[0].delta.content;
+                    console.log('answerContent=========', answerContent);
+                    setMessages(prev => {
+                      const newMessages = [...prev];
+                      newMessages[newMessages.length - 1] = {
+                        ...newMessages[newMessages.length - 1],
+                        content: answerContent,
+                      };
+                      return newMessages;
+                    });
+                  }
+                }
+              }
+
               if (eventType == 'answer') {
                 // 解析 answer 类型的数据流
                 const dataMatch = eventChunk.match(/data: (.+)/);

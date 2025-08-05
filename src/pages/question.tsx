@@ -67,30 +67,24 @@ const Question = () => {
     {
       id: 3,
       title: '现场安装',
-      title1: '',
+      title1: '待确认案例',
 
       subtitle: (selectCardItem && selectCardItem.address) || 'On-Site Repair',
 
       description: '准备就绪，抵达现场',
-      description2: '让我们开始维修',
+      description2: '有问题可以随时想我提问',
 
       items: [
         {
           id: 9,
-          title: '现场环境评估',
+          title: '风机气动性震动解决案例',
           content: '评估安装环境的安全性和适用性',
           status: '待开始',
         },
         {
           id: 10,
-          title: '设备安装执行',
+          title: '风机气动性震动解决案例',
           content: '按照标准流程进行设备安装',
-          status: '待开始',
-        },
-        {
-          id: 11,
-          title: '安装质量检查',
-          content: '检查安装质量和功能测试',
           status: '待开始',
         },
       ],
@@ -99,43 +93,26 @@ const Question = () => {
     {
       id: 2,
       title: '总结',
-      title1: '你成功完成了',
+      title1: '任务总结',
 
       subtitle:
         (selectCardItem && selectCardItem.address) || 'Equipment Checklist',
 
-      description: '你的表现非常出色！ \n 不锈钢焊接，技艺进阶',
+      description: '辛苦了！天工已为你自动完成 \n 总结和沉淀工作。',
       description2: '来看看总结吧',
       items: [
         {
           id: 4,
-          title: '不锈钢管道材质识别',
-          content: '检查基础施工、预埋件等',
+          title: '任务报告',
+          content:
+            '已根据本次服务全过程，自动生成报告初稿，请检查 或直接同步到工单。',
           status: '待开始',
         },
         {
           id: 5,
-          title: '正确选择焊接材料（ER304焊丝）',
-          content: '确保状态良好，配件齐全',
-          status: '待开始',
-        },
-        {
-          id: 6,
-          title: '专业焊接操作',
-          content: '确保状态良好，配件齐全',
-          status: '待开始',
-        },
-        {
-          id: 7,
-          title: '系统连接调试',
-          content: '反馈多次弯折管道，必备',
-          status: '待开始',
-          warning: '注意',
-        },
-        {
-          id: 8,
-          title: '质量验收确认 ',
-          content: '安全帽，防护眼镜，手套等',
+          title: '新知识沉淀',
+          content:
+            '本次安装中，您发现并解决了非标接线盒的问题，已 将其提炼为新知识，您可以修改和补充。',
           status: '待开始',
         },
       ],
@@ -187,7 +164,7 @@ const Question = () => {
           />
         </IonButtons>
         <div style={{ color: 'white', fontSize: '18px', fontWeight: 'bold' }}>
-          常见问题
+          {/* 常见问题 */}
         </div>
         <div style={{ width: '38px' }}>{/* 测试按钮 */}</div>
       </div>
@@ -205,6 +182,10 @@ const Question = () => {
               overflowY: 'auto',
               scrollbarWidth: 'none',
               borderRadius: '20px',
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100%',
+              justifyContent: 'space-between',
             }}
           >
             <div
@@ -258,197 +239,193 @@ const Question = () => {
               </div>
             </div>
 
-            {/* 当前部分内容 */}
             <div style={{ color: '#fff' }}>
-              {/* 部分标题栏 */}
-              {currentSection != 1 && (
-                <div
-                  style={{
-                    // background: 'rgba(255, 255, 255, 0.1)',
-                    // borderRadius: '15px',
-                    padding: '15px 0',
-                    // marginBottom: '20px',
-                    // border: '1px solid rgba(255, 255, 255, 0.2)',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
+              {/* 当前部分内容 */}
+              <div style={{ color: '#fff' }}>
+                {/* 部分标题栏 */}
+                {
                   <div
                     style={{
+                      // background: 'rgba(255, 255, 255, 0.1)',
+                      // borderRadius: '15px',
+                      padding: '15px 0',
+                      // marginBottom: '20px',
+                      // border: '1px solid rgba(255, 255, 255, 0.2)',
                       display: 'flex',
+                      justifyContent: 'space-between',
                       alignItems: 'center',
-                      gap: '10px',
                     }}
                   >
-                    <h3
+                    <div
                       style={{
-                        fontSize: '18px',
-                        fontWeight: 'bold',
-                        margin: 0,
-                        color: 'white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
                       }}
                     >
-                      {sections[currentSection].title1}
-                    </h3>
-                    {/* 小三角指示器 */}
-                    {/* <div
-                  style={{
-                    width: 0,
-                    height: 0,
-                    borderLeft: '4px solid transparent',
-                    borderRight: '4px solid transparent',
-                    borderBottom: '6px solid #007AFF',
-                  }}
-                ></div> */}
-                  </div>
-                  <div
-                    style={{
-                      background: '#fff',
-                      borderRadius: '4px',
-                      padding: '4px 8px',
-                      fontSize: '12px',
-                      color: 'black',
-                      fontWeight: 'bold',
-                    }}
-                  >
-                    {sections[currentSection].items.length}
-                  </div>
-                </div>
-              )}
-
-              <div style={{ marginBottom: '30px' }}>
-                {/* 部分内容 */}
-                {currentSection == 2 && (
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0px',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                      borderRadius: '15px',
-                      padding: '5px 15px',
-                    }}
-                  >
-                    {sections[currentSection].items.map((item, index) => (
-                      <div
-                        key={item.id}
+                      <h3
                         style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          padding: '15px 0',
-                          borderBottom:
-                            index < sections[currentSection].items.length - 1
-                              ? '0.5px solid rgba(255, 255, 255, 0.2)'
-                              : 'none',
+                          fontSize: '18px',
+                          fontWeight: 'bold',
+                          margin: 0,
                           color: 'white',
                         }}
                       >
-                        <div
-                          style={{
-                            fontSize: '14px',
-                            fontWeight: 'bold',
-                            marginRight: '15px',
-                            minWidth: '20px',
-                          }}
-                        >
-                          {index + 1}.
-                        </div>
-                        <div
-                          style={{
-                            fontSize: '16px',
-                            fontWeight: 'bold',
-                            flex: 1,
-                          }}
-                        >
-                          {item.title}
-                        </div>
-                      </div>
-                    ))}
+                        {sections[currentSection].title1}
+                      </h3>
+                    </div>
+                    <div
+                      style={{
+                        background: '#fff',
+                        borderRadius: '4px',
+                        padding: '4px 8px',
+                        fontSize: '12px',
+                        color: 'black',
+                        fontWeight: 'bold',
+                      }}
+                    >
+                      {sections[currentSection].items.length}
+                    </div>
                   </div>
-                )}
+                }
 
-                {(currentSection == 0 || currentSection == 1) && (
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '10px',
-                    }}
-                  >
-                    {sections[currentSection].items.map(item => (
-                      <div
-                        key={item.id}
-                        style={{
-                          background: 'rgba(255, 255, 255, 0.1)',
-                          borderRadius: '15px',
-                          padding: '15px',
-                          border: '1px solid rgba(255, 255, 255, 0.2)',
-                          cursor: 'pointer',
-                          transition: 'all 0.3s ease',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          position: 'relative',
-                        }}
-                        onMouseEnter={e => {
-                          e.currentTarget.style.background =
-                            'rgba(255, 255, 255, 0.15)';
-                        }}
-                        onMouseLeave={e => {
-                          e.currentTarget.style.background =
-                            'rgba(255, 255, 255, 0.1)';
-                        }}
-                        onClick={() => {
-                          console.log('点击项目:', item.title);
-
-                          setShowBottomDrawer(true);
-                          setSelectItem(item);
-                        }}
-                      >
-                        <div style={{ flex: 1 }}>
+                <div style={{ marginBottom: '30px' }}>
+                  {/* 部分内容 */}
+                  {false && (
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0px',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        borderRadius: '15px',
+                        padding: '5px 15px',
+                      }}
+                    >
+                      {sections[currentSection].items.map((item, index) => (
+                        <div
+                          key={item.id}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '15px 0',
+                            borderBottom:
+                              index < sections[currentSection].items.length - 1
+                                ? '0.5px solid rgba(255, 255, 255, 0.2)'
+                                : 'none',
+                            color: 'white',
+                          }}
+                        >
+                          <div
+                            style={{
+                              fontSize: '14px',
+                              fontWeight: 'bold',
+                              marginRight: '15px',
+                              minWidth: '20px',
+                            }}
+                          >
+                            {index + 1}.
+                          </div>
                           <div
                             style={{
                               fontSize: '16px',
                               fontWeight: 'bold',
-                              color: 'white',
-                              marginBottom: '5px',
+                              flex: 1,
                             }}
                           >
                             {item.title}
                           </div>
-                          <div
-                            style={{
-                              fontSize: '12px',
-                              color: 'rgba(255, 255, 255, 0.7)',
-                              lineHeight: '1.3',
-                            }}
-                          >
-                            {item.content}
-                          </div>
                         </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {(currentSection == 0 ||
+                    currentSection == 1 ||
+                    currentSection == 2) && (
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                      }}
+                    >
+                      {sections[currentSection].items.map(item => (
                         <div
+                          key={item.id}
                           style={{
+                            background: 'rgba(255, 255, 255, 0.1)',
+                            borderRadius: '15px',
+                            padding: '15px',
+                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease',
                             display: 'flex',
+                            justifyContent: 'space-between',
                             alignItems: 'center',
-                            gap: '10px',
+                            position: 'relative',
+                          }}
+                          onMouseEnter={e => {
+                            e.currentTarget.style.background =
+                              'rgba(255, 255, 255, 0.15)';
+                          }}
+                          onMouseLeave={e => {
+                            e.currentTarget.style.background =
+                              'rgba(255, 255, 255, 0.1)';
+                          }}
+                          onClick={() => {
+                            console.log('点击项目:', item.title);
+                            if (item.title == '任务报告') {
+                              router.push('/task-briefing');
+                            } else {
+                              setShowBottomDrawer(true);
+                              setSelectItem(item);
+                            }
                           }}
                         >
-                          {item.warning && (
-                            <span
+                          <div style={{ flex: 1 }}>
+                            <div
                               style={{
-                                fontSize: '10px',
-                                padding: '2px 6px',
-                                borderRadius: '8px',
-                                background: 'rgba(255, 152, 0, 0.3)',
-                                color: '#FF9800',
-                                border: '1px solid rgba(255, 152, 0, 0.5)',
+                                fontSize: '16px',
+                                fontWeight: 'bold',
+                                color: 'white',
+                                marginBottom: '5px',
                               }}
                             >
-                              {item.warning}
-                            </span>
-                          )}
-                          {/* <span
+                              {item.title}
+                            </div>
+                            <div
+                              style={{
+                                fontSize: '12px',
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                lineHeight: '1.3',
+                              }}
+                            >
+                              {item.content}
+                            </div>
+                          </div>
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '10px',
+                            }}
+                          >
+                            {item.warning && (
+                              <span
+                                style={{
+                                  fontSize: '10px',
+                                  padding: '2px 6px',
+                                  borderRadius: '8px',
+                                  background: 'rgba(255, 152, 0, 0.3)',
+                                  color: '#FF9800',
+                                  border: '1px solid rgba(255, 152, 0, 0.5)',
+                                }}
+                              >
+                                {item.warning}
+                              </span>
+                            )}
+                            {/* <span
                         style={{
                           fontSize: '10px',
                           padding: '2px 6px',
@@ -475,33 +452,80 @@ const Question = () => {
                       >
                         {item.status}
                       </span> */}
-                          <img
-                            src='/assets/icon/Back.svg'
-                            alt=''
-                            style={{
-                              width: '16px',
-                              height: '16px',
-                              filter: 'brightness(0) invert(1)',
-                              transform: 'rotate(180deg)',
-                            }}
-                          />
+                            <img
+                              src='/assets/icon/Back.svg'
+                              alt=''
+                              style={{
+                                width: '16px',
+                                height: '16px',
+                                filter: 'brightness(0) invert(1)',
+                                transform: 'rotate(180deg)',
+                              }}
+                            />
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
 
-            {/* 底部按钮 */}
-            <div
-              style={{
-                padding: '20px 0',
-                display: 'flex',
-                justifyContent: 'center',
-              }}
-            >
-              {currentSection != 2 && (
+              {/* 底部按钮 */}
+              <div
+                style={{
+                  padding: '20px 0',
+                  display: 'flex',
+                  justifyContent: 'center',
+                }}
+              >
+                {currentSection != 2 && (
+                  <button
+                    style={{
+                      width: '100%',
+                      padding: '15px 30px',
+                      borderRadius: '12px',
+                      background:
+                        'linear-gradient(0deg, var(--base-white-15, rgba(255, 255, 255, 0.15)), var(--base-white-15, rgba(255, 255, 255, 0.15))),linear-gradient(158.13deg, #30247C -14.18%, #00033E 88.47%)',
+                      color: 'white',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      fontSize: '16px',
+                      fontWeight: 'bold',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      transition: 'background 0.3s ease',
+                      marginRight: '6px',
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.background =
+                        'linear-gradient(0deg, var(--base-white-15, rgba(255, 255, 255, 0.15)), var(--base-white-15, rgba(255, 255, 255, 0.15))),linear-gradient(158.13deg, #30247C -14.18%, #00033E 88.47%)';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.background =
+                        'linear-gradient(0deg, var(--base-white-15, rgba(255, 255, 255, 0.15)), var(--base-white-15, rgba(255, 255, 255, 0.15))),linear-gradient(158.13deg, #30247C -14.18%, #00033E 88.47%)';
+                    }}
+                    onClick={() => {
+                      // 方法1：URL 参数传递（简单数据）
+                      const urlParams = new URLSearchParams({
+                        name: selectCardItem?.address || '',
+                        id: selectCardItem?.id?.toString() || '',
+                        taskType: '1',
+                      });
+                      router.push(`/chat?${urlParams.toString()}`);
+                    }}
+                  >
+                    <img
+                      src='/assets/icon/question.svg'
+                      alt=''
+                      style={{ width: '16px', height: '16px' }}
+                    />
+
+                    {'向天工提问'}
+                  </button>
+                )}
+
                 <button
                   style={{
                     width: '100%',
@@ -517,9 +541,9 @@ const Question = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+
                     gap: '8px',
                     transition: 'background 0.3s ease',
-                    marginRight: '6px',
                   }}
                   onMouseEnter={e => {
                     e.currentTarget.style.background =
@@ -530,80 +554,34 @@ const Question = () => {
                       'linear-gradient(0deg, var(--base-white-15, rgba(255, 255, 255, 0.15)), var(--base-white-15, rgba(255, 255, 255, 0.15))),linear-gradient(158.13deg, #30247C -14.18%, #00033E 88.47%)';
                   }}
                   onClick={() => {
-                    // 方法1：URL 参数传递（简单数据）
-                    const urlParams = new URLSearchParams({
-                      name: selectCardItem?.address || '',
-                      id: selectCardItem?.id?.toString() || '',
-                      taskType: '1',
-                    });
-                    router.push(`/chat?${urlParams.toString()}`);
+                    // router.push("/tabs/ai")
+                    if (currentSection == 0) {
+                      setCurrentSection(1);
+                    }
+                    if (currentSection == 1) {
+                      setCurrentSection(2);
+                    }
+
+                    if (currentSection == 2) {
+                      console.log('任务评价');
+
+                      // window.location.href = '/task-briefing';
+                      router.push('/evalution');
+                    }
                   }}
                 >
                   <img
-                    src='/assets/icon/question.svg'
+                    src='/assets/icon/dagou.svg'
                     alt=''
                     style={{ width: '16px', height: '16px' }}
                   />
-
-                  {'向天工提问'}
+                  {currentSection === 0
+                    ? '我明白啦'
+                    : currentSection === 1
+                    ? '确认齐全'
+                    : '完成'}
                 </button>
-              )}
-
-              <button
-                style={{
-                  width: '100%',
-                  padding: '15px 30px',
-                  borderRadius: '12px',
-                  background:
-                    'linear-gradient(0deg, var(--base-white-15, rgba(255, 255, 255, 0.15)), var(--base-white-15, rgba(255, 255, 255, 0.15))),linear-gradient(158.13deg, #30247C -14.18%, #00033E 88.47%)',
-                  color: 'white',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-
-                  gap: '8px',
-                  transition: 'background 0.3s ease',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background =
-                    'linear-gradient(0deg, var(--base-white-15, rgba(255, 255, 255, 0.15)), var(--base-white-15, rgba(255, 255, 255, 0.15))),linear-gradient(158.13deg, #30247C -14.18%, #00033E 88.47%)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background =
-                    'linear-gradient(0deg, var(--base-white-15, rgba(255, 255, 255, 0.15)), var(--base-white-15, rgba(255, 255, 255, 0.15))),linear-gradient(158.13deg, #30247C -14.18%, #00033E 88.47%)';
-                }}
-                onClick={() => {
-                  // router.push("/tabs/ai")
-                  if (currentSection == 0) {
-                    setCurrentSection(1);
-                  }
-                  if (currentSection == 1) {
-                    setCurrentSection(2);
-                  }
-
-                  if (currentSection == 2) {
-                    console.log('任务评价');
-
-                    // window.location.href = '/task-briefing';
-                    router.push('/evalution');
-                  }
-                }}
-              >
-                <img
-                  src='/assets/icon/dagou.svg'
-                  alt=''
-                  style={{ width: '16px', height: '16px' }}
-                />
-                {currentSection === 0
-                  ? '我明白啦'
-                  : currentSection === 1
-                  ? '确认齐全'
-                  : '完成'}
-              </button>
+              </div>
             </div>
           </div>
         </div>
