@@ -119,8 +119,18 @@ const IonicApp: React.FC<IonicAppProps> = ({
     try {
       const response = await getHealth();
       console.log(response);
+      present({
+        message: '健康检查成功',
+        duration: 3500,
+        position: 'top',
+      });
     } catch (error) {
       console.log(error);
+      present({
+        message: error as string,
+        duration: 3500,
+        position: 'top',
+      });
     }
   };
 
@@ -201,3 +211,10 @@ const IonicAppConnected = connect<{}, StateProps, DispatchProps>({
   },
   component: IonicApp,
 });
+function present(arg0: {
+  message: string;
+  duration: number;
+  position: string;
+}) {
+  throw new Error('Function not implemented.');
+}
