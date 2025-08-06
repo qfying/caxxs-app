@@ -48,7 +48,6 @@ import 'leaflet/dist/leaflet.css';
 
 /* Global styles */
 import './App.scss';
-import ConsoleWindow from './components/ConsoleWindow';
 import HomeOrTutorial from './components/HomeOrTutorial';
 import RedirectToLogin from './components/RedirectToLogin';
 import { AppContextProvider } from './data/AppContext';
@@ -193,7 +192,7 @@ const IonicApp: React.FC<IonicAppProps> = ({
           </IonRouterOutlet>
         </IonSplitPane>
       </IonReactRouter>
-      <ConsoleWindow />
+      {/* <ConsoleWindow /> */}
     </IonApp>
   );
 };

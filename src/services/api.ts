@@ -80,7 +80,7 @@ export const loginByPassword = (
 export const sendChatMessage = (
   request: chatReq
 ): Promise<any> => {
-  return http.post('/openapi/v0/chat/completions', request, { isStream: true });
+  return http.post('/openapi/v1/v0/chat/completions', request, { isStream: true });
 };
 
 export const taskCreate = ({ data }: any): Promise<ApiTaskResponse> => {
@@ -100,11 +100,11 @@ export const getTaskList = ({
 };
 
 export const getHealth = (): Promise<ApiTaskListResponse> => {
-  return http.get<TaskData[]>(`/openapi/v0/chat/test`);
+  return http.get<TaskData[]>(`/openapi/v1/v0/chat/test`);
 };
 
 export const chatUpload = (data: any): Promise<ApiTaskListResponse> => {
-  return http.post<TaskData[]>(`/openapi/v0/chat/upload`, data);
+  return http.post<TaskData[]>(`/openapi/v1/v0/chat/upload`, data);
 };
 
 

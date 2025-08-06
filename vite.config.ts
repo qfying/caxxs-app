@@ -9,11 +9,11 @@ export default defineConfig({
     port: 3000,
     host: true,
     proxy: {
-      '/openapi/v0': {
-        target: 'http://10.110.163.79:8787',
-        changeOrigin: true,
-        secure: false,
-      },
+      // '/openapi/v0': {
+      //   target: 'http://10.110.163.79:8787',
+      //   changeOrigin: true,
+      //   secure: false,
+      // },
       '/openapi/v2': {
         target: 'http://172.30.232.95:22080',
         changeOrigin: true,
