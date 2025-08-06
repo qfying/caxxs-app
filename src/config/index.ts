@@ -2,10 +2,20 @@
 const getBaseURL = () => {
   // 检查是否为Android手机应用
   const isAndroidApp = () => {
-    // 检查是否在Capacitor环境中（移动端）
-    if (window.location.protocol === 'capacitor:') {
-      // 检查用户代理是否包含Android
-      const userAgent = navigator.userAgent.toLowerCase();
+    // 检查用户代理是否包含Android
+    const userAgent = navigator.userAgent.toLowerCase();
+
+    console.log(
+      '88888888888888888888888888',
+      window.location.protocol,
+      userAgent
+    );
+
+    // 检查是否在Capacitor环境中（移动端）或者用户代理包含Android
+    if (
+      window.location.protocol === 'capacitor:' ||
+      userAgent.includes('android')
+    ) {
       return userAgent.includes('android');
     }
     return false;
