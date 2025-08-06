@@ -3,11 +3,11 @@ const getBaseURL = () => {
   // 检查是否在Capacitor环境中（移动端）
   if (window.location.protocol === 'capacitor:') {
     // 移动端使用外网可访问的地址或局域网地址
-    return 'http://10.110.163.79:8787';
+    return 'http://172.30.232.95:22080';
   }
 
   // 生产环境
-  return 'http://10.110.163.79:8787';
+  return 'http://172.30.232.95:22080';
 };
 
 export const API_CONFIG = {
