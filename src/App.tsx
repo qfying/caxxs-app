@@ -97,7 +97,7 @@ interface DispatchProps {
   setUsername: typeof setUsername;
 }
 
-interface IonicAppProps extends StateProps, DispatchProps {}
+interface IonicAppProps extends StateProps, DispatchProps { }
 
 const IonicApp: React.FC<IonicAppProps> = ({
   darkMode,
@@ -111,7 +111,7 @@ const IonicApp: React.FC<IonicAppProps> = ({
   const [presentToast] = useIonToast();
 
   useEffect(() => {
-    checkHealth();
+    // checkHealth();
     initLogin();
     loadUserData();
     loadConfData();

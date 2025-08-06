@@ -11,7 +11,7 @@ import {
 import { personCircle } from 'ionicons/icons';
 import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import ChatInputArea from '../components/ChatInputArea';
-import { chatReq, chatUpload, sendChatMessage } from '../services/api';
+import { chatReq, chatUpload, getHealth, sendChatMessage } from '../services/api';
 import './chat.css';
 import Taskdemo from './taskdemo';
 
@@ -75,15 +75,14 @@ const MessageItem = ({ message, buttosearch }: Prop) => {
     message.agent === 'debug_answer_analysis' ? null : (
     <div
       className={`message-container ${message.isUser ? 'user' : ''}`}
-      // style={{
-      //   border: "1px solid rgba(255, 255, 255, 0.5)",
-      //   borderRadius: "2px 14px 14px 14px"
-      // }}
+    // style={{
+    //   border: "1px solid rgba(255, 255, 255, 0.5)",
+    //   borderRadius: "2px 14px 14px 14px"
+    // }}
     >
       <div
-        className={`message-bubble ${message.isUser ? 'user' : 'bot'} ${
-          message.status
-        }`}
+        className={`message-bubble ${message.isUser ? 'user' : 'bot'} ${message.status
+          }`}
       >
         {renderMessageByAgent()}
         {message.isUser !== true &&
@@ -696,6 +695,30 @@ const Chat: React.FC = () => {
   const [type, setType] = useState('1');
   const router = useIonRouter();
 
+  const checkHealth = async () => {
+    try {
+      const response = await getHealth();
+      console.log('checkHealth============', response);
+      presentToast({
+        message: '健康检查成功',
+        duration: 3500,
+        position: 'top',
+      });
+    } catch (error) {
+      console.log(error);
+      presentToast({
+        message: error as string,
+        duration: 3500,
+        position: 'top',
+      });
+    }
+  };
+
+
+  useEffect(() => {
+    checkHealth()
+  }, [])
+
   // 接收URL参数
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
@@ -1210,7 +1233,7 @@ const Chat: React.FC = () => {
                             content:
                               agent === 'researcher'
                                 ? researcherMessages.get(researcherAgentid) ||
-                                  ''
+                                ''
                                 : agentMessages.get(agent) || '',
                             isUser: false,
                             status: 'sending',
@@ -1660,3 +1683,7 @@ const Chat: React.FC = () => {
 };
 
 export default Chat;
+function presentToast(arg0: { message: string; duration: number; position: string; }) {
+  throw new Error('Function not implemented.');
+}
+
