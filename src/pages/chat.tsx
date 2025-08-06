@@ -711,28 +711,6 @@ const Chat: React.FC = () => {
 
   const [hello, setHello] = useState('');
 
-  // 检查是否为Android手机应用
-  const isAndroidApp = () => {
-    // 检查用户代理是否包含Android
-    const userAgent = navigator.userAgent.toLowerCase();
-
-    console.log('88888888888888888888888888', window.location.protocol);
-    console.log('88888888888888888888888888', userAgent);
-
-    // 检查是否在Capacitor环境中（移动端）或者用户代理包含Android
-    if (
-      window.location.protocol === 'capacitor:' ||
-      userAgent.includes('android')
-    ) {
-      return userAgent.includes('android');
-    }
-    return false;
-  };
-
-  useEffect(() => {
-    console.log('isAndroidApp============', isAndroidApp());
-  }, []);
-
   // 接收URL参数
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
