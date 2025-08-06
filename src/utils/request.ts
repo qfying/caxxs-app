@@ -108,13 +108,15 @@ class HttpRequest {
       },
     };
 
+    console.log('Request Headers:', finalOptions.headers);
+
     try {
       const response = await this.fetchWithTimeout(
         `${this.baseURL}${url}`,
         finalOptions
       );
 
-      console.log('response===========', response);
+      console.log('请求头===========', response);
 
       // 如果是流式输出，直接返回响应，不进行JSON解析
       if (options.isStream) {
@@ -123,13 +125,20 @@ class HttpRequest {
 
       return await this.handleResponse<T>(response);
     } catch (error: any) {
+      console.error('网络请求错误:', error);
+      console.error('请求URL:', `${this.baseURL}${url}`);
+      console.error('请求选项:', finalOptions);
+
       if (error instanceof RequestError) {
         throw error;
       }
       if (error.name === 'AbortError') {
         throw new RequestError(408, '请求超时');
       }
-      throw new RequestError(500, '网络错误');
+      if (error.message && error.message.includes('Failed to fetch')) {
+        throw new RequestError(0, '网络连接失败，请检查网络设置');
+      }
+      throw new RequestError(500, `网络错误: ${error.message || '未知错误'}`);
     }
   }
 

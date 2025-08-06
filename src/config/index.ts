@@ -1,5 +1,5 @@
 export const API_CONFIG = {
-  BASE_URL: 'http://10.110.163.79:8787', // 直接使用完整API地址
+  BASE_URL: '',
   TIMEOUT: 10000,
   DEFAULT_HEADERS: {
     'Content-Type': 'application/json',

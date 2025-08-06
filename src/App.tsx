@@ -48,6 +48,7 @@ import 'leaflet/dist/leaflet.css';
 
 /* Global styles */
 import './App.scss';
+import ConsoleWindow from './components/ConsoleWindow';
 import HomeOrTutorial from './components/HomeOrTutorial';
 import RedirectToLogin from './components/RedirectToLogin';
 import { AppContextProvider } from './data/AppContext';
@@ -73,7 +74,6 @@ import TaskBriefing from './pages/taskBriefing';
 import TaskListPage from './pages/taskListPage';
 import { getHealth, loginByPassword } from './services/api';
 import { useUserStore } from './stores/userStore';
-import { checkNetworkStatus } from './utils/network';
 
 setupIonicReact();
 
@@ -120,18 +120,6 @@ const IonicApp: React.FC<IonicAppProps> = ({
 
   const checkHealth = async () => {
     try {
-      // 首先检查网络状态
-      const isNetworkAvailable = await checkNetworkStatus();
-      if (!isNetworkAvailable) {
-        presentToast({
-          message: '网络连接不可用，请检查网络设置',
-          duration: 3500,
-          position: 'top',
-          color: 'warning',
-        });
-        return;
-      }
-
       const response = await getHealth();
       console.log('checkHealth============', response);
       presentToast({
@@ -140,20 +128,11 @@ const IonicApp: React.FC<IonicAppProps> = ({
         position: 'top',
       });
     } catch (error) {
-      console.error('健康检查失败:', error);
-      let errorMessage = '网络请求失败';
-
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else if (typeof error === 'string') {
-        errorMessage = error;
-      }
-
+      console.log(error);
       presentToast({
-        message: `健康检查失败: ${errorMessage}`,
+        message: error as string,
         duration: 3500,
         position: 'top',
-        color: 'danger',
       });
     }
   };
@@ -216,6 +195,7 @@ const IonicApp: React.FC<IonicAppProps> = ({
           </IonRouterOutlet>
         </IonSplitPane>
       </IonReactRouter>
+      <ConsoleWindow />
     </IonApp>
   );
 };
