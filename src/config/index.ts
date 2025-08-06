@@ -1,5 +1,17 @@
+// 动态配置API基础URL，支持不同环境
+const getBaseURL = () => {
+  // 检查是否在Capacitor环境中（移动端）
+  if (window.location.protocol === 'capacitor:') {
+    // 移动端使用外网可访问的地址或局域网地址
+    return 'http://10.110.163.79:8787';
+  }
+
+  // 生产环境
+  return 'http://10.110.163.79:8787';
+};
+
 export const API_CONFIG = {
-  BASE_URL: 'http://10.110.163.79:8787',
+  BASE_URL: getBaseURL(),
   TIMEOUT: 10000,
   DEFAULT_HEADERS: {
     'Content-Type': 'application/json',

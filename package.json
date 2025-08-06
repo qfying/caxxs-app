@@ -7,7 +7,7 @@
   "private": true,
   "dependencies": {
     "@capacitor/android": "^7.0.1",
-    "@capacitor/core": "^7.0.0",
+    "@capacitor/core": "^7.0.1",
     "@capacitor/ios": "7.0.1",
     "@capacitor/preferences": "^7.0.0",
     "@ionic/react": "^8.5.0",
