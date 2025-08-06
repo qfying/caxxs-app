@@ -509,7 +509,7 @@ const parseMarkdown = (text: string) => {
       // 处理超链接 - 必须在图片处理之前
       .replace(
         /\[([^\]]+)\]\(([^)]+)\)/g,
-        '<a href="$2" target="_blank" rel="noopener noreferrer" style="color:rgb(51, 22, 216); text-decoration: underline;">$1</a>'
+        '<a href="$2" target="_blank" rel="noopener noreferrer" class="solution-link">$1</a>'
       )
       // 处理图片
       .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
