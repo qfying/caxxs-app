@@ -1,8 +1,165 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styles from './index.module.scss';
 
 const ConsoleWindow: React.FC = () => {
   const [logs, setLogs] = useState<string[]>([]);
+  const [position, setPosition] = useState({ x: 20, y: 20 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const consoleRef = useRef<HTMLDivElement>(null);
+  const animationFrameRef = useRef<number | undefined>(undefined);
+
+  // 获取视窗边界
+  const getViewportBounds = useCallback((): { maxX: number; maxY: number } => {
+    const element = consoleRef.current;
+    if (!element) return { maxX: 0, maxY: 0 };
+
+    const rect = element.getBoundingClientRect();
+    return {
+      maxX: window.innerWidth - rect.width,
+      maxY: window.innerHeight - rect.height,
+    };
+  }, []);
+
+  // 限制位置在视窗范围内
+  const clampPosition = useCallback(
+    (x: number, y: number) => {
+      const bounds = getViewportBounds();
+      return {
+        x: Math.max(0, Math.min(x, bounds.maxX)),
+        y: Math.max(0, Math.min(y, bounds.maxY)),
+      };
+    },
+    [getViewportBounds]
+  );
+
+  // 拖拽开始处理
+  const handleDragStart = useCallback((clientX: number, clientY: number) => {
+    if (!consoleRef.current) return;
+
+    const rect = consoleRef.current.getBoundingClientRect();
+    const offsetX = clientX - rect.left;
+    const offsetY = clientY - rect.top;
+
+    setDragOffset({ x: offsetX, y: offsetY });
+    setIsDragging(true);
+  }, []);
+
+  // 拖拽移动处理（使用 requestAnimationFrame 优化性能）
+  const handleDragMove = useCallback(
+    (clientX: number, clientY: number) => {
+      if (!isDragging) return;
+
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+
+      animationFrameRef.current = requestAnimationFrame(() => {
+        const newX = clientX - dragOffset.x;
+        const newY = clientY - dragOffset.y;
+
+        const clampedPosition = clampPosition(newX, newY);
+        setPosition(clampedPosition);
+      });
+    },
+    [isDragging, dragOffset, clampPosition]
+  );
+
+  // 拖拽结束处理
+  const handleDragEnd = useCallback(() => {
+    setIsDragging(false);
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+  }, []);
+
+  // 鼠标事件处理
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      handleDragStart(e.clientX, e.clientY);
+    },
+    [handleDragStart]
+  );
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      handleDragMove(e.clientX, e.clientY);
+    },
+    [handleDragMove]
+  );
+
+  const handleMouseUp = useCallback(() => {
+    handleDragEnd();
+  }, [handleDragEnd]);
+
+  // 触摸事件处理
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      handleDragStart(touch.clientX, touch.clientY);
+    },
+    [handleDragStart]
+  );
+
+  const handleTouchMove = useCallback(
+    (e: TouchEvent) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      handleDragMove(touch.clientX, touch.clientY);
+    },
+    [handleDragMove]
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    handleDragEnd();
+  }, [handleDragEnd]);
+
+  // 添加全局事件监听
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchmove', handleTouchMove, {
+        passive: false,
+      });
+      document.addEventListener('touchend', handleTouchEnd);
+
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
+      };
+    }
+  }, [
+    isDragging,
+    handleMouseMove,
+    handleMouseUp,
+    handleTouchMove,
+    handleTouchEnd,
+  ]);
+
+  // 清理动画帧
+  useEffect(() => {
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, []);
+
+  // 窗口大小改变时重新计算位置
+  useEffect(() => {
+    const handleResize = () => {
+      const clampedPosition = clampPosition(position.x, position.y);
+      setPosition(clampedPosition);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [position, clampPosition]);
 
   // 辅助函数：格式化参数
   const formatArgs = (args: any[]): string => {
@@ -111,8 +268,22 @@ const ConsoleWindow: React.FC = () => {
   }, []);
 
   return (
-    <div className={styles.consoleWindow}>
-      <div className={styles.header}>Console</div>
+    <div
+      ref={consoleRef}
+      className={styles.consoleWindow}
+      style={{
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        cursor: isDragging ? 'grabbing' : 'default',
+      }}
+    >
+      <div
+        className={styles.header}
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+      >
+        Console
+      </div>
       <div className={styles.logs}>
         {logs.map((log, index) => (
           <div key={index} className={styles.logEntry}>

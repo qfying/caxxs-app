@@ -37,7 +37,7 @@ class WebSocketManager {
     }
 
     try {
-      const wsUrl = `ws://10.110.163.79:21095${endpoint}`;
+      const wsUrl = `ws://172.30.232.95:32250${endpoint}`;
       this.ws = new WebSocket(wsUrl);
 
       this.ws.onopen = () => {

@@ -11,12 +11,7 @@ import {
 import { personCircle } from 'ionicons/icons';
 import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import ChatInputArea from '../components/ChatInputArea';
-import {
-  chatReq,
-  chatUpload,
-  getHealth,
-  sendChatMessage,
-} from '../services/api';
+import { chatReq, chatUpload, sendChatMessage } from '../services/api';
 import './chat.css';
 import Taskdemo from './taskdemo';
 
@@ -39,6 +34,7 @@ interface Message {
   options?: any[];
   btnAgent?: string;
   searchResults?: any[];
+  url?: string;
 }
 
 type Prop = {
@@ -80,16 +76,24 @@ const MessageItem = ({ message, buttosearch }: Prop) => {
     message.agent === 'debug_answer_analysis' ? null : (
     <div
       className={`message-container ${message.isUser ? 'user' : ''}`}
-    // style={{
-    //   border: "1px solid rgba(255, 255, 255, 0.5)",
-    //   borderRadius: "2px 14px 14px 14px"
-    // }}
+      // style={{
+      //   border: "1px solid rgba(255, 255, 255, 0.5)",
+      //   borderRadius: "2px 14px 14px 14px"
+      // }}
     >
       <div
-        className={`message-bubble ${message.isUser ? 'user' : 'bot'} ${message.status
-          }`}
+        className={`message-bubble ${message.isUser ? 'user' : 'bot'} ${
+          message.status
+        }`}
       >
         {renderMessageByAgent()}
+
+        {message.url && (
+          <div
+            dangerouslySetInnerHTML={{ __html: parseMarkdown(message.url) }}
+          />
+        )}
+
         {message.isUser !== true &&
           message.options &&
           message.options.length > 0 && (
@@ -502,6 +506,11 @@ const parseMarkdown = (text: string) => {
       )
       // 处理行内代码
       .replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
+      // 处理超链接 - 必须在图片处理之前
+      .replace(
+        /\[([^\]]+)\]\(([^)]+)\)/g,
+        '<a href="$2" target="_blank" rel="noopener noreferrer" style="color:rgb(51, 22, 216); text-decoration: underline;">$1</a>'
+      )
       // 处理图片
       .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
         // 检查是否为视频链接
@@ -702,32 +711,30 @@ const Chat: React.FC = () => {
 
   const [hello, setHello] = useState('');
 
-  console.log("window.location.protocol==========", window.location.protocol);
+  console.log('window.location.protocol==========', window.location.protocol);
 
+  // 检查是否为Android手机应用
+  const isAndroidApp = () => {
+    // 检查是否在Capacitor环境中（移动端）
+    console.log('88888888888888888888888888', window.location.protocol);
 
-  const checkHealth = async () => {
-    try {
-      const response = await getHealth();
-      console.log('checkHealth============', response);
-      setHello(response.message);
+    if (window.location.protocol === 'capacitor:') {
+      // 检查用户代理是否包含Android
+      const userAgent = navigator.userAgent.toLowerCase();
 
-      presentToast({
-        message: '健康检查成功',
-        duration: 3500,
-        position: 'top',
-      });
-    } catch (error) {
-      console.log(error);
-      presentToast({
-        message: error as string,
-        duration: 3500,
-        position: 'top',
-      });
+      console.log(
+        '88888888888888888888888888',
+        userAgent,
+        userAgent.includes('android')
+      );
+
+      return userAgent.includes('android');
     }
+    return false;
   };
 
   useEffect(() => {
-    checkHealth();
+    console.log('isAndroidApp============', isAndroidApp());
   }, []);
 
   // 接收URL参数
@@ -1042,7 +1049,7 @@ const Chat: React.FC = () => {
                       const newMessages = [...prev];
                       newMessages[newMessages.length - 1] = {
                         ...newMessages[newMessages.length - 1],
-                        content: answerContent,
+                        url: answerContent,
                       };
                       return newMessages;
                     });
@@ -1244,7 +1251,7 @@ const Chat: React.FC = () => {
                             content:
                               agent === 'researcher'
                                 ? researcherMessages.get(researcherAgentid) ||
-                                ''
+                                  ''
                                 : agentMessages.get(agent) || '',
                             isUser: false,
                             status: 'sending',

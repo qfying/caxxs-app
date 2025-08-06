@@ -6,7 +6,7 @@ import {
   useIonToast,
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Route } from 'react-router-dom';
 
 import Menu from './components/Menu';
@@ -48,6 +48,7 @@ import 'leaflet/dist/leaflet.css';
 
 /* Global styles */
 import './App.scss';
+import ConsoleWindow from './components/ConsoleWindow';
 import HomeOrTutorial from './components/HomeOrTutorial';
 import RedirectToLogin from './components/RedirectToLogin';
 import { AppContextProvider } from './data/AppContext';
@@ -109,6 +110,8 @@ const IonicApp: React.FC<IonicAppProps> = ({
   const { setUser } = useUserStore();
   const [presentToast] = useIonToast();
 
+  const [log, setLog] = useState(true);
+
   useEffect(() => {
     // checkHealth();
     initLogin();
@@ -157,6 +160,25 @@ const IonicApp: React.FC<IonicAppProps> = ({
     <IonApp className={`${darkMode ? 'ion-palette-dark' : ''}`}>
       <IonReactRouter>
         <IonSplitPane contentId='main'>
+          <div
+            style={{
+              width: '30px',
+              height: '30px',
+              color: '#fff',
+              background: 'red',
+              borderRadius: '15px',
+              position: 'absolute',
+              top: '100px',
+              right: '10px',
+              zIndex: '1000',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+            onClick={() => setLog(!log)}
+          >
+            log
+          </div>
           <Menu />
           <IonRouterOutlet id='main'>
             {/*
@@ -192,7 +214,7 @@ const IonicApp: React.FC<IonicAppProps> = ({
           </IonRouterOutlet>
         </IonSplitPane>
       </IonReactRouter>
-      {/* <ConsoleWindow /> */}
+      {log && <ConsoleWindow />}
     </IonApp>
   );
 };

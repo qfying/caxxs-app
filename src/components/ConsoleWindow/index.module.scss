@@ -1,8 +1,7 @@
 .consoleWindow {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
   width: calc(100% - 40px);
+  max-width: 600px;
   height: 300px;
   background-color: #2b2b2b;
   color: #f1f1f1;
@@ -12,6 +11,15 @@
   flex-direction: column;
   font-family: 'Courier New', Courier, monospace;
   z-index: 1000;
+  user-select: none;
+  touch-action: none;
+
+  // 移动端适配
+  @media (max-width: 768px) {
+    width: calc(100% - 20px);
+    height: 250px;
+    font-size: 14px;
+  }
 
   .header {
     background-color: #3c3c3c;
@@ -19,13 +27,32 @@
     font-weight: bold;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
-    cursor: move;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+
+    &:active {
+      cursor: grabbing;
+    }
+
+    // 移动端适配
+    @media (max-width: 768px) {
+      padding: 12px;
+      font-size: 16px;
+    }
   }
 
   .logs {
     flex-grow: 1;
     padding: 12px;
     overflow-y: auto;
+    user-select: text;
+
+    // 移动端适配
+    @media (max-width: 768px) {
+      padding: 8px;
+      font-size: 12px;
+    }
 
     .logEntry {
       padding: 4px 0;
@@ -35,6 +62,12 @@
 
       &:last-child {
         border-bottom: none;
+      }
+
+      // 移动端适配
+      @media (max-width: 768px) {
+        padding: 2px 0;
+        line-height: 1.4;
       }
     }
   }
