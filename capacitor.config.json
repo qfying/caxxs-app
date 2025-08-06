@@ -5,7 +5,7 @@
   "npmClient": "pnpm",
   "webDir": "dist",
   "server": {
-    "url": "http://10.110.163.79:3000",
+    "url": "http://10.110.163.79:8787",
     "cleartext": true,
     "allowNavigation": [
       "*"
