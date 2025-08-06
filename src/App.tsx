@@ -97,7 +97,7 @@ interface DispatchProps {
   setUsername: typeof setUsername;
 }
 
-interface IonicAppProps extends StateProps, DispatchProps { }
+interface IonicAppProps extends StateProps, DispatchProps {}
 
 const IonicApp: React.FC<IonicAppProps> = ({
   darkMode,
@@ -154,9 +154,7 @@ const IonicApp: React.FC<IonicAppProps> = ({
     }
   };
 
-  return schedule.groups.length === 0 ? (
-    <div></div>
-  ) : (
+  return (
     <IonApp className={`${darkMode ? 'ion-palette-dark' : ''}`}>
       <IonReactRouter>
         <IonSplitPane contentId='main'>

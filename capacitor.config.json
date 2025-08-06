@@ -4,13 +4,7 @@
   "bundledWebRuntime": false,
   "npmClient": "pnpm",
   "webDir": "dist",
-  "server": {
-    "url": "http://10.110.163.79:8787",
-    "cleartext": true,
-    "allowNavigation": [
-      "*"
-    ]
-  },
+
   "plugins": {
     "CapacitorHttp": {
       "enabled": true
