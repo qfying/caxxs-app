@@ -80,15 +80,14 @@ const MessageItem = ({ message, buttosearch }: Prop) => {
     message.agent === 'debug_answer_analysis' ? null : (
     <div
       className={`message-container ${message.isUser ? 'user' : ''}`}
-      // style={{
-      //   border: "1px solid rgba(255, 255, 255, 0.5)",
-      //   borderRadius: "2px 14px 14px 14px"
-      // }}
+    // style={{
+    //   border: "1px solid rgba(255, 255, 255, 0.5)",
+    //   borderRadius: "2px 14px 14px 14px"
+    // }}
     >
       <div
-        className={`message-bubble ${message.isUser ? 'user' : 'bot'} ${
-          message.status
-        }`}
+        className={`message-bubble ${message.isUser ? 'user' : 'bot'} ${message.status
+          }`}
       >
         {renderMessageByAgent()}
         {message.isUser !== true &&
@@ -703,6 +702,9 @@ const Chat: React.FC = () => {
 
   const [hello, setHello] = useState('');
 
+  console.log("window.location.protocol==========", window.location.protocol);
+
+
   const checkHealth = async () => {
     try {
       const response = await getHealth();
@@ -1242,7 +1244,7 @@ const Chat: React.FC = () => {
                             content:
                               agent === 'researcher'
                                 ? researcherMessages.get(researcherAgentid) ||
-                                  ''
+                                ''
                                 : agentMessages.get(agent) || '',
                             isUser: false,
                             status: 'sending',

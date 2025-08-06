@@ -7,7 +7,7 @@ const getBaseURL = () => {
   }
 
   // 生产环境
-  return '';
+  return 'http://172.30.232.95:22080';
 };
 
 export const API_CONFIG = {
