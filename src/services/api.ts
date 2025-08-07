@@ -33,7 +33,13 @@ interface TaskData {
 }
 
 interface ChatMessage {
-  content: string;
+  content: string | Array<{
+    type: string;
+    text?: any;
+    image_url?: {
+      url: string;
+    };
+  }>;
   role: string;
   dataId: string;
 }

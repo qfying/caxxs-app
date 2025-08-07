@@ -15,8 +15,8 @@ interface ChatInputAreaProps {
   onSendMessage: (text: string) => void;
   onSetShowInputType: (type: number) => void;
   showtag?: boolean;
-  uploadedImages: any[];
-  setUploadedImages: React.Dispatch<React.SetStateAction<any[]>>;
+  uploadedImages?: any[];
+  setUploadedImages?: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
 const ChatInputArea: React.FC<ChatInputAreaProps> = ({
@@ -28,8 +28,8 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   onSendMessage,
   onSetShowInputType,
   showtag,
-  uploadedImages,
-  setUploadedImages,
+  uploadedImages = [],
+  setUploadedImages = () => {},
 }) => {
   const inputRef = useRef<HTMLIonInputElement>(null);
   const [present] = useIonToast();

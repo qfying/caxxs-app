@@ -951,7 +951,7 @@ const Chat: React.FC = () => {
         outLinkUid: 'shareChat-1754533192615-v8Ejm6GhhxpNhjhk9w_ZGzNR',
         detail: true,
         stream: true,
-        // finish_reason_type: 0,
+        finish_reason_type: 0,
       },
       type: type,
     };
