@@ -48,6 +48,7 @@ import 'leaflet/dist/leaflet.css';
 
 /* Global styles */
 import './App.scss';
+import ConsoleWindow from './components/ConsoleWindow';
 import HomeOrTutorial from './components/HomeOrTutorial';
 import RedirectToLogin from './components/RedirectToLogin';
 import { AppContextProvider } from './data/AppContext';
@@ -159,7 +160,7 @@ const IonicApp: React.FC<IonicAppProps> = ({
     <IonApp className={`${darkMode ? 'ion-palette-dark' : ''}`}>
       <IonReactRouter>
         <IonSplitPane contentId='main'>
-          {/* <div
+          <div
             style={{
               width: '30px',
               height: '30px',
@@ -177,7 +178,7 @@ const IonicApp: React.FC<IonicAppProps> = ({
             onClick={() => setLog(!log)}
           >
             log
-          </div> */}
+          </div>
           <Menu />
           <IonRouterOutlet id='main'>
             {/*
@@ -213,7 +214,7 @@ const IonicApp: React.FC<IonicAppProps> = ({
           </IonRouterOutlet>
         </IonSplitPane>
       </IonReactRouter>
-      {/* {log && <ConsoleWindow />} */}
+      {log && <ConsoleWindow />}
     </IonApp>
   );
 };

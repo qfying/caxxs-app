@@ -115,7 +115,7 @@ export const chatUpload = (data: any): Promise<ApiTaskListResponse> => {
 };
 
 // 文件上传函数
-export const uploadFile = (file: File): Promise<ApiResponse<{ imageurl: string }>> => {
+export const uploadFile = (file: File): Promise<ApiResponse<{ fileId: string, previewUrl: string }>> => {
 
   console.log("uploadFile==============",file);
 
@@ -125,7 +125,7 @@ export const uploadFile = (file: File): Promise<ApiResponse<{ imageurl: string }
   console.log("uploadFile==============",formData.get('file'));
 
   // 不设置Content-Type，让浏览器自动设置multipart/form-data和boundary
-  return http.post<{ imageurl: string }>('/openapi/v1/v0/chat/upload/file', formData);
+  return http.post<{ fileId: string, previewUrl: string }>('/openapi/v1/v0/chat/upload/file', formData);
 };
 
 

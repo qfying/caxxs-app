@@ -1,5 +1,7 @@
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 import { IonButton, IonInput, useIonToast } from '@ionic/react';
 import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
+import { usePlatform } from '../hooks/usePlatform';
 import { uploadFile } from '../services/api';
 import './ChatInputArea.css';
 import ChatVoiceRecorder from './ChatVoiceRecorder';
@@ -14,7 +16,7 @@ interface ChatInputAreaProps {
   onSetShowInputType: (type: number) => void;
   showtag?: boolean;
   uploadedImages: any[];
-  setUploadedImages: (images: any[]) => void;
+  setUploadedImages: React.Dispatch<React.SetStateAction<any[]>>;
 }
 
 const ChatInputArea: React.FC<ChatInputAreaProps> = ({
@@ -32,6 +34,9 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   const inputRef = useRef<HTMLIonInputElement>(null);
   const [present] = useIonToast();
   const [isUploading, setIsUploading] = useState(false);
+  const { isAndroid } = usePlatform();
+
+  console.log('isAndroid================', isAndroid);
 
   // 处理粘贴图片事件
   const handlePaste = async (event: ClipboardEvent) => {
@@ -218,7 +223,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
 
   // 删除图片函数
   const handleRemoveImage = (imageId: string) => {
-    setUploadedImages(prev => prev.filter(img => img.id !== imageId));
+    setUploadedImages(prev => prev.filter((img: any) => img.id !== imageId));
 
     // 从输入框中移除对应的图片markdown
     const imageToRemove = uploadedImages.find(img => img.id === imageId);
@@ -236,6 +241,41 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
       });
 
       onInputChange(customEvent);
+    }
+  };
+
+  // Android设备照片选择功能
+  const handleAndroidPhotoSelect = async () => {
+    if (!isAndroid) {
+      console.log('非Android设备，跳过照片选择');
+      return;
+    }
+
+    try {
+      const image = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: false,
+        resultType: CameraResultType.Uri,
+        source: CameraSource.Photos, // 从相册选择
+      });
+
+      if (image.webPath) {
+        // 获取图片文件
+        const response = await fetch(image.webPath);
+        const blob = await response.blob();
+        const file = new File([blob], 'photo.jpg', { type: 'image/jpeg' });
+
+        // 使用现有的图片上传处理函数
+        await handleImageUpload(file);
+      }
+    } catch (error) {
+      console.error('照片选择失败:', error);
+      present({
+        message: '照片选择失败，请重试',
+        duration: 3000,
+        position: 'top',
+        color: 'danger',
+      });
     }
   };
 
@@ -407,7 +447,11 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
                       }}
                     />
                   </IonButton>
-                  <IonButton fill='clear' disabled={isAIResponding}>
+                  <IonButton
+                    fill='clear'
+                    disabled={isAIResponding}
+                    onClick={isAndroid ? handleAndroidPhotoSelect : undefined}
+                  >
                     <img
                       src='/assets/icon/addtask.svg'
                       alt=''
