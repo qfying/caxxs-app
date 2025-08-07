@@ -3,6 +3,7 @@ import { API_CONFIG, HTTP_STATUS } from '../config';
 interface RequestOptions extends RequestInit {
   timeout?: number;
   isStream?: boolean;
+  skipDefaultContentType?: boolean;
 }
 
 interface ApiResponse<T = any> {
@@ -94,7 +95,14 @@ class HttpRequest {
     options: RequestOptions = {}
   ): Promise<ApiResponse<T>> {
     const token = this.getToken();
-    const headers = new Headers(this.defaultHeaders);
+    const headers = new Headers();
+
+    // 对于FormData上传，跳过默认的Content-Type
+    if (!options.skipDefaultContentType) {
+      Object.entries(this.defaultHeaders).forEach(([key, value]) => {
+        headers.append(key, value);
+      });
+    }
 
     if (token) {
       headers.append('Authorization', `Bearer ${token}`);
@@ -154,10 +162,30 @@ class HttpRequest {
     data?: any,
     options: RequestOptions = {}
   ): Promise<ApiResponse<T>> {
+    // 检查是否是FormData
+    let body: string | FormData;
+    let finalOptions = { ...options };
+
+    if (data instanceof FormData) {
+      body = data;
+      // 对于FormData，完全删除Content-Type，让浏览器自动设置boundary
+      if (finalOptions.headers) {
+        const headers = { ...finalOptions.headers };
+        delete (headers as any)['Content-Type'];
+        finalOptions.headers = headers;
+      } else {
+        finalOptions.headers = {};
+      }
+      // 确保不会从默认头中继承Content-Type
+      finalOptions.skipDefaultContentType = true;
+    } else {
+      body = JSON.stringify(data);
+    }
+
     return this.request<T>(url, {
-      ...options,
+      ...finalOptions,
       method: 'POST',
-      body: JSON.stringify(data),
+      body,
     });
   }
 

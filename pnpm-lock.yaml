@@ -11,6 +11,9 @@ importers:
       '@capacitor/android':
         specifier: ^7.0.1
         version: 7.0.1(@capacitor/core@7.0.1)
+      '@capacitor/camera':
+        specifier: ^7.0.2
+        version: 7.0.2(@capacitor/core@7.0.1)
       '@capacitor/core':
         specifier: ^7.0.1
         version: 7.0.1
@@ -228,6 +231,11 @@ packages:
     resolution: {integrity: sha512-jukJJHfkcyEBOkFBJRD3EwXMIIQo7lSv0ExPWgsIliPdGXLAj6ElvK2JaYEzec3vKyLc4RTNFVv0PMEU0vnImg==}
     peerDependencies:
       '@capacitor/core': ^7.0.0
+
+  '@capacitor/camera@7.0.2':
+    resolution: {integrity: sha512-1/UbZZ8MSbRTMMvjQHQFJ0cs2ZNURNoyuUex0rAJwECsyHO0I5SRvu7YoMY5qTcRWScBcqT+3QZcJvETtRg7ug==}
+    peerDependencies:
+      '@capacitor/core': '>=7.0.0'
 
   '@capacitor/cli@7.4.2':
     resolution: {integrity: sha512-ckcRbg/kBSnJsuCTCLzowBxvgDTI+dcIN7LK+Nt71fbaUG3judpF279ymJRrgRDJshFR5D5dfcvTFh5N1z8liA==}
@@ -2206,6 +2214,10 @@ snapshots:
       '@babel/helper-validator-identifier': 7.27.1
 
   '@capacitor/android@7.0.1(@capacitor/core@7.0.1)':
+    dependencies:
+      '@capacitor/core': 7.0.1
+
+  '@capacitor/camera@7.0.2(@capacitor/core@7.0.1)':
     dependencies:
       '@capacitor/core': 7.0.1
 

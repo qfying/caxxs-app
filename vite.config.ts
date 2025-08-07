@@ -15,12 +15,12 @@ export default defineConfig({
       //   secure: false,
       // },
       '/openapi/v2': {
-        target: 'http://172.30.232.95:22080',
+        target: 'http://172.30.232.95:23081',
         changeOrigin: true,
         secure: false,
       },
       '/openapi/v1': {
-        target: 'http://172.30.232.95:22080',
+        target: 'http://172.30.232.95:23081',
         changeOrigin: true,
         secure: false,
       },

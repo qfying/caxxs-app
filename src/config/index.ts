@@ -25,7 +25,7 @@ const getBaseURL = () => {
   // Android手机应用返回指定地址，其他情况返回空字符串
   if (isAndroidApp()) {
     console.log('10000000000000000000============', isAndroidApp());
-    return 'http://172.30.232.95:22080';
+    return 'http://172.30.232.95:22081';
   }
 
   return '';

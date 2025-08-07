@@ -707,6 +707,11 @@ const Chat: React.FC = () => {
   const [showtag, setShowtag] = useState(false);
   const [sectionName, setSectionName] = useState('');
   const [type, setType] = useState('1');
+  const [type2, setType2] = useState('1');
+  const [uploadedImages, setUploadedImages] = useState<
+    Array<{ url: string; name: string; id: string }>
+  >([]);
+
   const router = useIonRouter();
 
   const [hello, setHello] = useState('');
@@ -914,25 +919,39 @@ const Chat: React.FC = () => {
           {
             dataId: chatId + 456,
             role: 'user',
-            // content: variablesFeedback ? currentInputRef.current : inputValue
-            content: iptvalue,
+            // content: iptvalue,
+            content: [
+              {
+                type: 'text',
+                text: iptvalue,
+              },
+              ...uploadedImages.map(image => ({
+                type: 'image_url',
+                image_url: {
+                  url: image.url,
+                },
+              })),
+            ],
           },
         ],
         variables: {
           // feedback: variablesFeedback,
           feedback: variablesFeedback ? iptvalue : '',
+          internet_search: true,
+          quote_enable: true,
+          enable_graphKB: type2,
         },
-        responseChatItemId: 'iwE8mnTwNkOLjnCoZwLcNeA6',
+        responseChatItemId: 'b1jmtV7hdBHokPUT2jzQwAwJ',
         // shareId: '6e6q0y0lnlw9t247jl2y9fbi',
         shareId:
-          type == '1' ? 'iuj6er9dbwlvfyvmrtxdg9em' : '3re59hoj7py6r1rebjmrrryn',
+          type == '1' ? 'iuj6er9dbwlvfyvmrtxdg9em' : 'zybc1bm3xzt6u3uccoxttyp6',
 
         chatId: chatId,
         appType: 'advanced',
-        outLinkUid: 'shareChat-1753087419979-S1TS4Yh1x1daxImmOkYMxvg',
+        outLinkUid: 'shareChat-1754533192615-v8Ejm6GhhxpNhjhk9w_ZGzNR',
         detail: true,
         stream: true,
-        finish_reason_type: 0,
+        // finish_reason_type: 0,
       },
       type: type,
     };
@@ -957,6 +976,8 @@ const Chat: React.FC = () => {
 
     try {
       const response = await sendChatMessage(messagebody);
+
+      setUploadedImages([]);
 
       if (!response.body) {
         throw new Error('无法读取响应流');
@@ -1631,6 +1652,8 @@ const Chat: React.FC = () => {
                 color: '#fff',
                 padding: '0 20px',
                 marginBottom: '12px',
+                display: 'flex',
+                gap: '10px',
               }}
             >
               <div
@@ -1655,6 +1678,28 @@ const Chat: React.FC = () => {
               >
                 排障模式
               </div>
+              <div
+                style={{
+                  width: '80px',
+                  height: '30px',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '15px',
+                  fontSize: '12px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: type2 == '1' ? '#3A3C61' : '',
+                }}
+                onClick={() => {
+                  if (type2 == '1') {
+                    setType2('0');
+                  } else {
+                    setType2('1');
+                  }
+                }}
+              >
+                知识图谱
+              </div>
             </div>
           )}
 
@@ -1667,6 +1712,8 @@ const Chat: React.FC = () => {
             onSendMessage={sendMessage}
             onSetShowInputType={setShowInputType}
             showtag={showtag}
+            uploadedImages={uploadedImages}
+            setUploadedImages={setUploadedImages}
           />
         </div>
       </div>

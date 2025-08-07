@@ -1,5 +1,12 @@
 import { http } from '../utils/request';
 
+// 导入ApiResponse类型
+interface ApiResponse<T = any> {
+  code: number;
+  message: string;
+  data: T;
+}
+
 interface LoginResponse {
   token: string;
   user: {
@@ -105,6 +112,20 @@ export const getHealth = (): Promise<ApiTaskListResponse> => {
 
 export const chatUpload = (data: any): Promise<ApiTaskListResponse> => {
   return http.post<TaskData[]>(`/openapi/v1/v0/chat/upload`, data);
+};
+
+// 文件上传函数
+export const uploadFile = (file: File): Promise<ApiResponse<{ imageurl: string }>> => {
+
+  console.log("uploadFile==============",file);
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  console.log("uploadFile==============",formData.get('file'));
+
+  // 不设置Content-Type，让浏览器自动设置multipart/form-data和boundary
+  return http.post<{ imageurl: string }>('/openapi/v1/v0/chat/upload/file', formData);
 };
 
 
