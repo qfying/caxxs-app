@@ -44,7 +44,7 @@ type Prop = {
 
 // 消息渲染组件
 const MessageItem = ({ message, buttosearch }: Prop) => {
-  console.log('123456', message, message.btnAgent);
+  console.log('777777777777777777', message);
 
   // 处理不同类型的 agent
 

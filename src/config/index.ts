@@ -28,7 +28,7 @@ const getBaseURL = () => {
     return 'http://172.30.232.95:23081';
   }
 
-  return 'http://172.30.232.95:23081';
+  return '';
 };
 
 export const API_CONFIG = {

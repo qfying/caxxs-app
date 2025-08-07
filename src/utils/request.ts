@@ -119,7 +119,35 @@ class HttpRequest {
     console.log('Request Headers:', finalOptions.headers);
 
     try {
-      const response = await this.fetchWithTimeout(
+      // 对于流式请求，如果在移动端则使用原生fetch绕过CapacitorHttp
+      let fetchFunction = this.fetchWithTimeout.bind(this);
+
+      console.log("11111111111111111111111111111111111",options.isStream,this.isMobileApp());
+
+
+      if (options.isStream && this.isMobileApp()) {
+        // 使用原生fetch绕过CapacitorHttp，以支持ReadableStream
+        const originalFetch = (window as any).webFetch || fetch;
+        fetchFunction = async (input: RequestInfo, options?: RequestOptions) => {
+          const { timeout = this.defaultTimeout, ...fetchOptions } = options || {};
+          const controller = new AbortController();
+          const id = setTimeout(() => controller.abort(), timeout);
+
+          try {
+            const response = await originalFetch(input, {
+              ...fetchOptions,
+              signal: controller.signal,
+            });
+            clearTimeout(id);
+            return response;
+          } catch (error) {
+            clearTimeout(id);
+            throw error;
+          }
+        };
+      }
+
+      const response = await fetchFunction(
         `${this.baseURL}${url}`,
         finalOptions
       );
@@ -148,6 +176,12 @@ class HttpRequest {
       }
       throw new RequestError(500, `网络错误: ${error.message || '未知错误'}`);
     }
+  }
+
+  private isMobileApp(): boolean {
+    // 检测是否在Capacitor移动应用环境中
+    return window.location.protocol === 'capacitor:' ||
+           (window as any).Capacitor?.isNativePlatform();
   }
 
   public async get<T = any>(
