@@ -492,6 +492,11 @@ const parseMarkdown = (text: string) => {
     text
       // 去除开头和结尾的空白字符
       .trim()
+      // 处理分隔线 - 需要在换行处理之前
+      .replace(
+        /^---+$/gim,
+        '<hr style="border: none;height: 1px; background-color: rgba(255, 255, 255, 0.3);" />'
+      )
       // 处理标题
       .replace(/^### (.*$)/gim, '<h3>$1</h3>')
       .replace(/^## (.*$)/gim, '<h2>$1</h2>')
@@ -743,7 +748,7 @@ const Chat: React.FC = () => {
   const buttosearch = (option: any, message: any) => {
     console.log('buttosearchoption==============', option, message);
     // setInputValue("ok")
-    if (option == '修改') {
+    if (option == '修改' || option.includes('其他')) {
       setShowtag(true);
     } else {
       if (
@@ -937,7 +942,12 @@ const Chat: React.FC = () => {
         ],
         variables: {
           // feedback: variablesFeedback,
-          feedback: variablesFeedback ? iptvalue : '',
+          feedback: {
+            content: variablesFeedback ? iptvalue : '',
+            image_url: uploadedImages.map(image => ({
+              url: image.url,
+            })),
+          },
           internet_search: true,
           quote_enable: true,
           enable_graphKB: type2,

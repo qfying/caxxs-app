@@ -48,7 +48,6 @@ import 'leaflet/dist/leaflet.css';
 
 /* Global styles */
 import './App.scss';
-import ConsoleWindow from './components/ConsoleWindow';
 import HomeOrTutorial from './components/HomeOrTutorial';
 import RedirectToLogin from './components/RedirectToLogin';
 import { AppContextProvider } from './data/AppContext';
@@ -66,6 +65,7 @@ import MainTabs from './pages/MainTabs';
 import Signup from './pages/Signup';
 import Support from './pages/Support';
 import Tutorial from './pages/Tutorial';
+import Userinfo from './pages/Userinfo';
 import Chat from './pages/chat';
 import Evalution from './pages/evalution';
 import Question from './pages/question';
@@ -160,7 +160,7 @@ const IonicApp: React.FC<IonicAppProps> = ({
     <IonApp className={`${darkMode ? 'ion-palette-dark' : ''}`}>
       <IonReactRouter>
         <IonSplitPane contentId='main'>
-          <div
+          {/* <div
             style={{
               width: '30px',
               height: '30px',
@@ -178,7 +178,7 @@ const IonicApp: React.FC<IonicAppProps> = ({
             onClick={() => setLog(!log)}
           >
             log
-          </div>
+          </div> */}
           <Menu />
           <IonRouterOutlet id='main'>
             {/*
@@ -199,6 +199,8 @@ const IonicApp: React.FC<IonicAppProps> = ({
             <Route path='/evalution' component={Evalution} />
             <Route path='/chat' component={Chat} />
             <Route path='/menudemo' component={Menudemo} />
+            <Route path='/userinfo' component={Userinfo} />
+
             <Route
               path='/logout'
               render={() => {
@@ -214,7 +216,7 @@ const IonicApp: React.FC<IonicAppProps> = ({
           </IonRouterOutlet>
         </IonSplitPane>
       </IonReactRouter>
-      {log && <ConsoleWindow />}
+      {/* {log && <ConsoleWindow />} */}
     </IonApp>
   );
 };
