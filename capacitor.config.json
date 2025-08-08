@@ -10,5 +10,8 @@
       "enabled": true
     }
   },
+  "server": {
+    "androidScheme": "https"
+  },
   "cordova": {}
 }

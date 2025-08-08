@@ -1,4 +1,5 @@
 import { API_CONFIG, HTTP_STATUS } from '../config';
+import { AndroidFetchHandler } from './android-fetch';
 
 interface RequestOptions extends RequestInit {
   timeout?: number;
@@ -122,29 +123,11 @@ class HttpRequest {
       // 对于流式请求，如果在移动端则使用原生fetch绕过CapacitorHttp
       let fetchFunction = this.fetchWithTimeout.bind(this);
 
-      console.log("11111111111111111111111111111111111",options.isStream,this.isMobileApp());
-
+      console.log("流式请求检测 - isStream:", options.isStream, "isMobileApp:", this.isMobileApp());
 
       if (options.isStream && this.isMobileApp()) {
-        // 使用原生fetch绕过CapacitorHttp，以支持ReadableStream
-        const originalFetch = (window as any).webFetch || fetch;
-        fetchFunction = async (input: RequestInfo, options?: RequestOptions) => {
-          const { timeout = this.defaultTimeout, ...fetchOptions } = options || {};
-          const controller = new AbortController();
-          const id = setTimeout(() => controller.abort(), timeout);
-
-          try {
-            const response = await originalFetch(input, {
-              ...fetchOptions,
-              signal: controller.signal,
-            });
-            clearTimeout(id);
-            return response;
-          } catch (error) {
-            clearTimeout(id);
-            throw error;
-          }
-        };
+        console.log("使用Android专用fetch处理流式请求");
+        fetchFunction = AndroidFetchHandler.createStreamFetchHandler(this.defaultTimeout);
       }
 
       const response = await fetchFunction(
@@ -156,6 +139,10 @@ class HttpRequest {
 
       // 如果是流式输出，直接返回响应，不进行JSON解析
       if (options.isStream) {
+        // 对于Android环境，验证流式响应是否可用
+        if (this.isMobileApp()) {
+          AndroidFetchHandler.validateStreamResponse(response);
+        }
         return response as any;
       }
 
@@ -179,9 +166,7 @@ class HttpRequest {
   }
 
   private isMobileApp(): boolean {
-    // 检测是否在Capacitor移动应用环境中
-    return window.location.protocol === 'capacitor:' ||
-           (window as any).Capacitor?.isNativePlatform();
+    return AndroidFetchHandler.isAndroidEnvironment();
   }
 
   public async get<T = any>(
