@@ -12,6 +12,7 @@ import { personCircle } from 'ionicons/icons';
 import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import ChatInputArea from '../components/ChatInputArea';
 import { chatReq, chatUpload, sendChatMessage } from '../services/api';
+import { AndroidStreamEnhancer } from '../utils/android-stream-enhancer';
 import './chat.css';
 import Taskdemo from './taskdemo';
 
@@ -998,18 +999,31 @@ const Chat: React.FC = () => {
       // 用于跟踪不同 researcher agent 的消息
       const researcherMessages = new Map<string, string>();
       let buffer = '';
-      console.log(22222);
+      console.log('开始流式数据读取');
+
+      // 检测是否为Android环境
+      const isAndroid = AndroidStreamEnhancer.isAndroidEnvironment();
+      let chunkCount = 0;
+      let totalEvents = 0;
+      const startTime = Date.now();
 
       while (reader) {
-        console.log('执行次数');
+        chunkCount++;
+        console.log(`第${chunkCount}次读取数据`);
 
         const { done, value } = await reader.read();
-        console.log('done=========', done, value);
+        console.log('done=========', done, 'value长度:', value?.length);
 
-        if (done) break;
+        if (done) {
+          console.log(`流式读取完成，总共读取${chunkCount}次`);
+          break;
+        }
 
         const chunk = decoder.decode(value, { stream: true });
-        console.log('chunk=========', chunk);
+        console.log(
+          `第${chunkCount}次chunk数据 (长度: ${chunk.length}):`,
+          chunk.length > 200 ? chunk.substring(0, 200) + '...' : chunk
+        );
 
         // 将新数据添加到缓冲区
 
@@ -1018,16 +1032,23 @@ const Chat: React.FC = () => {
           // 使用正则表达式分割多个事件
           const events = chunk.split(/(?=event: )/);
 
-          console.log('events=========', events);
+          console.log(`处理${events.length}个事件 (Android环境: ${isAndroid})`);
+          totalEvents += events.length;
 
-          for (const eventChunk of events) {
+          for (let i = 0; i < events.length; i++) {
+            const eventChunk = events[i];
             if (!eventChunk.trim()) continue;
+
+            // 使用Android流式增强器处理延迟
+            await AndroidStreamEnhancer.handleEventDelay(i, events.length);
 
             const eventMatch = eventChunk.match(/event: (\w+)/);
 
             if (eventMatch) {
               const eventType = eventMatch[1];
-              console.log('event type=========', eventType);
+              console.log(
+                `处理事件类型: ${eventType} (${i + 1}/${events.length})`
+              );
 
               if (eventType == 'fastAnswer') {
                 const dataMatch = eventChunk.match(/data: (.+)/);
@@ -1392,6 +1413,14 @@ const Chat: React.FC = () => {
           console.error('解析响应数据出错:', e, '原始数据:', chunk);
         }
       }
+
+      // 记录Android环境下的流式处理统计信息
+      const processingTime = Date.now() - startTime;
+      AndroidStreamEnhancer.logStreamingStats(
+        chunkCount,
+        totalEvents,
+        processingTime
+      );
 
       // 完成后更新所有正在发送的消息状态
       setMessages(prev =>
