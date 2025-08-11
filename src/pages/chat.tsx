@@ -9,7 +9,13 @@ import {
   useIonToast,
 } from '@ionic/react';
 import { personCircle } from 'ionicons/icons';
-import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
+import React, {
+  KeyboardEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import ChatInputArea from '../components/ChatInputArea';
 import { chatReq, chatUpload, sendChatMessage } from '../services/api';
 import { AndroidStreamEnhancer } from '../utils/android-stream-enhancer';
@@ -43,8 +49,8 @@ type Prop = {
   buttosearch: (option: any, message: any) => void;
 };
 
-// 消息渲染组件
-const MessageItem = ({ message, buttosearch }: Prop) => {
+// 消息渲染组件主体
+const MessageItemInner = ({ message, buttosearch }: Prop) => {
   console.log('777777777777777777', message);
 
   // 处理不同类型的 agent
@@ -70,6 +76,11 @@ const MessageItem = ({ message, buttosearch }: Prop) => {
     }
   };
 
+  const parsedUrlHtml = useMemo(
+    () => parseMarkdown(message.url || ''),
+    [message.url]
+  );
+
   return (message.agent === 'debug_planner' &&
     message.status === 'sent' &&
     message.content &&
@@ -90,9 +101,7 @@ const MessageItem = ({ message, buttosearch }: Prop) => {
         {renderMessageByAgent()}
 
         {message.url && (
-          <div
-            dangerouslySetInnerHTML={{ __html: parseMarkdown(message.url) }}
-          />
+          <div dangerouslySetInnerHTML={{ __html: parsedUrlHtml }} />
         )}
 
         {message.isUser !== true &&
@@ -194,11 +203,20 @@ const MessageItem = ({ message, buttosearch }: Prop) => {
   );
 };
 
+// 外层 memo，避免父组件（如输入变化）导致无关消息重渲染
+const MessageItem = React.memo(
+  MessageItemInner,
+  (prevProps, nextProps) => prevProps.message === nextProps.message
+);
+
 // 默认消息组件
 const DefaultMessage: React.FC<{ message: Message }> = ({ message }) => {
   console.log('test_answer==========', message.content);
 
-  const parsedContent = parseMarkdown(message.content);
+  const parsedContent = useMemo(
+    () => parseMarkdown(message.content),
+    [message.content]
+  );
 
   return (
     <div>
@@ -512,9 +530,9 @@ const parseMarkdown = (text: string) => {
       )
       // 处理行内代码
       .replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
-      // 处理超链接 - 必须在图片处理之前
+      // 处理超链接 - 排除图片格式（以!开头的）
       .replace(
-        /\[([^\]]+)\]\(([^)]+)\)/g,
+        /(?<!!)\[([^\]]+)\]\(([^)]+)\)/g,
         '<a href="$2" target="_blank" rel="noopener noreferrer" class="solution-link">$1</a>'
       )
       // 处理图片
@@ -576,19 +594,18 @@ const CoordinatorMessage: React.FC<{ message: Message }> = ({ message }) => {
     );
   }
 
-  // 数据完整后，解析并显示格式化内容
-  let parsedContent = '';
-  try {
-    const parsedContentbofore = JSON.parse(`"${message.content}"`)
-      .replace(/\\n/g, '\n') // 将 \n 转义符转为实际换行
-      .replace(/\\t/g, '\t'); // 处理制表符等其他转义
-
-    parsedContent = parseMarkdown(parsedContentbofore);
-  } catch (error) {
-    console.error('解析内容失败:', error);
-    // 如果解析失败，回退到原始内容
-    parsedContent = '';
-  }
+  // 数据完整后，解析并显示格式化内容（memo 缓存）
+  const parsedContent = useMemo(() => {
+    try {
+      const parsedContentbofore = JSON.parse(`"${message.content}"`)
+        .replace(/\\n/g, '\n')
+        .replace(/\\t/g, '\t');
+      return parseMarkdown(parsedContentbofore);
+    } catch (error) {
+      console.error('解析内容失败:', error);
+      return '';
+    }
+  }, [message.content]);
 
   console.log('parseMarkdown=========', parsedContent);
 
@@ -632,7 +649,10 @@ const ResearcherMessage: React.FC<{ message: Message }> = ({ message }) => {
     }
   }, [message.status, message.isStreaming, message.dataId]);
 
-  const parsedContent = parseMarkdown(message.content);
+  const parsedContent = useMemo(
+    () => parseMarkdown(message.content),
+    [message.content]
+  );
 
   return (
     <div>
