@@ -134,5 +134,11 @@ export const uploadFile = (file: File): Promise<ApiResponse<{ fileId: string, pr
   return http.post<{ fileId: string, previewUrl: string }>('/openapi/v1/v0/chat/upload/file', formData);
 };
 
+export const userinfoCreate = ({ data }: any): Promise<ApiTaskResponse> => {
+  return http.post<TaskData>('/openapi/v2/user-profile/create', data);
+};
+
+
+
 
 

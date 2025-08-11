@@ -310,12 +310,13 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
     return (
       <div>
         {/* 展示图片缩略图 */}
-        {false && uploadedImages.length > 0 && (
+        {uploadedImages.length > 0 && (
           <div
             style={{
               width: 'calc(100% - 40px)',
-              padding: '10px',
+              // padding: '10px',
               margin: '0 20px',
+              marginBottom: '12px',
             }}
           >
             <div
@@ -332,9 +333,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
                   color: '#666',
                   marginRight: '8px',
                 }}
-              >
-                图片:
-              </span>
+              ></span>
               {uploadedImages.map(image => (
                 <div
                   key={image.id}
@@ -361,12 +360,12 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
                     onClick={() => handleRemoveImage(image.id)}
                     style={{
                       position: 'absolute',
-                      top: '-8px',
-                      right: '-8px',
+                      top: '0px',
+                      right: '0px',
                       width: '20px',
                       height: '20px',
                       borderRadius: '50%',
-                      border: 'none',
+                      // border: '1px solid white',
                       backgroundColor: '#ff4444',
                       color: 'white',
                       fontSize: '12px',

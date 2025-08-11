@@ -4,7 +4,6 @@ import {
   IonIcon,
   IonMenu,
   IonMenuButton,
-  IonPage,
   useIonRouter,
   useIonToast,
 } from '@ionic/react';
@@ -42,6 +41,7 @@ interface Message {
   btnAgent?: string;
   searchResults?: any[];
   url?: string;
+  imgList?: any[];
 }
 
 type Prop = {
@@ -98,6 +98,16 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
           message.status
         }`}
       >
+        <div>
+          {message.imgList && message.imgList.length > 0 && (
+            <div>
+              {message.imgList.map((img: any) => (
+                <img src={img.url} alt='img' />
+              ))}
+            </div>
+          )}
+        </div>
+
         {renderMessageByAgent()}
 
         {message.url && (
@@ -995,6 +1005,7 @@ const Chat: React.FC = () => {
       content: iptvalue,
       isUser: true,
       status: 'sending',
+      imgList: uploadedImages,
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -1491,7 +1502,7 @@ const Chat: React.FC = () => {
   };
 
   return (
-    <IonPage>
+    <div style={{ width: '100%', height: '100vh' }}>
       <IonMenu
         className='menubg'
         menuId='second-menu'
@@ -1709,10 +1720,10 @@ const Chat: React.FC = () => {
             <div
               style={{
                 color: '#fff',
-                padding: '0 20px',
-                marginBottom: '12px',
+                padding: '0 36px',
                 display: 'flex',
-                gap: '10px',
+                gap: '8px',
+                marginBottom: '12px',
               }}
             >
               <div
@@ -1776,7 +1787,7 @@ const Chat: React.FC = () => {
           />
         </div>
       </div>
-    </IonPage>
+    </div>
   );
 };
 

@@ -61,7 +61,6 @@ import {
 import { Schedule } from './models/Schedule';
 import Account from './pages/Account';
 import Login from './pages/Login';
-import MainTabs from './pages/MainTabs';
 import Signup from './pages/Signup';
 import Support from './pages/Support';
 import Tutorial from './pages/Tutorial';
@@ -185,7 +184,7 @@ const IonicApp: React.FC<IonicAppProps> = ({
                 We use IonRoute here to keep the tabs state intact,
                 which makes transitions between tabs and non tab pages smooth
                 */}
-            <Route path='/tabs' render={() => <MainTabs />} />
+            {/* <Route path='/tabs' render={() => <MainTabs />} /> */}
             <Route path='/account' component={Account} />
             <Route path='/login' component={Login} />
             <Route path='/signup' component={Signup} />

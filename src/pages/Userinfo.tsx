@@ -1,25 +1,29 @@
 import { IonButtons, useIonRouter } from '@ionic/react';
 import { useState } from 'react';
+import { userinfoCreate } from '../services/api';
 
 const Userinfo = () => {
   const router = useIonRouter();
   const [formData, setFormData] = useState({
-    customer: '',
-    address: '',
-    order_id: '',
-    product: '',
-    description: '',
-    create: '',
-    end: '',
-    executeId: '',
-    id: '',
-    start: '',
-    status: '',
-    deleted: false,
+    user_id: '',
+    name: '',
+    age: '',
+    role: '',
+    work_experience_years: '',
+    experience_level: '',
+    primary_domains: '',
+    equipment_familiarity: '',
+    communication_style: '',
   });
 
-  const commitInfo = () => {
+  const commitInfo = async () => {
     console.log(formData);
+    try {
+      const res = await userinfoCreate({ data: formData });
+      console.log('用户信息=========', res);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const goBack = () => {
@@ -88,22 +92,22 @@ const Userinfo = () => {
             style={{
               fontSize: '14px',
               color: 'white',
-              minWidth: '60px',
+              minWidth: '80px',
               opacity: 0.5,
             }}
           >
-            客户
+            用户ID
           </label>
           <input
             type='text'
-            value={formData.customer}
+            value={formData.user_id}
             onChange={e =>
               setFormData(prev => ({
                 ...prev,
-                customer: e.target.value,
+                user_id: e.target.value,
               }))
             }
-            placeholder='请输入客户名称'
+            placeholder='请输入用户ID'
             style={{
               flex: 1,
               padding: '12px',
@@ -128,22 +132,22 @@ const Userinfo = () => {
             style={{
               fontSize: '14px',
               color: 'white',
-              minWidth: '60px',
+              minWidth: '80px',
               opacity: 0.5,
             }}
           >
-            地址
+            姓名
           </label>
           <input
             type='text'
-            value={formData.address}
+            value={formData.name}
             onChange={e =>
               setFormData(prev => ({
                 ...prev,
-                address: e.target.value,
+                name: e.target.value,
               }))
             }
-            placeholder='请输入地址'
+            placeholder='请输入姓名'
             style={{
               flex: 1,
               padding: '12px',
@@ -168,22 +172,22 @@ const Userinfo = () => {
             style={{
               fontSize: '14px',
               color: 'white',
-              minWidth: '60px',
+              minWidth: '80px',
               opacity: 0.5,
             }}
           >
-            订单号
+            年龄
           </label>
           <input
-            type='text'
-            value={formData.order_id}
+            type='number'
+            value={formData.age}
             onChange={e =>
               setFormData(prev => ({
                 ...prev,
-                order_id: e.target.value,
+                age: e.target.value,
               }))
             }
-            placeholder='请输入订单号'
+            placeholder='请输入年龄'
             style={{
               flex: 1,
               padding: '12px',
@@ -208,22 +212,22 @@ const Userinfo = () => {
             style={{
               fontSize: '14px',
               color: 'white',
-              minWidth: '60px',
+              minWidth: '80px',
               opacity: 0.5,
             }}
           >
-            产品
+            角色
           </label>
           <input
             type='text'
-            value={formData.product}
+            value={formData.role}
             onChange={e =>
               setFormData(prev => ({
                 ...prev,
-                product: e.target.value,
+                role: e.target.value,
               }))
             }
-            placeholder='请输入产品名称'
+            placeholder='如：设备运维工程师'
             style={{
               flex: 1,
               padding: '12px',
@@ -241,30 +245,29 @@ const Userinfo = () => {
           style={{
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'flex-start',
+            alignItems: 'center',
           }}
         >
           <label
             style={{
               fontSize: '14px',
               color: 'white',
-              minWidth: '60px',
-              marginTop: '12px',
+              minWidth: '80px',
               opacity: 0.5,
             }}
           >
-            描述
+            工作年限
           </label>
-          <textarea
-            value={formData.description}
+          <input
+            type='number'
+            value={formData.work_experience_years}
             onChange={e =>
               setFormData(prev => ({
                 ...prev,
-                description: e.target.value,
+                work_experience_years: e.target.value,
               }))
             }
-            placeholder='请输入任务描述'
-            rows={3}
+            placeholder='请输入工作年限'
             style={{
               flex: 1,
               padding: '12px',
@@ -274,10 +277,213 @@ const Userinfo = () => {
               color: 'white',
               fontSize: '14px',
               marginLeft: '15px',
-              lineHeight: '1.5',
-              resize: 'none',
             }}
           />
+        </div>
+
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <label
+            style={{
+              fontSize: '14px',
+              color: 'white',
+              minWidth: '80px',
+              opacity: 0.5,
+            }}
+          >
+            经验水平
+          </label>
+          <select
+            value={formData.experience_level}
+            onChange={e =>
+              setFormData(prev => ({
+                ...prev,
+                experience_level: e.target.value,
+              }))
+            }
+            style={{
+              flex: 1,
+              padding: '12px',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              background: 'rgba(255, 255, 255, 0.1)',
+              color: 'white',
+              fontSize: '14px',
+              marginLeft: '15px',
+            }}
+          >
+            <option style={{ color: 'black' }} value=''>
+              请选择经验水平
+            </option>
+            <option style={{ color: 'black' }} value='初级'>
+              初级
+            </option>
+            <option style={{ color: 'black' }} value='中级'>
+              中级
+            </option>
+            <option style={{ color: 'black' }} value='高级'>
+              高级
+            </option>
+            <option style={{ color: 'black' }} value='专家'>
+              专家
+            </option>
+          </select>
+        </div>
+
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <label
+            style={{
+              fontSize: '14px',
+              color: 'white',
+              minWidth: '80px',
+              opacity: 0.5,
+            }}
+          >
+            专业领域
+          </label>
+          <input
+            type='text'
+            value={formData.primary_domains}
+            onChange={e =>
+              setFormData(prev => ({
+                ...prev,
+                primary_domains: e.target.value,
+              }))
+            }
+            placeholder='如：机械,电气,自动化'
+            style={{
+              flex: 1,
+              padding: '12px',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              background: 'rgba(255, 255, 255, 0.1)',
+              color: 'white',
+              fontSize: '14px',
+              marginLeft: '15px',
+            }}
+          />
+        </div>
+
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <label
+            style={{
+              fontSize: '14px',
+              color: 'white',
+              minWidth: '80px',
+              opacity: 0.5,
+            }}
+          >
+            设备熟悉度
+          </label>
+          <select
+            value={formData.equipment_familiarity}
+            onChange={e =>
+              setFormData(prev => ({
+                ...prev,
+                equipment_familiarity: e.target.value,
+              }))
+            }
+            style={{
+              flex: 1,
+              padding: '12px',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              background: 'rgba(255, 255, 255, 0.1)',
+              color: 'white',
+              fontSize: '14px',
+              marginLeft: '15px',
+            }}
+          >
+            <option style={{ color: 'black' }} value=''>
+              请选择熟悉度评分
+            </option>
+            <option style={{ color: 'black' }} value='1'>
+              1分 - 完全不熟悉
+            </option>
+            <option style={{ color: 'black' }} value='2'>
+              2分 - 略有了解
+            </option>
+            <option style={{ color: 'black' }} value='3'>
+              3分 - 一般熟悉
+            </option>
+            <option style={{ color: 'black' }} value='4'>
+              4分 - 比较熟悉
+            </option>
+            <option style={{ color: 'black' }} value='5'>
+              5分 - 非常熟悉
+            </option>
+          </select>
+        </div>
+
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <label
+            style={{
+              fontSize: '14px',
+              color: 'white',
+              minWidth: '80px',
+              opacity: 0.5,
+            }}
+          >
+            沟通风格
+          </label>
+          <select
+            value={formData.communication_style}
+            onChange={e =>
+              setFormData(prev => ({
+                ...prev,
+                communication_style: e.target.value,
+              }))
+            }
+            style={{
+              flex: 1,
+              padding: '12px',
+              borderRadius: '8px',
+              border: '1px solid rgba(255, 255, 255, 0.3)',
+              background: 'rgba(255, 255, 255, 0.1)',
+              color: 'white',
+              fontSize: '14px',
+              marginLeft: '15px',
+            }}
+          >
+            <option style={{ color: 'black' }} value=''>
+              请选择沟通风格
+            </option>
+            <option style={{ color: 'black' }} value='直接'>
+              直接
+            </option>
+            <option style={{ color: 'black' }} value='详细'>
+              详细
+            </option>
+            <option style={{ color: 'black' }} value='简洁'>
+              简洁
+            </option>
+            <option style={{ color: 'black' }} value='友好'>
+              友好
+            </option>
+          </select>
         </div>
 
         {/* 底部按钮 */}
