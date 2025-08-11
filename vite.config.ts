@@ -9,30 +9,25 @@ export default defineConfig({
     port: 3010,
     host: true,
     proxy: {
-      '/openapi/v0': {
-        // target: 'http://172.30.232.95:23081',
-        // target: 'http://192.168.137.24:8000',
-        target: 'http://10.110.163.79:8787',
-        changeOrigin: true,
-        secure: false,
-      },
+      // '/openapi/v0': {
+      //   target: 'http://10.110.163.79:8787',
+      //   changeOrigin: true,
+      //   secure: false,
+      // },
       '/openapi/v2': {
-        target: 'http://172.30.232.95:22080',
-        // target: 'http://192.168.137.24:8000',
-        // target: 'http://10.110.163.79:8787',
+        target: 'http://172.30.232.95:23081',
         changeOrigin: true,
         secure: false,
       },
       '/openapi/v1': {
-        target: 'http://172.30.232.95:22080',
-        // target: 'http://192.168.137.24:8000',
-        // target: 'http://10.110.163.79:8787',
+        target: 'http://172.30.232.95:23081',
         changeOrigin: true,
         secure: false,
       },
       '/ws': {
-        // 自定义一个路径，用于匹配 WebSocket 请求
-        target: 'ws://10.110.163.79:21095',
+
+        // target: 'ws://10.110.163.79:21095',
+        target: 'ws://172.30.232.95:32250',
         ws: true, // 开启 WebSocket 代理
         changeOrigin: true,
         secure: false,

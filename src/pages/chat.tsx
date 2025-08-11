@@ -4,14 +4,20 @@ import {
   IonIcon,
   IonMenu,
   IonMenuButton,
-  IonPage,
   useIonRouter,
   useIonToast,
 } from '@ionic/react';
 import { personCircle } from 'ionicons/icons';
-import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
+import React, {
+  KeyboardEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import ChatInputArea from '../components/ChatInputArea';
 import { chatReq, chatUpload, sendChatMessage } from '../services/api';
+import { AndroidStreamEnhancer } from '../utils/android-stream-enhancer';
 import './chat.css';
 import Taskdemo from './taskdemo';
 
@@ -34,6 +40,8 @@ interface Message {
   options?: any[];
   btnAgent?: string;
   searchResults?: any[];
+  url?: string;
+  imgList?: any[];
 }
 
 type Prop = {
@@ -41,9 +49,9 @@ type Prop = {
   buttosearch: (option: any, message: any) => void;
 };
 
-// 消息渲染组件
-const MessageItem = ({ message, buttosearch }: Prop) => {
-  console.log('123456', message, message.btnAgent);
+// 消息渲染组件主体
+const MessageItemInner = ({ message, buttosearch }: Prop) => {
+  console.log('777777777777777777', message);
 
   // 处理不同类型的 agent
 
@@ -68,6 +76,11 @@ const MessageItem = ({ message, buttosearch }: Prop) => {
     }
   };
 
+  const parsedUrlHtml = useMemo(
+    () => parseMarkdown(message.url || ''),
+    [message.url]
+  );
+
   return (message.agent === 'debug_planner' &&
     message.status === 'sent' &&
     message.content &&
@@ -85,7 +98,22 @@ const MessageItem = ({ message, buttosearch }: Prop) => {
           message.status
         }`}
       >
+        <div>
+          {message.imgList && message.imgList.length > 0 && (
+            <div>
+              {message.imgList.map((img: any) => (
+                <img src={img.url} alt='img' />
+              ))}
+            </div>
+          )}
+        </div>
+
         {renderMessageByAgent()}
+
+        {message.url && (
+          <div dangerouslySetInnerHTML={{ __html: parsedUrlHtml }} />
+        )}
+
         {message.isUser !== true &&
           message.options &&
           message.options.length > 0 && (
@@ -185,11 +213,20 @@ const MessageItem = ({ message, buttosearch }: Prop) => {
   );
 };
 
+// 外层 memo，避免父组件（如输入变化）导致无关消息重渲染
+const MessageItem = React.memo(
+  MessageItemInner,
+  (prevProps, nextProps) => prevProps.message === nextProps.message
+);
+
 // 默认消息组件
 const DefaultMessage: React.FC<{ message: Message }> = ({ message }) => {
   console.log('test_answer==========', message.content);
 
-  const parsedContent = parseMarkdown(message.content);
+  const parsedContent = useMemo(
+    () => parseMarkdown(message.content),
+    [message.content]
+  );
 
   return (
     <div>
@@ -483,6 +520,11 @@ const parseMarkdown = (text: string) => {
     text
       // 去除开头和结尾的空白字符
       .trim()
+      // 处理分隔线 - 需要在换行处理之前
+      .replace(
+        /^---+$/gim,
+        '<hr style="border: none;height: 1px; background-color: rgba(255, 255, 255, 0.3);" />'
+      )
       // 处理标题
       .replace(/^### (.*$)/gim, '<h3>$1</h3>')
       .replace(/^## (.*$)/gim, '<h2>$1</h2>')
@@ -498,6 +540,11 @@ const parseMarkdown = (text: string) => {
       )
       // 处理行内代码
       .replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
+      // 处理超链接 - 排除图片格式（以!开头的）
+      .replace(
+        /(?<!!)\[([^\]]+)\]\(([^)]+)\)/g,
+        '<a href="$2" target="_blank" rel="noopener noreferrer" class="solution-link">$1</a>'
+      )
       // 处理图片
       .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
         // 检查是否为视频链接
@@ -557,19 +604,18 @@ const CoordinatorMessage: React.FC<{ message: Message }> = ({ message }) => {
     );
   }
 
-  // 数据完整后，解析并显示格式化内容
-  let parsedContent = '';
-  try {
-    const parsedContentbofore = JSON.parse(`"${message.content}"`)
-      .replace(/\\n/g, '\n') // 将 \n 转义符转为实际换行
-      .replace(/\\t/g, '\t'); // 处理制表符等其他转义
-
-    parsedContent = parseMarkdown(parsedContentbofore);
-  } catch (error) {
-    console.error('解析内容失败:', error);
-    // 如果解析失败，回退到原始内容
-    parsedContent = '';
-  }
+  // 数据完整后，解析并显示格式化内容（memo 缓存）
+  const parsedContent = useMemo(() => {
+    try {
+      const parsedContentbofore = JSON.parse(`"${message.content}"`)
+        .replace(/\\n/g, '\n')
+        .replace(/\\t/g, '\t');
+      return parseMarkdown(parsedContentbofore);
+    } catch (error) {
+      console.error('解析内容失败:', error);
+      return '';
+    }
+  }, [message.content]);
 
   console.log('parseMarkdown=========', parsedContent);
 
@@ -613,7 +659,10 @@ const ResearcherMessage: React.FC<{ message: Message }> = ({ message }) => {
     }
   }, [message.status, message.isStreaming, message.dataId]);
 
-  const parsedContent = parseMarkdown(message.content);
+  const parsedContent = useMemo(
+    () => parseMarkdown(message.content),
+    [message.content]
+  );
 
   return (
     <div>
@@ -694,7 +743,14 @@ const Chat: React.FC = () => {
   const [showtag, setShowtag] = useState(false);
   const [sectionName, setSectionName] = useState('');
   const [type, setType] = useState('1');
+  const [type2, setType2] = useState('1');
+  const [uploadedImages, setUploadedImages] = useState<
+    Array<{ url: string; name: string; id: string }>
+  >([]);
+
   const router = useIonRouter();
+
+  const [hello, setHello] = useState('');
 
   // 接收URL参数
   useEffect(() => {
@@ -722,7 +778,7 @@ const Chat: React.FC = () => {
   const buttosearch = (option: any, message: any) => {
     console.log('buttosearchoption==============', option, message);
     // setInputValue("ok")
-    if (option == '修改') {
+    if (option == '修改' || option.includes('其他')) {
       setShowtag(true);
     } else {
       if (
@@ -899,22 +955,41 @@ const Chat: React.FC = () => {
           {
             dataId: chatId + 456,
             role: 'user',
-            // content: variablesFeedback ? currentInputRef.current : inputValue
-            content: iptvalue,
+            // content: iptvalue,
+            content: [
+              {
+                type: 'text',
+                text: iptvalue,
+              },
+              ...uploadedImages.map(image => ({
+                type: 'image_url',
+                image_url: {
+                  url: image.url,
+                },
+              })),
+            ],
           },
         ],
         variables: {
           // feedback: variablesFeedback,
-          feedback: variablesFeedback ? iptvalue : '',
+          feedback: {
+            content: variablesFeedback ? iptvalue : '',
+            image_url: uploadedImages.map(image => ({
+              url: image.url,
+            })),
+          },
+          internet_search: true,
+          quote_enable: true,
+          enable_graphKB: type2,
         },
-        responseChatItemId: 'iwE8mnTwNkOLjnCoZwLcNeA6',
+        responseChatItemId: 'b1jmtV7hdBHokPUT2jzQwAwJ',
         // shareId: '6e6q0y0lnlw9t247jl2y9fbi',
         shareId:
-          type == '1' ? 'iuj6er9dbwlvfyvmrtxdg9em' : '15d98s8koo1ran5kl82ukar1',
+          type == '1' ? 'iuj6er9dbwlvfyvmrtxdg9em' : 'zybc1bm3xzt6u3uccoxttyp6',
 
         chatId: chatId,
         appType: 'advanced',
-        outLinkUid: 'shareChat-1753087419979-S1TS4Yh1x1daxImmOkYMxvg',
+        outLinkUid: 'shareChat-1754533192615-v8Ejm6GhhxpNhjhk9w_ZGzNR',
         detail: true,
         stream: true,
         finish_reason_type: 0,
@@ -930,6 +1005,7 @@ const Chat: React.FC = () => {
       content: iptvalue,
       isUser: true,
       status: 'sending',
+      imgList: uploadedImages,
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -942,6 +1018,8 @@ const Chat: React.FC = () => {
 
     try {
       const response = await sendChatMessage(messagebody);
+
+      setUploadedImages([]);
 
       if (!response.body) {
         throw new Error('无法读取响应流');
@@ -962,18 +1040,31 @@ const Chat: React.FC = () => {
       // 用于跟踪不同 researcher agent 的消息
       const researcherMessages = new Map<string, string>();
       let buffer = '';
-      console.log(22222);
+      console.log('开始流式数据读取');
+
+      // 检测是否为Android环境
+      const isAndroid = AndroidStreamEnhancer.isAndroidEnvironment();
+      let chunkCount = 0;
+      let totalEvents = 0;
+      const startTime = Date.now();
 
       while (reader) {
-        console.log('执行次数');
+        chunkCount++;
+        console.log(`第${chunkCount}次读取数据`);
 
         const { done, value } = await reader.read();
-        console.log('done=========', done, value);
+        console.log('done=========', done, 'value长度:', value?.length);
 
-        if (done) break;
+        if (done) {
+          console.log(`流式读取完成，总共读取${chunkCount}次`);
+          break;
+        }
 
         const chunk = decoder.decode(value, { stream: true });
-        console.log('chunk=========', chunk);
+        console.log(
+          `第${chunkCount}次chunk数据 (长度: ${chunk.length}):`,
+          chunk.length > 200 ? chunk.substring(0, 200) + '...' : chunk
+        );
 
         // 将新数据添加到缓冲区
 
@@ -982,16 +1073,46 @@ const Chat: React.FC = () => {
           // 使用正则表达式分割多个事件
           const events = chunk.split(/(?=event: )/);
 
-          console.log('events=========', events);
+          console.log(`处理${events.length}个事件 (Android环境: ${isAndroid})`);
+          totalEvents += events.length;
 
-          for (const eventChunk of events) {
+          for (let i = 0; i < events.length; i++) {
+            const eventChunk = events[i];
             if (!eventChunk.trim()) continue;
+
+            // 使用Android流式增强器处理延迟
+            await AndroidStreamEnhancer.handleEventDelay(i, events.length);
 
             const eventMatch = eventChunk.match(/event: (\w+)/);
 
             if (eventMatch) {
               const eventType = eventMatch[1];
-              console.log('event type=========', eventType);
+              console.log(
+                `处理事件类型: ${eventType} (${i + 1}/${events.length})`
+              );
+
+              if (eventType == 'fastAnswer') {
+                const dataMatch = eventChunk.match(/data: (.+)/);
+                console.log('fastAnswer==========', dataMatch);
+                if (dataMatch) {
+                  const jsonStr = dataMatch[1].trim();
+                  console.log('event type2===============', jsonStr);
+                  if (jsonStr) {
+                    const data = JSON.parse(jsonStr);
+                    console.log('fastAnswer data=========', data);
+                    const answerContent = data.choices[0].delta.content;
+                    console.log('answerContent=========', answerContent);
+                    setMessages(prev => {
+                      const newMessages = [...prev];
+                      newMessages[newMessages.length - 1] = {
+                        ...newMessages[newMessages.length - 1],
+                        url: answerContent,
+                      };
+                      return newMessages;
+                    });
+                  }
+                }
+              }
 
               if (eventType == 'answer') {
                 // 解析 answer 类型的数据流
@@ -1334,6 +1455,14 @@ const Chat: React.FC = () => {
         }
       }
 
+      // 记录Android环境下的流式处理统计信息
+      const processingTime = Date.now() - startTime;
+      AndroidStreamEnhancer.logStreamingStats(
+        chunkCount,
+        totalEvents,
+        processingTime
+      );
+
       // 完成后更新所有正在发送的消息状态
       setMessages(prev =>
         prev.map(msg =>
@@ -1373,7 +1502,7 @@ const Chat: React.FC = () => {
   };
 
   return (
-    <IonPage>
+    <div style={{ width: '100%', height: '100vh' }}>
       <IonMenu
         className='menubg'
         menuId='second-menu'
@@ -1410,7 +1539,7 @@ const Chat: React.FC = () => {
           <div className='user-info'>
             <IonIcon icon={personCircle} className='user-avatar' />
             <div>
-              <span className='user-title'>老王</span>
+              <span className='user-title'>{hello}</span>
               <span className='user-subtitle'>资深技术专家</span>
             </div>
           </div>
@@ -1592,7 +1721,9 @@ const Chat: React.FC = () => {
             <div
               style={{
                 color: '#fff',
-                padding: '0 20px',
+                padding: '0 36px',
+                display: 'flex',
+                gap: '8px',
                 marginBottom: '12px',
               }}
             >
@@ -1618,6 +1749,28 @@ const Chat: React.FC = () => {
               >
                 排障模式
               </div>
+              <div
+                style={{
+                  width: '80px',
+                  height: '30px',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  borderRadius: '15px',
+                  fontSize: '12px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: type2 == '1' ? '#3A3C61' : '',
+                }}
+                onClick={() => {
+                  if (type2 == '1') {
+                    setType2('0');
+                  } else {
+                    setType2('1');
+                  }
+                }}
+              >
+                知识图谱
+              </div>
             </div>
           )}
 
@@ -1630,11 +1783,20 @@ const Chat: React.FC = () => {
             onSendMessage={sendMessage}
             onSetShowInputType={setShowInputType}
             showtag={showtag}
+            uploadedImages={uploadedImages}
+            setUploadedImages={setUploadedImages}
           />
         </div>
       </div>
-    </IonPage>
+    </div>
   );
 };
 
 export default Chat;
+function presentToast(arg0: {
+  message: string;
+  duration: number;
+  position: string;
+}) {
+  throw new Error('Function not implemented.');
+}

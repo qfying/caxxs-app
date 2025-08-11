@@ -3,9 +3,10 @@ import {
   IonRouterOutlet,
   IonSplitPane,
   setupIonicReact,
+  useIonToast,
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Route } from 'react-router-dom';
 
 import Menu from './components/Menu';
@@ -60,10 +61,10 @@ import {
 import { Schedule } from './models/Schedule';
 import Account from './pages/Account';
 import Login from './pages/Login';
-import MainTabs from './pages/MainTabs';
 import Signup from './pages/Signup';
 import Support from './pages/Support';
 import Tutorial from './pages/Tutorial';
+import Userinfo from './pages/Userinfo';
 import Chat from './pages/chat';
 import Evalution from './pages/evalution';
 import Question from './pages/question';
@@ -106,9 +107,12 @@ const IonicApp: React.FC<IonicAppProps> = ({
   loadUserData,
 }) => {
   const { setUser } = useUserStore();
+  const [presentToast] = useIonToast();
+
+  const [log, setLog] = useState(true);
 
   useEffect(() => {
-    checkHealth();
+    // checkHealth();
     initLogin();
     loadUserData();
     loadConfData();
@@ -118,9 +122,19 @@ const IonicApp: React.FC<IonicAppProps> = ({
   const checkHealth = async () => {
     try {
       const response = await getHealth();
-      console.log(response);
+      console.log('checkHealth============', response);
+      presentToast({
+        message: '健康检查成功',
+        duration: 3500,
+        position: 'top',
+      });
     } catch (error) {
       console.log(error);
+      presentToast({
+        message: error as string,
+        duration: 3500,
+        position: 'top',
+      });
     }
   };
 
@@ -141,19 +155,36 @@ const IonicApp: React.FC<IonicAppProps> = ({
     }
   };
 
-  return schedule.groups.length === 0 ? (
-    <div></div>
-  ) : (
+  return (
     <IonApp className={`${darkMode ? 'ion-palette-dark' : ''}`}>
       <IonReactRouter>
         <IonSplitPane contentId='main'>
+          {/* <div
+            style={{
+              width: '30px',
+              height: '30px',
+              color: '#fff',
+              background: 'red',
+              borderRadius: '15px',
+              position: 'absolute',
+              top: '100px',
+              right: '10px',
+              zIndex: '1000',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+            onClick={() => setLog(!log)}
+          >
+            log
+          </div> */}
           <Menu />
           <IonRouterOutlet id='main'>
             {/*
                 We use IonRoute here to keep the tabs state intact,
                 which makes transitions between tabs and non tab pages smooth
                 */}
-            <Route path='/tabs' render={() => <MainTabs />} />
+            {/* <Route path='/tabs' render={() => <MainTabs />} /> */}
             <Route path='/account' component={Account} />
             <Route path='/login' component={Login} />
             <Route path='/signup' component={Signup} />
@@ -167,6 +198,8 @@ const IonicApp: React.FC<IonicAppProps> = ({
             <Route path='/evalution' component={Evalution} />
             <Route path='/chat' component={Chat} />
             <Route path='/menudemo' component={Menudemo} />
+            <Route path='/userinfo' component={Userinfo} />
+
             <Route
               path='/logout'
               render={() => {
@@ -182,6 +215,7 @@ const IonicApp: React.FC<IonicAppProps> = ({
           </IonRouterOutlet>
         </IonSplitPane>
       </IonReactRouter>
+      {/* {log && <ConsoleWindow />} */}
     </IonApp>
   );
 };

@@ -1,8 +1,10 @@
 import { API_CONFIG, HTTP_STATUS } from '../config';
+import { AndroidFetchHandler } from './android-fetch';
 
 interface RequestOptions extends RequestInit {
   timeout?: number;
   isStream?: boolean;
+  skipDefaultContentType?: boolean;
 }
 
 interface ApiResponse<T = any> {
@@ -94,7 +96,14 @@ class HttpRequest {
     options: RequestOptions = {}
   ): Promise<ApiResponse<T>> {
     const token = this.getToken();
-    const headers = new Headers(this.defaultHeaders);
+    const headers = new Headers();
+
+    // 对于FormData上传，跳过默认的Content-Type
+    if (!options.skipDefaultContentType) {
+      Object.entries(this.defaultHeaders).forEach(([key, value]) => {
+        headers.append(key, value);
+      });
+    }
 
     if (token) {
       headers.append('Authorization', `Bearer ${token}`);
@@ -108,29 +117,56 @@ class HttpRequest {
       },
     };
 
+    console.log('Request Headers:', finalOptions.headers);
+
     try {
-      const response = await this.fetchWithTimeout(
+      // 对于流式请求，如果在移动端则使用原生fetch绕过CapacitorHttp
+      let fetchFunction = this.fetchWithTimeout.bind(this);
+
+      console.log("流式请求检测 - isStream:", options.isStream, "isMobileApp:", this.isMobileApp());
+
+      if (options.isStream && this.isMobileApp()) {
+        console.log("使用Android专用fetch处理流式请求");
+        fetchFunction = AndroidFetchHandler.createStreamFetchHandler(this.defaultTimeout);
+      }
+
+      const response = await fetchFunction(
         `${this.baseURL}${url}`,
         finalOptions
       );
 
-      console.log('response===========', response);
+      console.log('请求头===========', response);
 
       // 如果是流式输出，直接返回响应，不进行JSON解析
       if (options.isStream) {
+        // 对于Android环境，验证流式响应是否可用
+        if (this.isMobileApp()) {
+          AndroidFetchHandler.validateStreamResponse(response);
+        }
         return response as any;
       }
 
       return await this.handleResponse<T>(response);
     } catch (error: any) {
+      console.error('网络请求错误:', error);
+      console.error('请求URL:', `${this.baseURL}${url}`);
+      console.error('请求选项:', finalOptions);
+
       if (error instanceof RequestError) {
         throw error;
       }
       if (error.name === 'AbortError') {
         throw new RequestError(408, '请求超时');
       }
-      throw new RequestError(500, '网络错误');
+      if (error.message && error.message.includes('Failed to fetch')) {
+        throw new RequestError(0, '网络连接失败，请检查网络设置');
+      }
+      throw new RequestError(500, `网络错误: ${error.message || '未知错误'}`);
     }
+  }
+
+  private isMobileApp(): boolean {
+    return AndroidFetchHandler.isAndroidEnvironment();
   }
 
   public async get<T = any>(
@@ -145,10 +181,30 @@ class HttpRequest {
     data?: any,
     options: RequestOptions = {}
   ): Promise<ApiResponse<T>> {
+    // 检查是否是FormData
+    let body: string | FormData;
+    let finalOptions = { ...options };
+
+    if (data instanceof FormData) {
+      body = data;
+      // 对于FormData，完全删除Content-Type，让浏览器自动设置boundary
+      if (finalOptions.headers) {
+        const headers = { ...finalOptions.headers };
+        delete (headers as any)['Content-Type'];
+        finalOptions.headers = headers;
+      } else {
+        finalOptions.headers = {};
+      }
+      // 确保不会从默认头中继承Content-Type
+      finalOptions.skipDefaultContentType = true;
+    } else {
+      body = JSON.stringify(data);
+    }
+
     return this.request<T>(url, {
-      ...options,
+      ...finalOptions,
       method: 'POST',
-      body: JSON.stringify(data),
+      body,
     });
   }
 
