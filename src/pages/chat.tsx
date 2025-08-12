@@ -1769,7 +1769,7 @@ const Chat: React.FC = () => {
                   }
                 }}
               >
-                知识图谱
+                深度思考
               </div>
             </div>
           )}
