@@ -797,8 +797,19 @@ const Chat: React.FC = () => {
     try {
       const response = await chatUpload({ text: message });
       console.log('uploadresponse==============', response);
+      present({
+        message: '上传成功',
+        duration: 2000,
+        position: 'top',
+        color: 'success',
+      });
     } catch (err) {
-      console.log('上传失败');
+      present({
+        message: '上传失败',
+        duration: 2000,
+        position: 'top',
+        color: 'danger',
+      });
     }
   };
 
