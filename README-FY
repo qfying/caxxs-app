@@ -100,13 +100,17 @@ npx cap open android
 
 ## 五、常见问题
 
-- **如何打包 APK？**  
+- **如何打包 APK？**
   见上文“运行/打包 Android 应用”步骤。
-- **如何切换深色/浅色模式？**  
+- **如何切换深色/浅色模式？**
   侧边栏菜单可一键切换。
-- **如何添加/修改会议数据？**  
+- **如何添加/修改会议数据？**
   可在 `public/assets/data/` 目录下修改 `data.json`、`locations.json`。
 
 ---
 
-如需更详细的开发、二次开发、功能扩展等说明，欢迎继续提问！ 
+如需更详细的开发、二次开发、功能扩展等说明，欢迎继续提问！
+
+git checkout main-dev
+git merge main-dev2
+git push origin main-dev

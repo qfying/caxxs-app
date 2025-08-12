@@ -29,6 +29,7 @@ const Task = () => {
     start: '',
     status: '',
     deleted: false,
+    task_name: '',
   });
 
   useEffect(() => {
@@ -82,6 +83,7 @@ const Task = () => {
           start: apiData.start || '',
           status: apiData.status || '',
           deleted: apiData.deleted || false,
+          task_name: apiData.task_name || '',
         });
       }
     } catch (err) {
@@ -486,6 +488,46 @@ const Task = () => {
                   marginTop: '20px',
                 }}
               >
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <label
+                    style={{
+                      fontSize: '14px',
+                      color: 'white',
+                      minWidth: '60px',
+                      opacity: 0.5,
+                    }}
+                  >
+                    任务名称
+                  </label>
+                  <input
+                    type='text'
+                    value={formData.task_name}
+                    onChange={e =>
+                      setFormData(prev => ({
+                        ...prev,
+                        task_name: e.target.value,
+                      }))
+                    }
+                    placeholder='请输入客户名称'
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      color: 'white',
+                      fontSize: '14px',
+                      marginLeft: '15px',
+                    }}
+                  />
+                </div>
+
                 <div
                   style={{
                     display: 'flex',
