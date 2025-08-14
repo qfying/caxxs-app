@@ -29,7 +29,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   onSetShowInputType,
   showtag,
   uploadedImages = [],
-  setUploadedImages = () => {},
+  setUploadedImages = () => { },
 }) => {
   const inputRef = useRef<HTMLIonInputElement>(null);
   const [present] = useIonToast();

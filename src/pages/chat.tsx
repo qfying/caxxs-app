@@ -108,15 +108,14 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
     message.agent === 'debug_answer_analysis' ? null : (
     <div
       className={`message-container ${message.isUser ? 'user' : ''}`}
-      // style={{
-      //   border: "1px solid rgba(255, 255, 255, 0.5)",
-      //   borderRadius: "2px 14px 14px 14px"
-      // }}
+    // style={{
+    //   border: "1px solid rgba(255, 255, 255, 0.5)",
+    //   borderRadius: "2px 14px 14px 14px"
+    // }}
     >
       <div
-        className={`message-bubble ${message.isUser ? 'user' : 'bot'} ${
-          message.status
-        }`}
+        className={`message-bubble ${message.isUser ? 'user' : 'bot'} ${message.status
+          }`}
       >
         <div>
           {message.imgList && message.imgList.length > 0 && (
@@ -909,12 +908,12 @@ const Chat: React.FC = () => {
         status == '1'
           ? '进行中'
           : status == '2'
-          ? '即将开始'
-          : status == '3'
-          ? '已完成'
-          : status == '4'
-          ? '已取消'
-          : '',
+            ? '即将开始'
+            : status == '3'
+              ? '已完成'
+              : status == '4'
+                ? '已取消'
+                : '',
       task_name: task_name,
       task_type: task_type,
     });
@@ -947,8 +946,19 @@ const Chat: React.FC = () => {
   };
 
   const upload = async (message: any) => {
+    const uploadData = {
+      text: message,
+      file_name: "测试.md",
+      parent_id: "689083d13897878cdd928c49",
+      app_id: "689014d43897878cdd928b4b",
+      datasetId: "689083d13897878cdd928c49",
+      userId: "688c856f13e9f1c3b8aa1d30",
+      teamId: "688c856f13e9f1c3b8aa1d31",
+      tmbId: "688c856f13e9f1c3b8aa1d32",
+      entrance: ""
+    }
     try {
-      const response = await chatUpload({ text: message });
+      const response = await chatUpload(uploadData);
       console.log('uploadresponse==============', response);
       present({
         message: '上传成功',
