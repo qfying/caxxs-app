@@ -295,7 +295,7 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
                       onClick={() => {
                         console.log('item==========', item);
 
-                        getFileUrlFn(item.sourceId);
+                        getFileUrlFn(item.collectionId);
                       }}
                     >
                       <span
@@ -855,9 +855,15 @@ const Chat: React.FC = () => {
   const [uploadedImages, setUploadedImages] = useState<
     Array<{ url: string; name: string; id: string }>
   >([]);
-  const { userInfo } = useUserStore();
+  const { userInfo, setUserInfo } = useUserStore();
 
   const [taskParams, setTaskParams] = useState({});
+
+  const clearTask = () => {
+    setSectionName('');
+    setTaskParams({});
+    setUserInfo({} as any);
+  }
 
   const router = useIonRouter();
 
@@ -1146,12 +1152,12 @@ const Chat: React.FC = () => {
         ],
         variables: {
           // feedback: variablesFeedback,
-          feedback: {
+          feedback: variablesFeedback ? {
             content: variablesFeedback ? iptvalue : '',
             image_url: uploadedImages.map(image => ({
               url: image.url,
             })),
-          },
+          } : "",
           internet_search: true,
           quote_enable: true,
           enable_graphKB: type2,
@@ -1725,7 +1731,7 @@ const Chat: React.FC = () => {
                   console.log('返回上一个页面=============');
                   router.back();
                   // history.back();
-                  setSectionName('');
+
                   // 回到上一个页面
                 }}
               >
@@ -1888,6 +1894,7 @@ const Chat: React.FC = () => {
             showtag={showtag}
             uploadedImages={uploadedImages}
             setUploadedImages={setUploadedImages}
+            clearTask={clearTask}
           />
         </div>
       </div>

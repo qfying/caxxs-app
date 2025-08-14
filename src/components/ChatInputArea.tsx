@@ -17,6 +17,7 @@ interface ChatInputAreaProps {
   showtag?: boolean;
   uploadedImages?: any[];
   setUploadedImages?: React.Dispatch<React.SetStateAction<any[]>>;
+  clearTask?: () => void;
 }
 
 const ChatInputArea: React.FC<ChatInputAreaProps> = ({
@@ -30,6 +31,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   showtag,
   uploadedImages = [],
   setUploadedImages = () => { },
+  clearTask = () => { },
 }) => {
   const inputRef = useRef<HTMLIonInputElement>(null);
   const [present] = useIonToast();
@@ -517,8 +519,10 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
         id='top-center'
         onClick={() => {
           console.log('点击任务图标');
+          clearTask();
 
           if (!isAIResponding) onSetShowInputType(4);
+
         }}
         style={{
           opacity: isAIResponding ? 0.5 : 1,
