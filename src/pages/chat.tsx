@@ -952,7 +952,7 @@ const Chat: React.FC = () => {
       parent_id: "689083d13897878cdd928c49",
       app_id: "689014d43897878cdd928b4b",
       datasetId: "689083d13897878cdd928c49",
-      userId: "688c856f13e9f1c3b8aa1d30",
+      userId: "6890805c3897878cdd928c34",
       teamId: "688c856f13e9f1c3b8aa1d31",
       tmbId: "688c856f13e9f1c3b8aa1d32",
       entrance: ""
