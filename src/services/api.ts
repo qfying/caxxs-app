@@ -80,6 +80,18 @@ interface ApiTaskListResponse {
   data: TaskData[];
 }
 
+interface UserInfo {
+  user_id: string;
+  name: string;
+  age: string;
+  role: string;
+  work_experience_years: string;
+  experience_level: string;
+  primary_domains: string;
+  equipment_familiarity: string;
+  communication_style: string;
+}
+
 export const loginByPassword = (
   username: string,
   password: string
@@ -137,6 +149,16 @@ export const uploadFile = (file: File): Promise<ApiResponse<{ fileId: string, pr
 export const userinfoCreate = ({ data }: any): Promise<ApiTaskResponse> => {
   return http.post<TaskData>('/openapi/v2/user-profile/create', data);
 };
+
+export const getFileUrl = (id:string): Promise<ApiTaskResponse> => {
+  return http.get<TaskData>(`/openapi/v1/dataset/collection?collection_id=${id}`);
+};
+
+export const getUserInfo = (user_id: string): Promise<ApiResponse<UserInfo>> => {
+  return http.get<UserInfo>(`/openapi/v2/user-profile/${user_id}`);
+};
+
+
 
 
 

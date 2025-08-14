@@ -192,7 +192,7 @@ const Task = () => {
 
           <div style={{ width: '100%', marginTop: '20px' }}>
             <div style={{ fontSize: '16px', color: '#fff', opacity: '0.6' }}>
-              {'早上好，李工'}
+              {'早上好，天工'}
             </div>
             {taskList && taskList.length > 0 ? (
               <div

@@ -2,6 +2,8 @@ import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 
+
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
@@ -15,12 +17,12 @@ export default defineConfig({
       //   secure: false,
       // },
       '/openapi/v2': {
-        target: 'http://172.30.232.95:23081',
+        target: 'http://172.30.232.95:24201',
         changeOrigin: true,
         secure: false,
       },
       '/openapi/v1': {
-        target: 'http://172.30.232.95:23081',
+        target: 'http://172.30.232.95:24201',
         changeOrigin: true,
         secure: false,
       },

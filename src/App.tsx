@@ -71,7 +71,7 @@ import Question from './pages/question';
 import Task from './pages/task';
 import TaskBriefing from './pages/taskBriefing';
 import TaskListPage from './pages/taskListPage';
-import { getHealth, loginByPassword } from './services/api';
+import { getHealth, getUserInfo, loginByPassword } from './services/api';
 import { useUserStore } from './stores/userStore';
 
 setupIonicReact();
@@ -110,14 +110,27 @@ const IonicApp: React.FC<IonicAppProps> = ({
   const [presentToast] = useIonToast();
 
   const [log, setLog] = useState(true);
+  const { userInfo, setUserInfo } = useUserStore();
 
   useEffect(() => {
     // checkHealth();
     initLogin();
     loadUserData();
     loadConfData();
+    getUserInfoFn();
     // eslint-disable-next-line
   }, []);
+
+  const getUserInfoFn = async () => {
+    try {
+      const res = await getUserInfo('test1');
+      console.log('用户信息=========', res);
+
+      setUserInfo(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const checkHealth = async () => {
     try {

@@ -511,9 +511,21 @@ const Question = () => {
                     onClick={() => {
                       // 方法1：URL 参数传递（简单数据）
                       const urlParams = new URLSearchParams({
-                        name: selectCardItem?.address || '',
-                        id: selectCardItem?.id?.toString() || '',
-                        taskType: '1',
+                        address: selectCardItem?.address || '',
+                        create: selectCardItem?.create || '',
+                        customer: selectCardItem?.customer || '',
+                        deleted: selectCardItem?.deleted || '',
+                        description: selectCardItem?.description || '',
+                        end: selectCardItem?.end || '',
+                        executeId: selectCardItem?.executeId || '',
+                        id: String(selectCardItem?.id || ''),
+                        order_id: selectCardItem?.order_id || '',
+                        product: selectCardItem?.product || '',
+                        start: selectCardItem?.start || '',
+                        status: selectCardItem?.status || '',
+                        task_name: selectCardItem?.task_name || '',
+                        task_type: selectCardItem?.task_type || '',
+                        chatType: '1',
                       });
                       router.push(`/chat?${urlParams.toString()}`);
                     }}

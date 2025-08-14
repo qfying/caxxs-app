@@ -1,5 +1,4 @@
 import {
-  IonButton,
   IonButtons,
   IonIcon,
   IonMenu,
@@ -16,7 +15,14 @@ import React, {
   useState,
 } from 'react';
 import ChatInputArea from '../components/ChatInputArea';
-import { chatReq, chatUpload, sendChatMessage } from '../services/api';
+import { HTTP_URL } from '../config';
+import {
+  chatReq,
+  chatUpload,
+  getFileUrl,
+  sendChatMessage,
+} from '../services/api';
+import { useUserStore } from '../stores/userStore';
 import { AndroidStreamEnhancer } from '../utils/android-stream-enhancer';
 import './chat.css';
 import Taskdemo from './taskdemo';
@@ -42,6 +48,7 @@ interface Message {
   searchResults?: any[];
   url?: string;
   imgList?: any[];
+  aboutfile?: any[];
 }
 
 type Prop = {
@@ -52,6 +59,19 @@ type Prop = {
 // 消息渲染组件主体
 const MessageItemInner = ({ message, buttosearch }: Prop) => {
   console.log('777777777777777777', message);
+
+  const [isaboutfile, setIsboutfile] = useState('');
+
+  const getFileUrlFn = async (id: string) => {
+    console.log('id================', id);
+    try {
+      const res = await getFileUrl(id);
+      const url = HTTP_URL + res.data.file_url;
+      window.open(url);
+    } catch (error) {
+      console.log('error================', error);
+    }
+  };
 
   // 处理不同类型的 agent
 
@@ -208,6 +228,95 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
             //   </div>
             // </div>
           )}
+
+        {message.aboutfile && (
+          <div
+            style={{
+              borderTop: '0.5px solid var(--base-white-15, #FFFFFF26)',
+              padding: '10px 0',
+              marginTop: '10px',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                height: '36px',
+                backgroundColor: '#3D3E58',
+                borderRadius: '10px',
+                alignItems: 'center',
+                padding: '0 10px',
+              }}
+            >
+              <span>参考来源</span>
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: '2px' }}
+                onClick={() => {
+                  console.log('点击了');
+                  if (isaboutfile === message.id) {
+                    setIsboutfile('');
+                  } else {
+                    setIsboutfile(message.id);
+                  }
+                }}
+              >
+                <span>{message.aboutfile.length}个案例文档</span>
+                <img
+                  src='/assets/icon/Arrowbt.svg'
+                  alt='历史'
+                  style={{
+                    width: '15px',
+                    height: '15px',
+                    filter: 'brightness(0) invert(1)',
+                  }}
+                />
+              </div>
+            </div>
+            {isaboutfile === message.id && (
+              <div>
+                {message.aboutfile.map((item: any) => (
+                  <div key={item.id}>
+                    <div
+                      style={{
+                        width: '100%',
+                        height: '30px',
+                        backgroundColor: 'white',
+                        color: 'black',
+                        borderRadius: '10px',
+                        margin: '10px 0',
+                        padding: '0 10px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        textDecoration: 'none',
+                        minWidth: 0, // 关键：确保 flex 子元素可以收缩
+                      }}
+                      onClick={() => {
+                        console.log('item==========', item);
+
+                        getFileUrlFn(item.sourceId);
+                      }}
+                    >
+                      <span
+                        style={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          flex: 1, // 占据剩余空间
+                          minWidth: 0, // 允许收缩
+                        }}
+                      >
+                        {item.sourceName}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -747,28 +856,72 @@ const Chat: React.FC = () => {
   const [uploadedImages, setUploadedImages] = useState<
     Array<{ url: string; name: string; id: string }>
   >([]);
+  const { userInfo } = useUserStore();
+
+  const [taskParams, setTaskParams] = useState({});
 
   const router = useIonRouter();
 
   const [hello, setHello] = useState('');
 
+  useEffect(() => {
+    if (sectionName) {
+      setType('1');
+    } else {
+      setType('0');
+    }
+  }, [sectionName]);
+
   // 接收URL参数
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
-    const sectionId = searchParams.get('name');
-    const itemId = searchParams.get('id');
-    const taskType = searchParams.get('taskType');
-    setSectionName(sectionId || '');
+    console.log('searchParams==============', searchParams);
+    const address = searchParams.get('address');
+    const create = searchParams.get('create');
+    const customer = searchParams.get('customer');
+    const deleted = searchParams.get('deleted');
+    const description = searchParams.get('description');
+    const end = searchParams.get('end');
+    const executeId = searchParams.get('executeId');
+    const id = searchParams.get('id');
+    const order_id = searchParams.get('order_id');
+    const product = searchParams.get('product');
+    const start = searchParams.get('start');
+    const status = searchParams.get('status');
+    const task_name = searchParams.get('task_name');
+    const task_type = searchParams.get('task_type');
+    const chatType = searchParams.get('chatType');
+    setSectionName(task_name || '');
 
-    if (taskType == '1') {
+    setTaskParams({
+      address: address,
+      create: create,
+      customer: customer,
+      deleted: deleted,
+      description: description,
+      end: end,
+      executeId: executeId,
+      id: id,
+      order_id: order_id,
+      product: product,
+      start: start,
+      status:
+        status == '1'
+          ? '进行中'
+          : status == '2'
+          ? '即将开始'
+          : status == '3'
+          ? '已完成'
+          : status == '4'
+          ? '已取消'
+          : '',
+      task_name: task_name,
+      task_type: task_type,
+    });
+
+    if (chatType == '1') {
       setShowInputType(1);
     }
-
-    console.log('接收到的URL参数:', {
-      sectionId,
-      itemId,
-      taskType,
-    });
   }, []);
 
   useEffect(() => {
@@ -992,6 +1145,8 @@ const Chat: React.FC = () => {
           internet_search: true,
           quote_enable: true,
           enable_graphKB: type2,
+          task_info: taskParams,
+          user_info: userInfo,
         },
         responseChatItemId: 'b1jmtV7hdBHokPUT2jzQwAwJ',
         // shareId: '6e6q0y0lnlw9t247jl2y9fbi',
@@ -1030,6 +1185,8 @@ const Chat: React.FC = () => {
     try {
       const response = await sendChatMessage(messagebody);
 
+      console.log('responsechunk=========', response);
+
       setUploadedImages([]);
 
       if (!response.body) {
@@ -1064,7 +1221,7 @@ const Chat: React.FC = () => {
         console.log(`第${chunkCount}次读取数据`);
 
         const { done, value } = await reader.read();
-        console.log('done=========', done, 'value长度:', value?.length);
+        console.log('done=========', done, 'value长度:', value, value?.length);
 
         if (done) {
           console.log(`流式读取完成，总共读取${chunkCount}次`);
@@ -1074,390 +1231,303 @@ const Chat: React.FC = () => {
         const chunk = decoder.decode(value, { stream: true });
         console.log(
           `第${chunkCount}次chunk数据 (长度: ${chunk.length}):`,
-          chunk.length > 200 ? chunk.substring(0, 200) + '...' : chunk
+          chunk,
+          reader
         );
-
-        // 将新数据添加到缓冲区
 
         // 解析 chunk 中的事件 - 支持多个事件
         try {
-          // 使用正则表达式分割多个事件
-          const events = chunk.split(/(?=event: )/);
+          // 累积到缓冲区，等待形成完整的 SSE 事件块（空行分隔）
+          buffer += chunk;
 
-          console.log(`处理${events.length}个事件 (Android环境: ${isAndroid})`);
-          totalEvents += events.length;
+          const blocks = buffer.split(/\r?\n\r?\n/);
+          buffer = blocks.pop() || '';
 
-          for (let i = 0; i < events.length; i++) {
-            const eventChunk = events[i];
-            if (!eventChunk.trim()) continue;
+          console.log(
+            `SSE事件块数: ${blocks.length}, 残余长度: ${buffer.length}`
+          );
+
+          for (let i = 0; i < blocks.length; i++) {
+            const block = blocks[i];
+            if (!block.trim()) continue;
 
             // 使用Android流式增强器处理延迟
-            await AndroidStreamEnhancer.handleEventDelay(i, events.length);
+            await AndroidStreamEnhancer.handleEventDelay(i, blocks.length);
 
-            const eventMatch = eventChunk.match(/event: (\w+)/);
+            // 解析事件类型
+            const eventMatch = block.match(/^event:\s*(\w+)/m);
+            if (!eventMatch) continue;
+            const eventType = eventMatch[1];
+            console.log(
+              `处理事件类型: ${eventType} (${i + 1}/${blocks.length})`
+            );
 
-            if (eventMatch) {
-              const eventType = eventMatch[1];
-              console.log(
-                `处理事件类型: ${eventType} (${i + 1}/${events.length})`
-              );
+            // 合并同一事件块中的多行 data
+            const dataLines = block.match(/^data:\s?(.*)$/gm) || [];
+            const dataStr = dataLines
+              .map(line => line.replace(/^data:\s?/, ''))
+              .join('\n')
+              .trim();
 
-              if (eventType == 'fastAnswer') {
-                const dataMatch = eventChunk.match(/data: (.+)/);
-                console.log('fastAnswer==========', dataMatch);
-                if (dataMatch) {
-                  const jsonStr = dataMatch[1].trim();
-                  console.log('event type2===============', jsonStr);
-                  if (jsonStr) {
-                    const data = JSON.parse(jsonStr);
-                    console.log('fastAnswer data=========', data);
-                    const answerContent = data.choices[0].delta.content;
-                    console.log('answerContent=========', answerContent);
-                    setMessages(prev => {
-                      const newMessages = [...prev];
-                      newMessages[newMessages.length - 1] = {
-                        ...newMessages[newMessages.length - 1],
-                        url: answerContent,
-                      };
-                      return newMessages;
-                    });
-                  }
+            if (!dataStr || dataStr === '[DONE]') {
+              continue;
+            }
+
+            // 按事件类型分发处理
+            if (eventType == 'fastAnswer') {
+              try {
+                const data = JSON.parse(dataStr);
+                const answerContent = data.choices?.[0]?.delta?.content;
+                if (answerContent) {
+                  setMessages(prev => {
+                    const newMessages = [...prev];
+                    newMessages[newMessages.length - 1] = {
+                      ...newMessages[newMessages.length - 1],
+                      url: answerContent,
+                    };
+                    return newMessages;
+                  });
                 }
+              } catch (e) {
+                console.warn('解析 fastAnswer 数据失败', e);
               }
+            } else if (eventType == 'flowResponses') {
+              try {
+                const data = JSON.parse(dataStr);
 
-              if (eventType == 'answer') {
-                // 解析 answer 类型的数据流
-                const dataMatch = eventChunk.match(/data: (.+)/);
-
-                console.log('event type1==========', dataMatch);
-                if (dataMatch) {
-                  const jsonStr = dataMatch[1].trim();
-                  console.log('event type2===============', jsonStr);
-
-                  if (jsonStr && jsonStr !== '[DONE]') {
-                    try {
-                      const data = JSON.parse(jsonStr);
-                      // 这里可以根据需要处理 answer 数据
-                      // 例如：将 assistant 的内容追加到消息流
-                      if (
-                        data.choices &&
-                        data.choices[0] &&
-                        data.choices[0].delta &&
-                        typeof data.choices[0].delta.content === 'string'
-                      ) {
-                        const answerContent = data.choices[0].delta.content;
-                        console.log('answerContent=========', answerContent);
-
-                        // 假设 answer 属于 agent: 'default'
-                        const currentContent =
-                          agentMessages.get('default') || '';
-                        const newContent = currentContent + answerContent;
-                        agentMessages.set('default', newContent);
-
-                        setMessages(prev => {
-                          // 查找现有的 default agent 消息
-                          const existingMessageIndex = prev.findIndex(
-                            msg =>
-                              !msg.isUser &&
-                              msg.agent === 'default' &&
-                              msg.status === 'sending'
-                          );
-
-                          if (existingMessageIndex !== -1) {
-                            // 更新现有消息
-                            const newMessages = [...prev];
-                            newMessages[existingMessageIndex] = {
-                              ...newMessages[existingMessageIndex],
-                              content: newContent,
-                              reasoningContent: data.reasoningContent,
-                            };
-                            return newMessages;
-                          } else {
-                            // 创建新的消息
-                            const newmessage: Message = {
-                              id:
-                                Date.now().toString() +
-                                Math.random().toString(36).substr(2, 9),
-                              dataId: data.id || '',
-                              role: 'assistant',
-                              content: newContent,
-                              isUser: false,
-                              status: 'sending',
-                              agent: 'default',
-                              reasoningContent: data.reasoningContent,
-                              isStreaming: true,
-                            };
-                            return [...prev, newmessage];
-                          }
-                        });
-                      }
-                    } catch (e) {
-                      console.warn('解析 answer 数据失败', e);
-                    }
-                  }
+                // 兼容原有两处对 flowResponses 的处理：
+                // 1) aboutfile = data[0].quoteList
+                if (Array.isArray(data) && data[0]?.quoteList) {
+                  const answerContent = data[0].quoteList;
+                  setMessages(prev => {
+                    const newMessages = [...prev];
+                    newMessages[newMessages.length - 1] = {
+                      ...newMessages[newMessages.length - 1],
+                      aboutfile: answerContent,
+                    };
+                    return newMessages;
+                  });
                 }
-              }
 
-              // 只处理 message 类型的事件
-              if (eventType === 'message_chunk') {
-                const dataMatch = eventChunk.match(/data: (.+)/);
-                if (dataMatch) {
-                  const jsonStr = dataMatch[1].trim();
-                  if (jsonStr && jsonStr !== '[DONE]') {
-                    const data = JSON.parse(jsonStr);
-                    console.log('message data=========', data);
-                    console.log('agent===========', data.agent);
-
-                    if (data.content) {
-                      const content = data.content;
-                      const agent = data.agent || 'default';
-
-                      let researcherAgentid = '';
-
-                      if (agent == 'researcher') {
-                        researcherAgentid = data.id;
-                      }
-
-                      // 更新 agent 消息内容
-                      if (agent === 'researcher') {
-                        // 对于 researcher，使用 researcherAgentid 作为 key
-                        const currentContent =
-                          researcherMessages.get(researcherAgentid) || '';
-                        console.log(
-                          'currentContent===========',
-                          currentContent
-                        );
-
-                        researcherMessages.set(
-                          researcherAgentid,
-                          currentContent + content
-                        );
-                      } else {
-                        // 其他 agent 使用原来的逻辑
-                        const currentContent = agentMessages.get(agent) || '';
-                        agentMessages.set(agent, currentContent + content);
-                      }
-
+                // 2) searchResults = response.quoteList（遍历数组）
+                if (Array.isArray(data)) {
+                  data.forEach((response: any) => {
+                    if (
+                      response?.moduleType === 'datasetSearchNode' &&
+                      response?.quoteList
+                    ) {
                       setMessages(prev => {
-                        // 对于 researcher agent，需要根据 researcherAgentid 查找现有消息
-                        let existingMessageIndex = -1;
-
-                        if (agent === 'researcher') {
-                          // 查找具有相同 researcherAgentid 的消息
-                          existingMessageIndex = prev.findIndex(
-                            msg =>
-                              !msg.isUser &&
-                              msg.agent === agent &&
-                              msg.status === 'sending' &&
-                              msg.dataId === researcherAgentid
-                          );
-                        } else {
-                          // 其他 agent 使用原来的逻辑
-                          existingMessageIndex = prev.findIndex(
-                            msg =>
-                              !msg.isUser &&
-                              msg.agent === agent &&
-                              msg.status === 'sending'
-                          );
-                        }
-
-                        if (existingMessageIndex !== -1) {
-                          // 更新现有消息
-                          let filterdata = null;
-                          if (agent == 'coordinator') {
-                            filterdata = extractSupplementReply(
-                              agentMessages.get(agent) || ''
-                            );
-                            // filterdata = agentMessages.get(agent) || ""
-                            console.log(
-                              '555555555555=========',
-                              agentMessages.get(agent),
-                              filterdata
-                            );
-                          } else if (agent == 'planner') {
-                            // extractPlanner
-                            filterdata = extractPlanner(
-                              agentMessages.get(agent) || ''
-                            );
-                            // filterdata = agentMessages.get(agent) || ""
-                          } else if (agent == 'researcher') {
-                            // filterdata = extractResearcher(researcherMessages.get(researcherAgentid) || "")
-                            console.log(
-                              'currentContent===========',
-                              researcherMessages.get(researcherAgentid)
-                            );
-                            // console.log("currentContent111===========", filterdata);
-                            filterdata =
-                              researcherMessages.get(researcherAgentid) || '';
-                          } else {
-                            filterdata = agentMessages.get(agent) || '';
+                        const newMessages = [...prev];
+                        if (newMessages.length > 0) {
+                          const lastMessage =
+                            newMessages[newMessages.length - 1];
+                          if (!lastMessage.isUser) {
+                            newMessages[newMessages.length - 1] = {
+                              ...lastMessage,
+                              searchResults: response.quoteList,
+                            };
                           }
-                          console.log('agentMessages.get(agent)===========');
-
-                          const newMessages = [...prev];
-                          newMessages[existingMessageIndex] = {
-                            ...newMessages[existingMessageIndex],
-                            content: filterdata || '',
-                            reasoningContent:
-                              data.reasoningContent ||
-                              newMessages[existingMessageIndex]
-                                .reasoningContent,
-                          };
-                          return newMessages;
-                        } else {
-                          // 创建新的 agent 消息
-                          const newMessageId =
-                            Date.now() +
-                            Math.random().toString(36).substr(2, 9);
-                          const newMessage: Message = {
-                            id: newMessageId,
-                            dataId:
-                              agent === 'researcher'
-                                ? researcherAgentid
-                                : data.id || '',
-                            role: 'assistant',
-                            content:
-                              agent === 'researcher'
-                                ? researcherMessages.get(researcherAgentid) ||
-                                  ''
-                                : agentMessages.get(agent) || '',
-                            isUser: false,
-                            status: 'sending',
-                            agent: agent,
-                            reasoningContent: data.reasoningContent,
-                            isStreaming: true,
-                          };
-                          return [...prev, newMessage];
                         }
+                        return newMessages;
                       });
                     }
-                  }
+                  });
                 }
-              } else if (eventType == 'interrupt') {
-                console.log('收到 interrupt 事件，暂不处理');
-                // interrupt 事件暂不处理
-                const dataMatch = eventChunk.match(/data: (.+)/);
+              } catch (e) {
+                console.warn('解析 flowResponses 数据失败', e);
+              }
+            } else if (eventType == 'answer') {
+              try {
+                const data = JSON.parse(dataStr);
+                if (
+                  data.choices &&
+                  data.choices[0] &&
+                  data.choices[0].delta &&
+                  typeof data.choices[0].delta.content === 'string'
+                ) {
+                  const answerContent = data.choices[0].delta.content;
 
-                if (dataMatch) {
-                  const jsonStr = dataMatch[1].trim();
-                  if (jsonStr && jsonStr !== '[DONE]') {
-                    const data = JSON.parse(jsonStr);
-                    console.log('interruptdata============', data);
-                    const btnOption = data.options;
-                    const btnAgent = data.id;
-                    setMessages(prev => {
+                  const currentContent = agentMessages.get('default') || '';
+                  const newContent = currentContent + answerContent;
+                  agentMessages.set('default', newContent);
+
+                  setMessages(prev => {
+                    // 查找现有的 default agent 消息
+                    const existingMessageIndex = prev.findIndex(
+                      msg =>
+                        !msg.isUser &&
+                        msg.agent === 'default' &&
+                        msg.status === 'sending'
+                    );
+
+                    if (existingMessageIndex !== -1) {
                       const newMessages = [...prev];
-                      if (newMessages.length > 0) {
-                        const lastMessage = newMessages[newMessages.length - 1];
-                        if (!lastMessage.isUser) {
-                          newMessages[newMessages.length - 1] = {
-                            ...lastMessage,
-                            options: btnOption,
-                            btnAgent: btnAgent,
-                          };
-                        }
-                      }
+                      newMessages[existingMessageIndex] = {
+                        ...newMessages[existingMessageIndex],
+                        content: newContent,
+                        reasoningContent: data.reasoningContent,
+                      };
                       return newMessages;
-                    });
-
-                    // if (data.id) {
-                    //   const isMatch =
-                    //     /^repeat_human_feedback:/.test(data.id) ||
-                    //     /^human_feedback:/.test(data.id) ||
-                    //     /^summary_human_feedback:/.test(data.id);
-
-                    //   console.log('isMatch===============', isMatch);
-                    //   setisbtn(isMatch);
-
-                    //   // 将isMatch状态添加到最新的消息中
-                    //   setMessages(prev => {
-                    //     const newMessages = [...prev];
-                    //     if (newMessages.length > 0) {
-                    //       const lastMessage =
-                    //         newMessages[newMessages.length - 1];
-                    //       if (!lastMessage.isUser) {
-                    //         newMessages[newMessages.length - 1] = {
-                    //           ...lastMessage,
-                    //           isMatch: isMatch,
-                    //         };
-                    //       }
-                    //     }
-                    //     return newMessages;
-                    //   });
-                    // }
-
-                    if (data.finish_reason == 'interrupt') {
-                      console.log('发送===========');
-                      setVariablesFeedback(true);
+                    } else {
+                      const newmessage: Message = {
+                        id:
+                          Date.now().toString() +
+                          Math.random().toString(36).substr(2, 9),
+                        dataId: data.id || '',
+                        role: 'assistant',
+                        content: newContent,
+                        isUser: false,
+                        status: 'sending',
+                        agent: 'default',
+                        reasoningContent: data.reasoningContent,
+                        isStreaming: true,
+                      };
+                      return [...prev, newmessage];
                     }
-                  }
+                  });
                 }
-              } else if (eventType == 'flowResponses') {
-                console.log('收到 flowResponses 事件');
-                const dataMatch = eventChunk.match(/data: (.+)/);
+              } catch (e) {
+                console.warn('解析 answer 数据失败', e);
+              }
+            } else if (eventType === 'message_chunk') {
+              try {
+                const data = JSON.parse(dataStr);
+                console.log('message data=========', data);
+                console.log('agent===========', data.agent);
 
-                if (dataMatch) {
-                  const jsonStr = dataMatch[1].trim();
-                  if (jsonStr && jsonStr !== '[DONE]') {
-                    try {
-                      const data = JSON.parse(jsonStr);
-                      console.log('flowResponses data=========', data);
+                if (data.content) {
+                  const content = data.content as string;
+                  const agent = (data.agent as string) || 'default';
 
-                      // 处理知识库搜索结果
-                      if (data && Array.isArray(data)) {
-                        data.forEach((response: any) => {
-                          if (
-                            response.moduleType === 'datasetSearchNode' &&
-                            response.quoteList
-                          ) {
-                            console.log('知识库搜索结果:', response.quoteList);
+                  let researcherAgentid = '';
+                  if (agent == 'researcher') {
+                    researcherAgentid = data.id as string;
+                  }
 
-                            // 将搜索结果添加到当前消息中
-                            setMessages(prev => {
-                              const newMessages = [...prev];
-                              if (newMessages.length > 0) {
-                                const lastMessage =
-                                  newMessages[newMessages.length - 1];
-                                if (!lastMessage.isUser) {
-                                  // 将搜索结果添加到消息中
-                                  newMessages[newMessages.length - 1] = {
-                                    ...lastMessage,
-                                    searchResults: response.quoteList,
-                                  };
-                                }
-                              }
-                              return newMessages;
-                            });
-                          }
-                        });
+                  // 更新 agent 消息内容
+                  if (agent === 'researcher') {
+                    const currentContent =
+                      researcherMessages.get(researcherAgentid) || '';
+                    researcherMessages.set(
+                      researcherAgentid,
+                      currentContent + content
+                    );
+                  } else {
+                    const currentContent = agentMessages.get(agent) || '';
+                    agentMessages.set(agent, currentContent + content);
+                  }
+
+                  setMessages(prev => {
+                    // 对于 researcher agent，需要根据 researcherAgentid 查找现有消息
+                    let existingMessageIndex = -1;
+
+                    if (agent === 'researcher') {
+                      existingMessageIndex = prev.findIndex(
+                        msg =>
+                          !msg.isUser &&
+                          msg.agent === agent &&
+                          msg.status === 'sending' &&
+                          msg.dataId === researcherAgentid
+                      );
+                    } else {
+                      existingMessageIndex = prev.findIndex(
+                        msg =>
+                          !msg.isUser &&
+                          msg.agent === agent &&
+                          msg.status === 'sending'
+                      );
+                    }
+
+                    if (existingMessageIndex !== -1) {
+                      let filterdata: any = null;
+                      if (agent == 'coordinator') {
+                        filterdata = extractSupplementReply(
+                          agentMessages.get(agent) || ''
+                        );
+                      } else if (agent == 'planner') {
+                        filterdata = extractPlanner(
+                          agentMessages.get(agent) || ''
+                        );
+                      } else if (agent == 'researcher') {
+                        filterdata =
+                          researcherMessages.get(researcherAgentid) || '';
+                      } else {
+                        filterdata = agentMessages.get(agent) || '';
                       }
-                    } catch (e) {
-                      console.warn('解析 flowResponses 数据失败', e);
+
+                      const newMessages = [...prev];
+                      newMessages[existingMessageIndex] = {
+                        ...newMessages[existingMessageIndex],
+                        content: filterdata || '',
+                        reasoningContent:
+                          data.reasoningContent ||
+                          newMessages[existingMessageIndex].reasoningContent,
+                      };
+                      return newMessages;
+                    } else {
+                      const newMessageId =
+                        Date.now() + Math.random().toString(36).substr(2, 9);
+                      const newMessage: Message = {
+                        id: newMessageId,
+                        dataId:
+                          agent === 'researcher'
+                            ? researcherAgentid
+                            : (data.id as string) || '',
+                        role: 'assistant',
+                        content:
+                          agent === 'researcher'
+                            ? researcherMessages.get(researcherAgentid) || ''
+                            : agentMessages.get(agent) || '',
+                        isUser: false,
+                        status: 'sending',
+                        agent: agent,
+                        reasoningContent: data.reasoningContent,
+                        isStreaming: true,
+                      };
+                      return [...prev, newMessage];
+                    }
+                  });
+                }
+              } catch (e) {
+                console.warn('解析 message_chunk 数据失败', e);
+              }
+            } else if (eventType == 'interrupt') {
+              try {
+                const data = JSON.parse(dataStr);
+                console.log('interruptdata============', data);
+                const btnOption = data.options;
+                const btnAgent = data.id;
+                setMessages(prev => {
+                  const newMessages = [...prev];
+                  if (newMessages.length > 0) {
+                    const lastMessage = newMessages[newMessages.length - 1];
+                    if (!lastMessage.isUser) {
+                      newMessages[newMessages.length - 1] = {
+                        ...lastMessage,
+                        options: btnOption,
+                        btnAgent: btnAgent,
+                      };
                     }
                   }
-                }
-              } else if (eventType == 'flowNodeStatus') {
-                console.log('收到 flowNodeStatus 事件');
-                const dataMatch = eventChunk.match(/data: (.+)/);
+                  return newMessages;
+                });
 
-                if (dataMatch) {
-                  const jsonStr = dataMatch[1].trim();
-                  if (jsonStr && jsonStr !== '[DONE]') {
-                    try {
-                      const data = JSON.parse(jsonStr);
-                      console.log('flowNodeStatus data=========', data);
-
-                      // 可以在这里处理节点状态更新
-                      // 例如：显示当前正在执行的节点名称
-                      if (data.status && data.name) {
-                        console.log(`节点状态: ${data.name} - ${data.status}`);
-                        // 可以根据需要更新UI显示当前执行的节点
-                      }
-                    } catch (e) {
-                      console.warn('解析 flowNodeStatus 数据失败', e);
-                    }
-                  }
+                if (data.finish_reason == 'interrupt') {
+                  console.log('发送===========');
+                  setVariablesFeedback(true);
                 }
+              } catch (e) {
+                console.warn('解析 interrupt 数据失败', e);
+              }
+            } else if (eventType == 'flowNodeStatus') {
+              try {
+                const data = JSON.parse(dataStr);
+                console.log('flowNodeStatus data=========', data);
+                if (data.status && data.name) {
+                  console.log(`节点状态: ${data.name} - ${data.status}`);
+                }
+              } catch (e) {
+                console.warn('解析 flowNodeStatus 数据失败', e);
               }
             }
           }
@@ -1557,7 +1627,7 @@ const Chat: React.FC = () => {
           <IonButtons slot='end'>
             <IonMenuButton menu='second-menu'>
               <img
-                src='/assets/icon/History.svg'
+                src='/assets/icon/timeclock.svg'
                 alt='历史'
                 style={{
                   width: '20px',
@@ -1567,7 +1637,7 @@ const Chat: React.FC = () => {
               />
             </IonMenuButton>
 
-            <IonButton>
+            {/* <IonButton>
               <img
                 src='/assets/icon/add.svg'
                 alt='添加'
@@ -1577,7 +1647,7 @@ const Chat: React.FC = () => {
                   filter: 'brightness(0) invert(1)',
                 }}
               />
-            </IonButton>
+            </IonButton> */}
           </IonButtons>
         </div>
 
@@ -1658,7 +1728,7 @@ const Chat: React.FC = () => {
         <div
           className='chatbody'
           style={{
-            paddingTop: sectionName ? '40px' : '0',
+            paddingTop: sectionName ? '42px' : '0',
           }}
           onClick={e => {
             e.stopPropagation();
@@ -1726,6 +1796,7 @@ const Chat: React.FC = () => {
             left: 0,
             right: 0,
             zIndex: '100',
+            // border: '1px solid red',
           }}
         >
           {(showInputType == 1 || showInputType == 2) && (
@@ -1738,6 +1809,35 @@ const Chat: React.FC = () => {
                 marginBottom: '12px',
               }}
             >
+              {sectionName && (
+                <div
+                  style={{
+                    width: '80px',
+                    height: '30px',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '15px',
+                    fontSize: '12px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    // backgroundColor: type == '1' ? '#3A3C61' : '',
+                    background:
+                      type == '1'
+                        ? 'linear-gradient(0deg, var(--base-white-15, rgba(255, 255, 255, 0.15)), var(--base-white-15, rgba(255, 255, 255, 0.15))),linear-gradient(158.13deg, #30247C -14.18%, #00033E 88.47%)'
+                        : '',
+                  }}
+                  onClick={() => {
+                    if (type == '1') {
+                      setType('0');
+                    } else {
+                      setType('1');
+                    }
+                  }}
+                >
+                  排障模式
+                </div>
+              )}
+
               <div
                 style={{
                   width: '80px',
@@ -1748,29 +1848,11 @@ const Chat: React.FC = () => {
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  backgroundColor: type == '1' ? '#3A3C61' : '',
-                }}
-                onClick={() => {
-                  if (type == '1') {
-                    setType('0');
-                  } else {
-                    setType('1');
-                  }
-                }}
-              >
-                排障模式
-              </div>
-              <div
-                style={{
-                  width: '80px',
-                  height: '30px',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  borderRadius: '15px',
-                  fontSize: '12px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  backgroundColor: type2 == '1' ? '#3A3C61' : '',
+                  // backgroundColor: type2 == '1' ? '#3A3C61' : '',
+                  background:
+                    type2 == '1'
+                      ? 'linear-gradient(0deg, var(--base-white-15, rgba(255, 255, 255, 0.15)), var(--base-white-15, rgba(255, 255, 255, 0.15))),linear-gradient(158.13deg, #30247C -14.18%, #00033E 88.47%)'
+                      : '',
                 }}
                 onClick={() => {
                   if (type2 == '1') {
