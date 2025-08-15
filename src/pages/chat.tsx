@@ -49,11 +49,12 @@ interface Message {
   url?: string;
   imgList?: any[];
   aboutfile?: any[];
+  isoption?: boolean;
 }
 
 type Prop = {
   message: Message;
-  buttosearch: (option: any, message: any) => void;
+  buttosearch: (option: any, message: any, index: number) => void;
 };
 
 // 消息渲染组件主体
@@ -145,28 +146,29 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
                 marginTop: '10px',
               }}
             >
-              {message.options.map((option: any) => (
+              {message.options.map((option: any, index: number) => (
+
                 <div
                   style={{
-                    borderRadius: '10px',
-                    height: '30px',
-
-                    minWidth: '60px',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    overflow: 'hidden',
-                    padding: '0 8px',
+                    // borderRadius: '10px',
+                    // height: '30px',
+                    // minWidth: '60px',
+                    // display: 'flex',
+                    // justifyContent: 'center',
+                    // alignItems: 'center',
+                    // cursor: 'pointer',
+                    // border: '1px solid rgba(255, 255, 255, 0.2)',
+                    // overflow: 'hidden',
+                    // padding: '0 8px',
+                    // backgroundColor: message.isoption ? '#3D3E58' : 'transparent',
                   }}
                   key={option}
                   onClick={e => {
                     e.stopPropagation();
-                    buttosearch(option, message);
+                    buttosearch(option, message, index);
                   }}
                 >
-                  <span
+                  {/* <span
                     style={{
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
@@ -175,7 +177,39 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
                     }}
                   >
                     {option}
-                  </span>
+                  </span> */}
+                  <button
+                    disabled={message.isoption ? true : false}
+                    style={{
+                      borderRadius: '10px',
+                      height: '30px',
+                      minWidth: '60px',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      overflow: 'hidden',
+                      padding: '0 8px',
+                      width: "100%",
+                      backgroundColor: "transparent",
+                      color: message.isoption ? "grey" : "#fff"
+                    }}
+                    onClick={e => {
+                      e.stopPropagation();
+                      buttosearch(option, message, index);
+                    }}>
+                    <span
+                      style={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        maxWidth: '100%',
+                      }}
+                    >
+                      {option}
+                    </span>
+                  </button>
                 </div>
               ))}
             </div>
@@ -959,8 +993,8 @@ const Chat: React.FC = () => {
     chatid.current = generateRandomString(8);
   }, []);
 
-  const buttosearch = (option: any, message: any) => {
-    console.log('buttosearchoption==============', option, message);
+  const buttosearch = (option: any, message: any, index: number) => {
+    console.log('buttosearchoption==============', option, message, index);
     // setInputValue("ok")
     if (option == '修改' || option.includes('其他')) {
       setShowtag(true);
@@ -975,6 +1009,19 @@ const Chat: React.FC = () => {
         // upload(message.content);
       }
     }
+
+    setMessages(prev => {
+      const newMessages = [...prev];
+      newMessages[index] = {
+        ...newMessages[index],
+        isoption: true,
+      };
+
+      console.log('newMessages==============', newMessages);
+
+      return newMessages;
+    });
+
   };
 
   const upload = async (message: any) => {
@@ -1796,7 +1843,7 @@ const Chat: React.FC = () => {
                 padding: '8px 16px',
               }}
             >
-              {messages.map(message => (
+              {messages.map((message) => (
                 <MessageItem
                   key={message.id}
                   message={message}
