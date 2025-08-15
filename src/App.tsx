@@ -112,14 +112,26 @@ const IonicApp: React.FC<IonicAppProps> = ({
   const [log, setLog] = useState(true);
   const { userInfo, setUserInfo } = useUserStore();
 
+  const [istoken, setistoken] = useState(false);
+
+
   useEffect(() => {
-    // checkHealth();
+
     initLogin();
     loadUserData();
     loadConfData();
-    getUserInfoFn();
-    // eslint-disable-next-line
+
+
   }, []);
+
+  useEffect(() => {
+    if (istoken) {
+      getUserInfoFn();
+    }
+    // eslint-disable-next-line
+  }, [istoken]);
+
+
 
   const getUserInfoFn = async () => {
     try {
@@ -159,6 +171,8 @@ const IonicApp: React.FC<IonicAppProps> = ({
       );
       localStorage.setItem('token', response.data.token);
 
+      setistoken(true)
+
       // 存储用户ID到zustand store
       if (response.data.user && response.data.user._id) {
         setUser(response.data.user._id, response.data.token);
@@ -169,10 +183,12 @@ const IonicApp: React.FC<IonicAppProps> = ({
   };
 
   return (
-    <IonApp className={`${darkMode ? 'ion-palette-dark' : ''}`}>
-      <IonReactRouter>
-        <IonSplitPane contentId='main'>
-          {/* <div
+    <div>
+      {istoken &&
+        <IonApp className={`${darkMode ? 'ion-palette-dark' : ''}`}>
+          <IonReactRouter>
+            <IonSplitPane contentId='main'>
+              {/* <div
             style={{
               width: '30px',
               height: '30px',
@@ -191,45 +207,47 @@ const IonicApp: React.FC<IonicAppProps> = ({
           >
             log
           </div> */}
-          <Menu />
-          <IonRouterOutlet id='main'>
-            {/*
+              <Menu />
+              <IonRouterOutlet id='main'>
+                {/*
                 We use IonRoute here to keep the tabs state intact,
                 which makes transitions between tabs and non tab pages smooth
                 */}
-            {/* <Route path='/tabs' render={() => <MainTabs />} /> */}
-            <Route path='/account' component={Account} />
-            <Route path='/login' component={Login} />
-            <Route path='/signup' component={Signup} />
-            <Route path='/support' component={Support} />
-            <Route path='/tutorial' component={Tutorial} />
-            <Route path='/task-briefing' component={TaskBriefing} />
-            <Route path='/question' component={Question} />
+                {/* <Route path='/tabs' render={() => <MainTabs />} /> */}
+                <Route path='/account' component={Account} />
+                <Route path='/login' component={Login} />
+                <Route path='/signup' component={Signup} />
+                <Route path='/support' component={Support} />
+                <Route path='/tutorial' component={Tutorial} />
+                <Route path='/task-briefing' component={TaskBriefing} />
+                <Route path='/question' component={Question} />
 
-            <Route path='/task' component={Task} />
-            <Route path='/taskListPage' component={TaskListPage} />
-            <Route path='/evalution' component={Evalution} />
-            <Route path='/chat' component={Chat} />
-            <Route path='/menudemo' component={Menudemo} />
-            <Route path='/userinfo' component={Userinfo} />
+                <Route path='/task' component={Task} />
+                <Route path='/taskListPage' component={TaskListPage} />
+                <Route path='/evalution' component={Evalution} />
+                <Route path='/chat' component={Chat} />
+                <Route path='/menudemo' component={Menudemo} />
+                <Route path='/userinfo' component={Userinfo} />
 
-            <Route
-              path='/logout'
-              render={() => {
-                return (
-                  <RedirectToLogin
-                    setIsLoggedIn={setIsLoggedIn}
-                    setUsername={setUsername}
-                  />
-                );
-              }}
-            />
-            <Route path='/' component={HomeOrTutorial} exact />
-          </IonRouterOutlet>
-        </IonSplitPane>
-      </IonReactRouter>
-      {/* {log && <ConsoleWindow />} */}
-    </IonApp>
+                <Route
+                  path='/logout'
+                  render={() => {
+                    return (
+                      <RedirectToLogin
+                        setIsLoggedIn={setIsLoggedIn}
+                        setUsername={setUsername}
+                      />
+                    );
+                  }}
+                />
+                <Route path='/' component={HomeOrTutorial} exact />
+              </IonRouterOutlet>
+            </IonSplitPane>
+          </IonReactRouter>
+          {/* {log && <ConsoleWindow />} */}
+        </IonApp>}
+    </div>
+
   );
 };
 

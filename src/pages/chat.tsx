@@ -877,7 +877,7 @@ const Chat: React.FC = () => {
   const [showtag, setShowtag] = useState(false);
   const [sectionName, setSectionName] = useState('');
   const [type, setType] = useState('1');
-  const [type2, setType2] = useState('1');
+  const [type2, setType2] = useState('0');
   const [uploadedImages, setUploadedImages] = useState<
     Array<{ url: string; name: string; id: string }>
   >([]);
@@ -1906,7 +1906,7 @@ const Chat: React.FC = () => {
                   }
                 }}
               >
-                深度思考
+                深度检索
               </div>
             </div>
           )}
