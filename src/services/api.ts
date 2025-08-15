@@ -33,13 +33,15 @@ interface TaskData {
 }
 
 interface ChatMessage {
-  content: string | Array<{
-    type: string;
-    text?: any;
-    image_url?: {
-      url: string;
-    };
-  }>;
+  content:
+    | string
+    | Array<{
+        type: string;
+        text?: any;
+        image_url?: {
+          url: string;
+        };
+      }>;
   role: string;
   dataId: string;
 }
@@ -102,14 +104,19 @@ export const loginByPassword = (
   }) as Promise<ApiLoginResponse>;
 };
 
-export const sendChatMessage = (
-  request: chatReq
-): Promise<any> => {
-  return http.post('/openapi/v1/v0/chat/completions', request, { isStream: true });
+export const sendChatMessage = (request: chatReq): Promise<any> => {
+  return http.post('/openapi/v1/v0/chat/completions', request, {
+    isStream: true,
+  });
 };
 
 export const taskCreate = ({ data }: any): Promise<ApiTaskResponse> => {
   return http.post<TaskData>('/openapi/v2/task/create', data);
+};
+
+export const taskaiparse = ({ data }: any): Promise<ApiTaskResponse> => {
+  return http.post<TaskData>('/openapi/v2/task/ai_parse', data);
+
 };
 
 export const taskUpdate = ({ data }: any): Promise<ApiTaskResponse> => {
@@ -133,34 +140,35 @@ export const chatUpload = (data: any): Promise<ApiTaskListResponse> => {
 };
 
 // 文件上传函数
-export const uploadFile = (file: File): Promise<ApiResponse<{ fileId: string, previewUrl: string }>> => {
-
-  console.log("uploadFile==============",file);
+export const uploadFile = (
+  file: File
+): Promise<ApiResponse<{ fileId: string; previewUrl: string }>> => {
+  console.log('uploadFile==============', file);
 
   const formData = new FormData();
   formData.append('file', file);
 
-  console.log("uploadFile==============",formData.get('file'));
+  console.log('uploadFile==============', formData.get('file'));
 
   // 不设置Content-Type，让浏览器自动设置multipart/form-data和boundary
-  return http.post<{ fileId: string, previewUrl: string }>('/openapi/v1/v0/chat/upload/file', formData);
+  return http.post<{ fileId: string; previewUrl: string }>(
+    '/openapi/v1/v0/chat/upload/file',
+    formData
+  );
 };
 
 export const userinfoCreate = ({ data }: any): Promise<ApiTaskResponse> => {
   return http.post<TaskData>('/openapi/v2/user-profile/create', data);
 };
 
-export const getFileUrl = (id:string): Promise<ApiTaskResponse> => {
-  return http.get<TaskData>(`/openapi/v1/dataset/collection?collection_id=${id}`);
+export const getFileUrl = (id: string): Promise<ApiTaskResponse> => {
+  return http.get<TaskData>(
+    `/openapi/v1/dataset/collection?collection_id=${id}`
+  );
 };
 
-export const getUserInfo = (user_id: string): Promise<ApiResponse<UserInfo>> => {
+export const getUserInfo = (
+  user_id: string
+): Promise<ApiResponse<UserInfo>> => {
   return http.get<UserInfo>(`/openapi/v2/user-profile/${user_id}`);
 };
-
-
-
-
-
-
-

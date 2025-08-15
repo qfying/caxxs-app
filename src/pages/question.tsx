@@ -41,26 +41,26 @@ const Question = () => {
         (selectCardItem && selectCardItem.address) ||
         'Installation Instructions',
       description: '首先，为保证安装顺利\n我给你准备了三个重点',
-      description2: '开始学习它吧 ✊🏻',
+      description2: '安装前快速查看 ✊🏻',
       items: [
         {
           id: 1,
-          title: '完整安装方案预习',
-          content: '不锈钢管道系统安装详细步骤和流程说明',
-          status: '已完成',
+          title: '客户及产品信息',
+          content: '客户信息及合同协议',
+          // status: '已完成',
           warning: '重要提醒',
         },
         {
           id: 2,
-          title: '安装要点确认',
-          content: '关键操作步骤和技术要求',
+          title: '标准安装方案及注意事项',
+          content: '安装步骤、点检表安全提醒和常见问题预防',
           status: '已完成',
         },
         {
           id: 3,
-          title: '关键注意事项',
-          content: '安全提醒和常见问题预防',
-          status: '进行中',
+          title: '工具与备件清单',
+          content: '出门前记得检查工具和是否带齐、避免折返奔波',
+          // status: '进行中',
           warning: '安全警告',
         },
       ],
@@ -345,89 +345,89 @@ const Question = () => {
                   {(currentSection == 0 ||
                     currentSection == 1 ||
                     currentSection == 2) && (
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '10px',
-                      }}
-                    >
-                      {sections[currentSection].items.map(item => (
-                        <div
-                          key={item.id}
-                          style={{
-                            background: 'rgba(255, 255, 255, 0.1)',
-                            borderRadius: '15px',
-                            padding: '15px',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            cursor: 'pointer',
-                            transition: 'all 0.3s ease',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            position: 'relative',
-                          }}
-                          onMouseEnter={e => {
-                            e.currentTarget.style.background =
-                              'rgba(255, 255, 255, 0.15)';
-                          }}
-                          onMouseLeave={e => {
-                            e.currentTarget.style.background =
-                              'rgba(255, 255, 255, 0.1)';
-                          }}
-                          onClick={() => {
-                            console.log('点击项目:', item.title);
-                            if (item.title == '任务报告') {
-                              router.push('/task-briefing');
-                            } else {
-                              setShowBottomDrawer(true);
-                              setSelectItem(item);
-                            }
-                          }}
-                        >
-                          <div style={{ flex: 1 }}>
-                            <div
-                              style={{
-                                fontSize: '16px',
-                                fontWeight: 'bold',
-                                color: 'white',
-                                marginBottom: '5px',
-                              }}
-                            >
-                              {item.title}
-                            </div>
-                            <div
-                              style={{
-                                fontSize: '12px',
-                                color: 'rgba(255, 255, 255, 0.7)',
-                                lineHeight: '1.3',
-                              }}
-                            >
-                              {item.content}
-                            </div>
-                          </div>
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '10px',
+                        }}
+                      >
+                        {sections[currentSection].items.map(item => (
                           <div
+                            key={item.id}
                             style={{
+                              background: 'rgba(255, 255, 255, 0.1)',
+                              borderRadius: '15px',
+                              padding: '15px',
+                              border: '1px solid rgba(255, 255, 255, 0.2)',
+                              cursor: 'pointer',
+                              transition: 'all 0.3s ease',
                               display: 'flex',
+                              justifyContent: 'space-between',
                               alignItems: 'center',
-                              gap: '10px',
+                              position: 'relative',
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.background =
+                                'rgba(255, 255, 255, 0.15)';
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.background =
+                                'rgba(255, 255, 255, 0.1)';
+                            }}
+                            onClick={() => {
+                              console.log('点击项目:', item.title);
+                              if (item.title == '任务报告') {
+                                router.push('/task-briefing');
+                              } else {
+                                setShowBottomDrawer(true);
+                                setSelectItem(item);
+                              }
                             }}
                           >
-                            {item.warning && (
-                              <span
+                            <div style={{ flex: 1 }}>
+                              <div
                                 style={{
-                                  fontSize: '10px',
-                                  padding: '2px 6px',
-                                  borderRadius: '8px',
-                                  background: 'rgba(255, 152, 0, 0.3)',
-                                  color: '#FF9800',
-                                  border: '1px solid rgba(255, 152, 0, 0.5)',
+                                  fontSize: '16px',
+                                  fontWeight: 'bold',
+                                  color: 'white',
+                                  marginBottom: '5px',
                                 }}
                               >
-                                {item.warning}
-                              </span>
-                            )}
-                            {/* <span
+                                {item.title}
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: '12px',
+                                  color: 'rgba(255, 255, 255, 0.7)',
+                                  lineHeight: '1.3',
+                                }}
+                              >
+                                {item.content}
+                              </div>
+                            </div>
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                              }}
+                            >
+                              {/* {item.warning && (
+                                <span
+                                  style={{
+                                    fontSize: '10px',
+                                    padding: '2px 6px',
+                                    borderRadius: '8px',
+                                    background: 'rgba(255, 152, 0, 0.3)',
+                                    color: '#FF9800',
+                                    border: '1px solid rgba(255, 152, 0, 0.5)',
+                                  }}
+                                >
+                                  {item.warning}
+                                </span>
+                              )} */}
+                              {/* <span
                         style={{
                           fontSize: '10px',
                           padding: '2px 6px',
@@ -454,21 +454,21 @@ const Question = () => {
                       >
                         {item.status}
                       </span> */}
-                            <img
-                              src='/assets/icon/Back.svg'
-                              alt=''
-                              style={{
-                                width: '16px',
-                                height: '16px',
-                                filter: 'brightness(0) invert(1)',
-                                transform: 'rotate(180deg)',
-                              }}
-                            />
+                              <img
+                                src='/assets/icon/Back.svg'
+                                alt=''
+                                style={{
+                                  width: '16px',
+                                  height: '16px',
+                                  filter: 'brightness(0) invert(1)',
+                                  transform: 'rotate(180deg)',
+                                }}
+                              />
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                        ))}
+                      </div>
+                    )}
                 </div>
               </div>
 
@@ -592,8 +592,8 @@ const Question = () => {
                   {currentSection === 0
                     ? '我明白啦'
                     : currentSection === 1
-                    ? '确认齐全'
-                    : '完成'}
+                      ? '确认齐全'
+                      : '完成'}
                 </button>
               </div>
             </div>

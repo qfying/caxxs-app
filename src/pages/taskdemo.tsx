@@ -1,6 +1,6 @@
 import { IonModal, IonTextarea, useIonRouter } from '@ionic/react';
 import { useEffect, useRef, useState } from 'react';
-import { getTaskList, taskCreate, taskUpdate } from '../services/api';
+import { getTaskList, taskCreate, taskaiparse } from '../services/api';
 import { useUserStore } from '../stores/userStore';
 
 import TaskCard from '../components/taskCard';
@@ -30,6 +30,7 @@ const Task = () => {
     status: '',
     deleted: false,
     task_name: '',
+
   });
 
   useEffect(() => {
@@ -51,11 +52,12 @@ const Task = () => {
   const taskCreateFn = async () => {
     const data = {
       // content: "订单号是 2025-07-18，客户为山东蓝海环保设备有限公司，地址在山东省济南市高新区工业南路 88 号。产品名称是高温耐腐风机，描述部分写着：风机型号为 D1200，叶轮出现轻微异响，已更换轴承并调整对中，测试运转正常，客户现场确认通过验收。",
-      executeId: userId || '6887301624c99b8092c67e5e',
+      // executeId: userId || '6887301624c99b8092c67e5e',
       content: taskCreateValue,
+      image_url: ""
     };
     try {
-      const res = await taskCreate({ data });
+      const res = await taskaiparse({ data });
 
       setNextIndex(1);
       console.log('res任务创建=============', res);
@@ -105,9 +107,14 @@ const Task = () => {
 
   const handleFormSubmit = async () => {
     // 这里可以添加表单验证逻辑
-    console.log('表单数据:', formData);
+    console.log('表单数据:', formData, userId);
 
-    const res = await taskUpdate({ data: formData });
+    formData.executeId = userId || ''
+
+
+    const res = await taskCreate({ data: formData });
+
+
     console.log('更新表单数据=============', res);
     setNextIndex(2);
     if (res.code == 200) {
