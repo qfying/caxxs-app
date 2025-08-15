@@ -54,7 +54,7 @@ interface Message {
 
 type Prop = {
   message: Message;
-  buttosearch: (option: any, message: any, index: number) => void;
+  buttosearch: (option: any, message: any) => void;
 };
 
 // 消息渲染组件主体
@@ -162,11 +162,11 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
                     // padding: '0 8px',
                     // backgroundColor: message.isoption ? '#3D3E58' : 'transparent',
                   }}
-                  key={option}
-                  onClick={e => {
-                    e.stopPropagation();
-                    buttosearch(option, message, index);
-                  }}
+                // key={option}
+                // onClick={e => {
+                //   e.stopPropagation();
+                //   buttosearch(option, message, index);
+                // }}
                 >
                   {/* <span
                     style={{
@@ -197,7 +197,7 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
                     }}
                     onClick={e => {
                       e.stopPropagation();
-                      buttosearch(option, message, index);
+                      buttosearch(option, message);
                     }}>
                     <span
                       style={{
@@ -993,8 +993,8 @@ const Chat: React.FC = () => {
     chatid.current = generateRandomString(8);
   }, []);
 
-  const buttosearch = (option: any, message: any, index: number) => {
-    console.log('buttosearchoption==============', option, message, index);
+  const buttosearch = (option: any, message: any) => {
+    console.log('buttosearchoption==============', option, message);
     // setInputValue("ok")
     if (option == '修改' || option.includes('其他')) {
       setShowtag(true);
@@ -1011,11 +1011,16 @@ const Chat: React.FC = () => {
     }
 
     setMessages(prev => {
+
       const newMessages = [...prev];
-      newMessages[index] = {
-        ...newMessages[index],
-        isoption: true,
-      };
+      const messageIndex = newMessages.findIndex(msg => msg.id === message.id);
+
+      if (messageIndex !== -1) {
+        newMessages[messageIndex] = {
+          ...newMessages[messageIndex],
+          isoption: true,
+        };
+      }
 
       console.log('newMessages==============', newMessages);
 
