@@ -331,10 +331,33 @@ const MessageItem = React.memo(
 const DefaultMessage: React.FC<{ message: Message }> = ({ message }) => {
   console.log('test_answer==========', message.content);
 
+  // 判断是否正在流式输出
+  const isStreaming = message.isStreaming || message.status === 'sending';
+
+  // 如果正在流式输出，直接显示原始内容
+  if (isStreaming) {
+    return (
+      <div>
+        <div>
+          <div>{message.content}</div>
+        </div>
+      </div>
+    );
+  }
+
+  // 流式输出完成后，解析并显示格式化内容（memo 缓存）
   const parsedContent = useMemo(
     () => parseMarkdown(message.content),
     [message.content]
   );
+
+  //文本匹配案例 1
+  // `- ![video](http://172.30.232.95/videos/3M%E9%98%B2%E6%AF%92%E9%9D%A2%E5%85%B7%E7%A9%BF%E6%88%B4%E6%95%99%E5%AD%A6.mp4#t=0,30)
+  // - ![video](http://172.30.232.95/videos/3M%E9%98%B2%E6%AF%92%E9%9D%A2%E5%85%B7%E7%A9%BF%E6%88%B4%E6%95%99%E5%AD%A6.mp4#t=30,60)`
+  //文本匹配案例 2
+  // `![video](
+  // http://172.30.232.95/videos/3M%E9%98%B2%E6%AF%92%E9%9D%A2%E5%85%B7%E7%A9%BF%E6%88%B4%E6%95%99%E5%AD%A6.mp4#t=0,30
+  // )`
 
   return (
     <div>
@@ -654,16 +677,19 @@ const parseMarkdown = (text: string) => {
         '<a href="$2" target="_blank" rel="noopener noreferrer" class="solution-link">$1</a>'
       )
       // 处理图片
-      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+      .replace(/!\[([^\]]*)\]\(\s*([\s\S]+?)\s*\)/g, (match, alt, src) => {
+        console.log("match===============", match, alt, src);
+
         // 检查是否为视频链接
         if (
           alt.toLowerCase() === 'video' ||
-          src.match(/\.(mp4|webm|ogg|mov|avi)$/i)
+          src.match(/\.(mp4|webm|ogg|mov|avi)(#t=[^)]+)?$/i)
         ) {
           // 提取时间戳信息
           const timeMatch = src.match(/#t=([^)]+)$/);
           const timeParam = timeMatch ? timeMatch[1] : '';
-          const videoSrc = src;
+          // 移除可能的多余换行符和空格
+          const videoSrc = src.trim();
 
           console.log('videoSrc=================', videoSrc, timeMatch);
 
@@ -673,12 +699,12 @@ const parseMarkdown = (text: string) => {
             </video>`;
         } else {
           // 普通图片处理
-          return `<img src="${src}" alt="${alt}" style="max-width: 100%; height: auto; border-radius: 8px; margin: 8px 0;" />`;
+          return `<img src="${src.trim()}" alt="${alt}" style="max-width: 100%; height: auto; border-radius: 8px; margin: 8px 0;" />`;
         }
       })
       // 处理列表
       .replace(/^\* (.*$)/gim, '<li>$1</li>')
-      .replace(/^- (.*$)/gim, '<li>$1</li>')
+      // .replace(/^- (.*$)/gim, '<li>$1</li>')
       // 处理换行
       .replace(/\n/g, '<br/>')
   );
@@ -952,9 +978,11 @@ const Chat: React.FC = () => {
   };
 
   const upload = async (message: any) => {
+    console.log("sectionName===============", sectionName);
+
     const uploadData = {
       text: message,
-      file_name: "测试.md",
+      file_name: sectionName + '.md',
       parent_id: "689083d13897878cdd928c49",
       app_id: "689014d43897878cdd928b4b",
       datasetId: "689083d13897878cdd928c49",

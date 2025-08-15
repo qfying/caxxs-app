@@ -96,7 +96,7 @@ interface DispatchProps {
   setUsername: typeof setUsername;
 }
 
-interface IonicAppProps extends StateProps, DispatchProps {}
+interface IonicAppProps extends StateProps, DispatchProps { }
 
 const IonicApp: React.FC<IonicAppProps> = ({
   darkMode,
@@ -154,7 +154,7 @@ const IonicApp: React.FC<IonicAppProps> = ({
   const initLogin = async () => {
     try {
       const response = await loginByPassword(
-        'root',
+        '123456',
         '53e880894f3cc53d5071c679f1afcd223a3faca09148c6898da13f0afc3535ad'
       );
       localStorage.setItem('token', response.data.token);
