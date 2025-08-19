@@ -140,9 +140,9 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
             <div
               style={{
                 display: 'flex',
-                flexDirection: message.options.length > 2 ? 'column' : 'row',
+                flexDirection: (message.options?.reduce((sum, opt) => sum + String(opt).length, 0) > 10) ? 'column' : 'row',
                 gap: '6px',
-                justifyContent: message.options.length > 2 ? '' : 'flex-end',
+                justifyContent: (message.options?.reduce((sum, opt) => sum + String(opt).length, 0) > 10) ? '' : 'flex-end',
                 marginTop: '10px',
               }}
             >
@@ -150,34 +150,9 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
 
                 <div
                   style={{
-                    // borderRadius: '10px',
-                    // height: '30px',
-                    // minWidth: '60px',
-                    // display: 'flex',
-                    // justifyContent: 'center',
-                    // alignItems: 'center',
-                    // cursor: 'pointer',
-                    // border: '1px solid rgba(255, 255, 255, 0.2)',
-                    // overflow: 'hidden',
-                    // padding: '0 8px',
-                    // backgroundColor: message.isoption ? '#3D3E58' : 'transparent',
                   }}
-                // key={option}
-                // onClick={e => {
-                //   e.stopPropagation();
-                //   buttosearch(option, message, index);
-                // }}
                 >
-                  {/* <span
-                    style={{
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      maxWidth: '100%',
-                    }}
-                  >
-                    {option}
-                  </span> */}
+
                   <button
                     disabled={message.isoption ? true : false}
                     style={{
@@ -214,52 +189,6 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
               ))}
             </div>
 
-            // <div
-            //   style={{
-            //     display: 'flex',
-            //     marginTop: '10px',
-            //     justifyContent: 'flex-end',
-            //   }}
-            // >
-            //   <div
-            //     onClick={e => {
-            //       console.log('确认');
-            //       e.stopPropagation();
-            //       buttosearch();
-            //     }}
-            //     style={{
-            //       width: '60px',
-            //       borderRadius: '10px',
-            //       height: '30px',
-            //       display: 'flex',
-            //       justifyContent: 'center',
-            //       alignItems: 'center',
-            //       cursor: 'pointer',
-            //       border: '1px solid rgba(255, 255, 255, 0.2)',
-            //     }}
-            //   >
-            //     确认
-            //   </div>
-            //   <div
-            //     onClick={e => {
-            //       console.log('修改');
-            //       e.stopPropagation();
-            //     }}
-            //     style={{
-            //       marginLeft: '10px',
-            //       width: '60px',
-            //       borderRadius: '10px',
-            //       height: '30px',
-            //       display: 'flex',
-            //       justifyContent: 'center',
-            //       alignItems: 'center',
-            //       cursor: 'pointer',
-            //       border: '1px solid rgba(255, 255, 255, 0.2)',
-            //     }}
-            //   >
-            //     修改
-            //   </div>
-            // </div>
           )}
 
         {message.aboutfile && (

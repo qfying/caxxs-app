@@ -1,6 +1,6 @@
 import { IonButton, IonIcon, IonModal } from '@ionic/react';
 import { close, create, warning } from 'ionicons/icons';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 
 interface BottomDrawerProps {
   isOpen: boolean;
@@ -14,6 +14,34 @@ const BottomDrawer: React.FC<BottomDrawerProps> = ({
   selectItem,
 }) => {
   const modal = useRef<HTMLIonModalElement>(null);
+
+
+  console.log("选中4444===============", selectItem);
+
+  const [list, setList] = useState<any[]>([{
+    name: "第一步",
+    describe: "这是第一步",
+    image: "/assets/img/empty.png"
+  },
+  {
+    name: "第2步",
+    describe: "这是第2步",
+    image: "/assets/img/empty.png"
+
+  },
+  {
+    name: "第3步",
+    describe: "这是第3步",
+    image: "/assets/img/empty.png"
+
+  },
+  {
+    name: "第4步",
+    describe: "这是第4步",
+    image: "/assets/img/empty.png"
+  }
+  ]);
+
 
   const dismiss = () => {
     modal.current?.dismiss();
@@ -42,7 +70,7 @@ const BottomDrawer: React.FC<BottomDrawerProps> = ({
           color: 'white',
           padding: '20px',
           borderRadius: '20px 20px 0 0',
-          minHeight: '80vh',
+          // minHeight: '80vh',
           maxHeight: '90vh',
           position: 'relative',
           overflow: 'hidden',
@@ -64,14 +92,13 @@ const BottomDrawer: React.FC<BottomDrawerProps> = ({
             zIndex: -1,
           }}
         />
-
         {/* 标题栏 - 固定高度 */}
         <div
           style={{
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: '20px',
+            // marginBottom: '20px',
             position: 'relative',
             zIndex: 1,
             flexShrink: 0,
@@ -103,6 +130,20 @@ const BottomDrawer: React.FC<BottomDrawerProps> = ({
         </div>
 
         {selectItem.id == 3 && (
+          <div style={{ display: "flex", gap: "10px", overflowX: "auto" }}>
+            {list.map((item: any) => (
+              <div
+                style={{ flexShrink: "0" }}
+                key={item.name}>
+                <p style={{ fontSize: "16px", fontWeight: "bold" }}>{item.name}</p>
+                <p>{item.describe}</p>
+                <img src={item.image} alt="" />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {selectItem.id == 4 && (
           <div
             style={{
               flex: 1,

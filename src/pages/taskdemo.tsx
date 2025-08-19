@@ -1,6 +1,6 @@
 import { IonModal, IonTextarea, useIonRouter } from '@ionic/react';
 import { useEffect, useRef, useState } from 'react';
-import { getTaskList, taskCreate, taskaiparse } from '../services/api';
+import { getTaskList, taskaiparse, taskCreate } from '../services/api';
 import { useUserStore } from '../stores/userStore';
 
 import TaskCard from '../components/taskCard';
@@ -15,6 +15,59 @@ const Task = () => {
 
   // 测试 store 是否正常工作
   console.log('当前 selectCardItem:', selectCardItem);
+
+  // 表单字段配置与校验规则（必填）
+  const formConfig: Array<{
+    key:
+    | 'task_name'
+    | 'customer'
+    | 'address'
+    | 'order_id'
+    | 'product'
+    | 'description';
+    label: string;
+    placeholder: string;
+    textarea?: boolean;
+    rules?: Array<{ required?: boolean; message?: string }>;
+  }> = [
+      {
+        key: 'task_name',
+        label: '任务名称',
+        placeholder: '请输入任务名称',
+        rules: [{ required: true, message: '请输入任务名称' }],
+      },
+      {
+        key: 'customer',
+        label: '客户',
+        placeholder: '请输入客户名称',
+        rules: [{ required: true, message: '请输入客户名称' }],
+      },
+      {
+        key: 'address',
+        label: '地址',
+        placeholder: '请输入地址',
+        rules: [{ required: true, message: '请输入地址' }],
+      },
+      {
+        key: 'order_id',
+        label: '订单号',
+        placeholder: '请输入订单号',
+        rules: [{ required: true, message: '请输入订单号' }],
+      },
+      {
+        key: 'product',
+        label: '产品',
+        placeholder: '请输入产品名称',
+        rules: [{ required: true, message: '请输入产品名称' }],
+      },
+      {
+        key: 'description',
+        label: '描述',
+        placeholder: '请输入任务描述',
+        textarea: true,
+        rules: [{ required: true, message: '请输入任务描述' }],
+      },
+    ];
 
   const [formData, setFormData] = useState({
     customer: '',
@@ -32,6 +85,35 @@ const Task = () => {
     task_name: '',
 
   });
+
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const validateField = (key: string, value: any) => {
+    const cfg = formConfig.find(item => item.key === (key as any));
+    if (!cfg || !cfg.rules) return '';
+    for (const rule of cfg.rules) {
+      if (rule.required) {
+        const isEmpty =
+          value === undefined ||
+          value === null ||
+          (typeof value === 'string' && value.trim() === '');
+        if (isEmpty) return rule.message || '该字段为必填项';
+      }
+    }
+    return '';
+  };
+
+  const validateAll = () => {
+    const errors: Record<string, string> = {};
+    formConfig.forEach(({ key }) => {
+      const val = (formData as any)[key];
+      const err = validateField(key, val);
+      if (err) errors[key] = err;
+    });
+    setFormErrors(errors);
+    return errors;
+  };
 
   useEffect(() => {
     getTaskListFn();
@@ -106,7 +188,13 @@ const Task = () => {
   };
 
   const handleFormSubmit = async () => {
-    // 这里可以添加表单验证逻辑
+    setIsSubmitting(true);
+    const errors = validateAll();
+    if (Object.keys(errors).length > 0) {
+      setIsSubmitting(false);
+      return;
+    }
+
     console.log('表单数据:', formData, userId);
 
     formData.executeId = userId || ''
@@ -120,6 +208,13 @@ const Task = () => {
     if (res.code == 200) {
       setNextIndex(3);
     }
+
+    setIsSubmitting(false);
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleFormSubmit();
   };
 
   const [demoList, setDemoList] = useState([
@@ -487,7 +582,8 @@ const Task = () => {
             )}
 
             {nextIndex == 1 && (
-              <div
+              <form
+                onSubmit={onSubmit}
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -521,12 +617,18 @@ const Task = () => {
                         task_name: e.target.value,
                       }))
                     }
-                    placeholder='请输入客户名称'
+                    onBlur={e => {
+                      const err = validateField('task_name', e.target.value);
+                      setFormErrors(prev => ({ ...prev, task_name: err }));
+                    }}
+                    placeholder='请输入任务名称'
                     style={{
                       flex: 1,
                       padding: '12px',
                       borderRadius: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      border: formErrors.task_name
+                        ? '1px solid #ff4d4f'
+                        : '1px solid rgba(255, 255, 255, 0.3)',
                       background: 'rgba(255, 255, 255, 0.1)',
                       color: 'white',
                       fontSize: '14px',
@@ -534,6 +636,11 @@ const Task = () => {
                     }}
                   />
                 </div>
+                {formErrors.task_name && (
+                  <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '-12px', marginLeft: '75px' }}>
+                    {formErrors.task_name}
+                  </div>
+                )}
 
                 <div
                   style={{
@@ -561,12 +668,18 @@ const Task = () => {
                         customer: e.target.value,
                       }))
                     }
+                    onBlur={e => {
+                      const err = validateField('customer', e.target.value);
+                      setFormErrors(prev => ({ ...prev, customer: err }));
+                    }}
                     placeholder='请输入客户名称'
                     style={{
                       flex: 1,
                       padding: '12px',
                       borderRadius: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      border: formErrors.customer
+                        ? '1px solid #ff4d4f'
+                        : '1px solid rgba(255, 255, 255, 0.3)',
                       background: 'rgba(255, 255, 255, 0.1)',
                       color: 'white',
                       fontSize: '14px',
@@ -574,6 +687,11 @@ const Task = () => {
                     }}
                   />
                 </div>
+                {formErrors.customer && (
+                  <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '-12px', marginLeft: '75px' }}>
+                    {formErrors.customer}
+                  </div>
+                )}
 
                 <div
                   style={{
@@ -601,12 +719,18 @@ const Task = () => {
                         address: e.target.value,
                       }))
                     }
+                    onBlur={e => {
+                      const err = validateField('address', e.target.value);
+                      setFormErrors(prev => ({ ...prev, address: err }));
+                    }}
                     placeholder='请输入地址'
                     style={{
                       flex: 1,
                       padding: '12px',
                       borderRadius: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      border: formErrors.address
+                        ? '1px solid #ff4d4f'
+                        : '1px solid rgba(255, 255, 255, 0.3)',
                       background: 'rgba(255, 255, 255, 0.1)',
                       color: 'white',
                       fontSize: '14px',
@@ -614,6 +738,11 @@ const Task = () => {
                     }}
                   />
                 </div>
+                {formErrors.address && (
+                  <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '-12px', marginLeft: '75px' }}>
+                    {formErrors.address}
+                  </div>
+                )}
 
                 <div
                   style={{
@@ -641,12 +770,18 @@ const Task = () => {
                         order_id: e.target.value,
                       }))
                     }
+                    onBlur={e => {
+                      const err = validateField('order_id', e.target.value);
+                      setFormErrors(prev => ({ ...prev, order_id: err }));
+                    }}
                     placeholder='请输入订单号'
                     style={{
                       flex: 1,
                       padding: '12px',
                       borderRadius: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      border: formErrors.order_id
+                        ? '1px solid #ff4d4f'
+                        : '1px solid rgba(255, 255, 255, 0.3)',
                       background: 'rgba(255, 255, 255, 0.1)',
                       color: 'white',
                       fontSize: '14px',
@@ -654,6 +789,11 @@ const Task = () => {
                     }}
                   />
                 </div>
+                {formErrors.order_id && (
+                  <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '-12px', marginLeft: '75px' }}>
+                    {formErrors.order_id}
+                  </div>
+                )}
 
                 <div
                   style={{
@@ -681,12 +821,18 @@ const Task = () => {
                         product: e.target.value,
                       }))
                     }
+                    onBlur={e => {
+                      const err = validateField('product', e.target.value);
+                      setFormErrors(prev => ({ ...prev, product: err }));
+                    }}
                     placeholder='请输入产品名称'
                     style={{
                       flex: 1,
                       padding: '12px',
                       borderRadius: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      border: formErrors.product
+                        ? '1px solid #ff4d4f'
+                        : '1px solid rgba(255, 255, 255, 0.3)',
                       background: 'rgba(255, 255, 255, 0.1)',
                       color: 'white',
                       fontSize: '14px',
@@ -694,6 +840,11 @@ const Task = () => {
                     }}
                   />
                 </div>
+                {formErrors.product && (
+                  <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '-12px', marginLeft: '75px' }}>
+                    {formErrors.product}
+                  </div>
+                )}
 
                 <div
                   style={{
@@ -721,13 +872,19 @@ const Task = () => {
                         description: e.target.value,
                       }))
                     }
+                    onBlur={e => {
+                      const err = validateField('description', e.target.value);
+                      setFormErrors(prev => ({ ...prev, description: err }));
+                    }}
                     placeholder='请输入任务描述'
                     rows={3}
                     style={{
                       flex: 1,
                       padding: '12px',
                       borderRadius: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      border: formErrors.description
+                        ? '1px solid #ff4d4f'
+                        : '1px solid rgba(255, 255, 255, 0.3)',
                       background: 'rgba(255, 255, 255, 0.1)',
                       color: 'white',
                       fontSize: '14px',
@@ -737,6 +894,11 @@ const Task = () => {
                     }}
                   />
                 </div>
+                {formErrors.description && (
+                  <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '-12px', marginLeft: '75px' }}>
+                    {formErrors.description}
+                  </div>
+                )}
 
                 {/* 底部按钮 */}
                 <div
@@ -765,6 +927,7 @@ const Task = () => {
                   </button>
 
                   <button
+                    type='submit'
                     style={{
                       flex: 1,
                       padding: '12px 24px',
@@ -777,12 +940,12 @@ const Task = () => {
                       cursor: 'pointer',
                       height: '62px',
                     }}
-                    onClick={handleFormSubmit}
+                    disabled={isSubmitting}
                   >
                     确认
                   </button>
                 </div>
-              </div>
+              </form>
             )}
 
             {nextIndex == 2 && (
