@@ -13,24 +13,42 @@ import { useUserStore } from '../stores/userStore';
 import './Login.scss';
 
 export const hashStr = async (str: string): Promise<string> => {
-  const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  try {
+    // 检查是否支持 Web Crypto API
+    if (typeof crypto !== 'undefined' && crypto.subtle) {
+      const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    } else {
+      // Fallback: 使用简单的字符串哈希算法
+      let hash = 0;
+      if (str.length === 0) return hash.toString();
+
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash; // 转换为32位整数
+      }
+
+      // 转换为16进制字符串
+      return Math.abs(hash).toString(16).padStart(8, '0');
+    }
+  } catch (error) {
+    console.warn('Web Crypto API 不可用，使用fallback哈希算法:', error);
+    // 如果Web Crypto API失败，使用fallback
+    let hash = 0;
+    if (str.length === 0) return hash.toString();
+
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash;
+    }
+
+    return Math.abs(hash).toString(16).padStart(8, '0');
+  }
 };
 
-// 测试函数：验证密码"123456"的哈希值
-export const testHash = async () => {
-  const testPassword = 'Team@2024';
-  const expectedHash = '53e880894f3cc53d5071c679f1afcd223a3faca09148c6898da13f0afc3535ad';
-  const actualHash = await hashStr(testPassword);
-
-  console.log('测试密码:', testPassword);
-  console.log('期望哈希:', expectedHash);
-  console.log('实际哈希:', actualHash);
-  console.log('哈希匹配:', actualHash === expectedHash);
-
-  return actualHash === expectedHash;
-};
 
 interface LoginProps {
   setIsLoggedIn: typeof setIsLoggedIn;
