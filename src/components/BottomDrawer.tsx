@@ -1,60 +1,38 @@
 import { IonButton, IonIcon, IonModal } from '@ionic/react';
-import { close, create, warning } from 'ionicons/icons';
-import { useEffect, useRef, useState } from 'react';
-import { getBriefing } from '../services/api';
+import { close } from 'ionicons/icons';
+import { useRef } from 'react';
 
 interface BottomDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   selectItem: any;
   taskid: string;
+  briefing: any;
 }
 
 const BottomDrawer: React.FC<BottomDrawerProps> = ({
   isOpen,
   onClose,
   selectItem,
-  taskid
+  taskid,
+  briefing
 }) => {
   const modal = useRef<HTMLIonModalElement>(null);
-  const [briefing, setBriefing] = useState<any>([]);
-
-  const getBriefingFn = async () => {
-    const res = await getBriefing({ task_id: taskid, fields: 'Plan_and_Precautions' });
-    console.log("res===============", res);
-    setBriefing(res.data);
-  }
-
-  useEffect(() => {
-    getBriefingFn();
-  }, [selectItem]);
 
 
-  console.log("选中4444===============", selectItem);
+  // const getBriefingFn = async () => {
+  //   const res = await getBriefing({ task_id: taskid, fields: 'Plan_and_Precautions' });
+  //   console.log("res===============", res);
+  //   setBriefing(res.data);
+  // }
 
-  const [list, setList] = useState<any[]>([{
-    name: "第一步",
-    describe: "这是第一步",
-    image: "/assets/img/empty.png"
-  },
-  {
-    name: "第2步",
-    describe: "这是第2步",
-    image: "/assets/img/empty.png"
+  // useEffect(() => {
+  //   getBriefingFn();
+  // }, [selectItem]);
 
-  },
-  {
-    name: "第3步",
-    describe: "这是第3步",
-    image: "/assets/img/empty.png"
 
-  },
-  {
-    name: "第4步",
-    describe: "这是第4步",
-    image: "/assets/img/empty.png"
-  }
-  ]);
+  console.log("选中4444===============", selectItem, briefing);
+
 
 
   const dismiss = () => {
@@ -164,7 +142,8 @@ const BottomDrawer: React.FC<BottomDrawerProps> = ({
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   lineHeight: "1.4",
-                  maxHeight: "calc(1.4em * 3)"
+                  maxHeight: "calc(1.4em * 3)",
+                  minHeight: "calc(1.4em * 3)"
                 }}>
                   {item.content}
                 </div>
@@ -179,128 +158,42 @@ const BottomDrawer: React.FC<BottomDrawerProps> = ({
         )}
 
         {selectItem.id == 4 && (
-          <div
-            style={{
-              flex: 1,
-              overflowY: 'auto',
-              position: 'relative',
-              zIndex: 1,
-              paddingRight: '5px',
-            }}
-          >
-            {/* 安全注意事项 */}
-            <div style={{ marginBottom: '25px' }}>
+          <div style={{ display: "flex", gap: "10px", overflowX: "auto" }}>
+            {briefing.map((item: any, index: number) => (
               <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: '15px',
-                }}
-              >
-                <h3
-                  style={{
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    margin: 0,
-                    color: 'white',
-                  }}
-                >
-                  安全注意事项
-                </h3>
-                <IonIcon
-                  icon={warning}
-                  style={{
-                    marginLeft: '8px',
-                    color: '#FF9800',
-                    fontSize: '18px',
-                  }}
-                />
-              </div>
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px',
-                }}
-              >
-                {['佩戴防护眼镜和手套', '确保通风良好', '检查焊接设备接地'].map(
-                  (item, index) => (
-                    <div
-                      key={index}
-                      style={{
-                        padding: '8px 12px',
-                        borderRadius: '8px',
-                        background: 'rgba(255, 255, 255, 0.1)',
-                        border: '1px solid rgba(255, 255, 255, 0.2)',
-                        fontSize: '14px',
-                        color: 'white',
-                      }}
-                    >
-                      {item}
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
+                style={{ flexShrink: "0", width: "300px", background: "rgba(255, 255, 255, 0.10)", borderRadius: "10px", padding: "10px" }}
+                key={item.name}>
 
-            {/* 质量要点 */}
-            <div style={{ marginBottom: '25px' }}>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: '15px',
-                }}
-              >
-                <h3
-                  style={{
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    margin: 0,
-                    color: 'white',
-                  }}
-                >
-                  质量要点
-                </h3>
-                <IonIcon
-                  icon={create}
-                  style={{
-                    marginLeft: '8px',
-                    color: 'white',
-                    fontSize: '16px',
-                  }}
-                />
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div style={{ width: "16px", height: "16px", background: "white", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center", color: "black", textAlign: "center", fontFamily: "SF Pro", fontSize: "12px", fontStyle: "normal", fontWeight: "700" }}>{index + 1}</div>
+                  <div style={{ color: "#FFF", textAlign: "center", fontFamily: "SF Pro", fontSize: "12px", fontStyle: "normal", fontWeight: "700", lineHeight: "normal" }}>{item.title}</div>
+                </div>
+
+                <div style={{
+                  fontSize: "12px",
+                  margin: "10px 0px",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  lineHeight: "1.4",
+                  maxHeight: "calc(1.4em * 3)",
+                  minHeight: "calc(1.4em * 3)"
+                }}>
+                  {item.content}
+                </div>
+                {
+                  item.image_url && item.image_url.length > 0 ? <img src={item.image_url ? item.image_url : "http://172.30.232.95:3003/api/system/img/68901f595665993caf0e1b20.png"} alt="" style={{ width: "100%", height: "200px" }} /> :
+                    <div style={{ width: "100%", height: "100%", maxHeight: "200px", display: "flex", justifyContent: "center", alignItems: "center" }}>{"暂无"}</div>
+                }
+
               </div>
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px',
-                }}
-              >
-                {[
-                  '焊缝不得有裂纹、气孔',
-                  '管道连接处密封良好',
-                  '系统压力测试合格',
-                ].map((item, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      background: 'rgba(255, 255, 255, 0.1)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                      fontSize: '14px',
-                      color: 'white',
-                    }}
-                  >
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
         )}
+
+
 
         {/* 内容区域 - 可滚动 */}
 

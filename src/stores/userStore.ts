@@ -32,7 +32,7 @@ interface UserState {
   token: string | null;
   selectCardItem: CardItem | null;
   userInfo: UserInfo | null;
-  databaseList: any[] | null;
+  databaseList: any | null;
   setUser: (userId: string, token: string) => void;
   clearUser: () => void;
   setSelectCardItem: (item: CardItem | null) => void;

@@ -1,6 +1,7 @@
 import { IonButtons, useIonRouter } from '@ionic/react';
 import { useState } from 'react';
 import BottomDrawer from '../components/BottomDrawer';
+import { getBriefing } from '../services/api';
 import { useUserStore } from '../stores/userStore';
 
 const Question = () => {
@@ -10,6 +11,8 @@ const Question = () => {
   const [currentSection, setCurrentSection] = useState(0);
   const [showBottomDrawer, setShowBottomDrawer] = useState(false);
   const [selectItem, setSelectItem] = useState({} as any);
+  const [briefing, setBriefing] = useState<any>([]);
+
 
   // 示例：使用从其他页面传递过来的选中卡片项
   console.log('选中的卡片项:', selectCardItem);
@@ -49,12 +52,14 @@ const Question = () => {
           content: '客户信息及合同协议',
           // status: '已完成',
           warning: '重要提醒',
+          alias: "Customer_and_Product"
         },
         {
           id: 3,
           title: '标准安装方案及注意事项',
           content: '安装步骤、点检表安全提醒和常见问题预防',
           status: '已完成',
+          alias: "Plan_and_Precautions"
         },
         {
           id: 4,
@@ -62,6 +67,7 @@ const Question = () => {
           content: '出门前记得检查工具和是否带齐、避免折返奔波',
           // status: '进行中',
           warning: '安全警告',
+          alias: "Tool_and_Spare_Part"
         },
       ],
     },
@@ -375,13 +381,27 @@ const Question = () => {
                               e.currentTarget.style.background =
                                 'rgba(255, 255, 255, 0.1)';
                             }}
-                            onClick={() => {
+                            onClick={async () => {
                               console.log('点击项目:', item.title);
                               if (item.title == '任务报告') {
                                 router.push('/task-briefing');
                               } else {
-                                setShowBottomDrawer(true);
-                                setSelectItem(item);
+                                try {
+                                  if ('alias' in item && item.alias) {
+                                    const res = await getBriefing({ task_id: selectCardItem?.id?.toString() || '', fields: item.alias });
+                                    setBriefing(res.data);
+                                    setShowBottomDrawer(true);
+                                    setSelectItem(item);
+                                  } else {
+                                    setShowBottomDrawer(true);
+                                    setSelectItem(item);
+                                  }
+                                } catch (e) {
+                                  console.log("e===============", e);
+                                  setShowBottomDrawer(true);
+                                  setSelectItem(item);
+                                }
+
                               }
                             }}
                           >
@@ -660,8 +680,9 @@ const Question = () => {
       <BottomDrawer
         isOpen={showBottomDrawer}
         selectItem={selectItem}
-        taskid={selectCardItem?.id}
+        taskid={selectCardItem?.id?.toString() || ''}
         onClose={() => setShowBottomDrawer(false)}
+        briefing={briefing}
       />
     </div>
   );
