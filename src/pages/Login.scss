@@ -20,4 +20,47 @@
   ion-input {
     margin-bottom: 10px;
   }
+
+  .inputpadding {
+    --padding-start: 10px;
+    --padding-end: 10px;
+    --padding-top: 10px;
+    --padding-bottom: 10px;
+
+    // 备用方案：直接针对ion-input元素
+    ion-input {
+      padding: 10px !important;
+    }
+  }
+}
+
+// 全局样式规则，确保inputpadding类生效
+.inputpadding {
+  --padding-start: 10px !important;
+  --padding-end: 10px !important;
+  --padding-top: 10px !important;
+  --padding-bottom: 10px !important;
+
+  // 针对IonInput组件的内部元素
+  .native-input {
+    padding: 10px !important;
+  }
+
+  // 针对IonInput组件的标签
+  .label-text {
+    padding-left: 10px !important;
+  }
+
+  // 针对IonInput组件的输入框容器
+  .input-wrapper {
+    padding: 0px 10px !important;
+  }
+}
+
+// 更具体的选择器
+ion-input.inputpadding {
+  --padding-start: 10px !important;
+  --padding-end: 10px !important;
+  // --padding-top: 10px !important;
+  // --padding-bottom: 10px !important;
 }

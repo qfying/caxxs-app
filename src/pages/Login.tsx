@@ -8,8 +8,29 @@ import React, { useState } from 'react';
 import { useHistory } from 'react-router';
 import { connect } from '../data/connect';
 import { setIsLoggedIn, setUsername } from '../data/user/user.actions';
-import { loginByPassword } from '../services/api';
+import { getChatKnowledgeBaseList, loginByPassword } from '../services/api';
+import { useUserStore } from '../stores/userStore';
 import './Login.scss';
+
+export const hashStr = async (str: string): Promise<string> => {
+  const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+};
+
+// 测试函数：验证密码"123456"的哈希值
+export const testHash = async () => {
+  const testPassword = 'Team@2024';
+  const expectedHash = '53e880894f3cc53d5071c679f1afcd223a3faca09148c6898da13f0afc3535ad';
+  const actualHash = await hashStr(testPassword);
+
+  console.log('测试密码:', testPassword);
+  console.log('期望哈希:', expectedHash);
+  console.log('实际哈希:', actualHash);
+  console.log('哈希匹配:', actualHash === expectedHash);
+
+  return actualHash === expectedHash;
+};
 
 interface LoginProps {
   setIsLoggedIn: typeof setIsLoggedIn;
@@ -23,22 +44,41 @@ const Login: React.FC<LoginProps> = ({
   const history = useHistory();
   const [login, setLogin] = useState({ username: '', password: '' });
   const [submitted, setSubmitted] = useState(false);
+  const { setDatabaseList } = useUserStore();
 
   const onLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitted(true);
 
+
+
     //  '123456',
     //   '53e880894f3cc53d5071c679f1afcd223a3faca09148c6898da13f0afc3535ad'
 
     if (login.username && login.password) {
+      // 将密码转换为SHA-256哈希值
+
+      const actualHash = await hashStr(login.password);
+
+      console.log("login.password======", login.password, actualHash);
+
+
       const response = await loginByPassword(
         login.username,
-        login.password
+        actualHash
       );
       console.log(response);
       history.push('/chat');
+      localStorage.setItem('token', response.data.token);
+
+      getChatKnowledgeBaseListFn()
     }
+  };
+
+  const getChatKnowledgeBaseListFn = async () => {
+    const response = await getChatKnowledgeBaseList();
+    console.log("response=============", response);
+    setDatabaseList(response.data);
   };
 
   // const initLogin = async () => {
@@ -76,8 +116,8 @@ const Login: React.FC<LoginProps> = ({
 
       // justifyContent: 'space-between',
     }}>
-      <div className='login-logo'>
-        <img src='/assets/img/appicon.svg' alt='Ionic logo' />
+      <div style={{ width: "100%", display: "flex", justifyContent: "center", marginBottom: "20px" }}>
+        <img src='/assets/img/appicon.svg' alt='Ionic logo' style={{ width: "100%", maxWidth: "150px" }} />
       </div>
 
       <div className='login-form'>
@@ -85,7 +125,8 @@ const Login: React.FC<LoginProps> = ({
           <IonInput
             label='Username'
             labelPlacement='stacked'
-            fill='solid'
+            className='inputpadding'
+            // fill='solid'
             value={login.username}
             name='username'
             type='text'
@@ -102,14 +143,14 @@ const Login: React.FC<LoginProps> = ({
               color: "black",
               backgroundColor: "white",
               borderRadius: "10px",
-
             }}
           />
 
           <IonInput
+            className='inputpadding'
             label='Password'
             labelPlacement='stacked'
-            fill='solid'
+            // fill='solid'
             value={login.password}
             name='password'
             type='password'
@@ -124,7 +165,11 @@ const Login: React.FC<LoginProps> = ({
               color: "black",
               backgroundColor: "white",
               borderRadius: "10px",
-
+              padding: "10px",
+              "--padding-start": "10px",
+              "--padding-end": "10px",
+              "--padding-top": "10px",
+              "--padding-bottom": "10px"
             }}
           />
 

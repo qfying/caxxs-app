@@ -4,7 +4,7 @@ import {
   IonMenu,
   IonMenuButton,
   useIonRouter,
-  useIonToast,
+  useIonToast
 } from '@ionic/react';
 import { personCircle } from 'ionicons/icons';
 import React, {
@@ -21,6 +21,7 @@ import {
   chatUpload,
   getFileUrl,
   sendChatMessage,
+  updataChat
 } from '../services/api';
 import { useUserStore } from '../stores/userStore';
 import { AndroidStreamEnhancer } from '../utils/android-stream-enhancer';
@@ -50,6 +51,7 @@ interface Message {
   imgList?: any[];
   aboutfile?: any[];
   isoption?: boolean;
+  citationchunks?: any[];
 }
 
 type Prop = {
@@ -92,6 +94,9 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
         return <LoadMessage message={message} msg={'排障计划正在生成中...'} />;
       case 'debug_answer_analysis':
         return null;
+      case 'convergence_check':
+        return null;
+
       default:
         return <DefaultMessage message={message} />;
     }
@@ -106,7 +111,8 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
     message.status === 'sent' &&
     message.content &&
     message.content.trim() !== '') ||
-    message.agent === 'debug_answer_analysis' ? null : (
+    message.agent === 'debug_answer_analysis' ||
+    message.agent === 'convergence_check' ? null : (
     <div
       className={`message-container ${message.isUser ? 'user' : ''}`}
     // style={{
@@ -131,7 +137,9 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
         {renderMessageByAgent()}
 
         {message.url && (
-          <div dangerouslySetInnerHTML={{ __html: parsedUrlHtml }} />
+          <div>
+            {renderContentWithHoverNumbers(parsedUrlHtml)}
+          </div>
         )}
 
         {message.isUser !== true &&
@@ -191,94 +199,97 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
 
           )}
 
-        {message.aboutfile && (
-          <div
-            style={{
-              borderTop: '0.5px solid var(--base-white-15, #FFFFFF26)',
-              padding: '10px 0',
-              marginTop: '10px',
-            }}
-          >
+        {message.citationchunks
+          && message.citationchunks
+            .length > 0 && (
             <div
               style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                height: '36px',
-                backgroundColor: '#3D3E58',
-                borderRadius: '10px',
-                alignItems: 'center',
-                padding: '0 10px',
+                borderTop: '0.5px solid var(--base-white-15, #FFFFFF26)',
+                padding: '10px 0',
+                marginTop: '10px',
               }}
             >
-              <span>参考来源</span>
               <div
-                style={{ display: 'flex', alignItems: 'center', gap: '2px' }}
-                onClick={() => {
-                  console.log('点击了');
-                  if (isaboutfile === message.id) {
-                    setIsboutfile('');
-                  } else {
-                    setIsboutfile(message.id);
-                  }
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  height: '36px',
+                  backgroundColor: '#3D3E58',
+                  borderRadius: '10px',
+                  alignItems: 'center',
+                  padding: '0 10px',
                 }}
               >
-                <span>{message.aboutfile.length}个案例文档</span>
-                <img
-                  src='/assets/icon/Arrowbt.svg'
-                  alt='历史'
-                  style={{
-                    width: '15px',
-                    height: '15px',
-                    filter: 'brightness(0) invert(1)',
+                <span>参考来源</span>
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: '2px' }}
+                  onClick={() => {
+                    console.log('点击了');
+                    if (isaboutfile === message.id) {
+                      setIsboutfile('');
+                    } else {
+                      setIsboutfile(message.id);
+                    }
                   }}
-                />
+                >
+                  <span>{message.citationchunks
+                    .length}个案例文档</span>
+                  <img
+                    src='/assets/icon/Arrowbt.svg'
+                    alt='历史'
+                    style={{
+                      width: '15px',
+                      height: '15px',
+                      filter: 'brightness(0) invert(1)',
+                    }}
+                  />
+                </div>
               </div>
+              {isaboutfile === message.id && (
+                <div>
+                  {message.citationchunks
+                    .map((item: any) => (
+                      <div key={item.id}>
+                        <div
+                          style={{
+                            width: '100%',
+                            height: '30px',
+                            backgroundColor: 'white',
+                            color: 'black',
+                            borderRadius: '10px',
+                            margin: '10px 0',
+                            padding: '0 10px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            textDecoration: 'none',
+                            minWidth: 0, // 关键：确保 flex 子元素可以收缩
+                          }}
+                          onClick={() => {
+                            console.log('item==========', item);
+                            getFileUrlFn(item.collectionId);
+                          }}
+                        >
+                          <span
+                            style={{
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              flex: 1, // 占据剩余空间
+                              minWidth: 0, // 允许收缩
+                            }}
+                          >
+                            {item.sourceName}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
             </div>
-            {isaboutfile === message.id && (
-              <div>
-                {message.aboutfile.map((item: any) => (
-                  <div key={item.id}>
-                    <div
-                      style={{
-                        width: '100%',
-                        height: '30px',
-                        backgroundColor: 'white',
-                        color: 'black',
-                        borderRadius: '10px',
-                        margin: '10px 0',
-                        padding: '0 10px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        textDecoration: 'none',
-                        minWidth: 0, // 关键：确保 flex 子元素可以收缩
-                      }}
-                      onClick={() => {
-                        console.log('item==========', item);
-
-                        getFileUrlFn(item.collectionId);
-                      }}
-                    >
-                      <span
-                        style={{
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          flex: 1, // 占据剩余空间
-                          minWidth: 0, // 允许收缩
-                        }}
-                      >
-                        {item.sourceName}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+          )}
       </div>
     </div>
   );
@@ -325,7 +336,9 @@ const DefaultMessage: React.FC<{ message: Message }> = ({ message }) => {
   return (
     <div>
       <div>
-        <div dangerouslySetInnerHTML={{ __html: parsedContent }} />
+        <div>
+          {renderContentWithHoverNumbers(parsedContent)}
+        </div>
         {/* <div>{message.content}</div> */}
       </div>
     </div>
@@ -514,6 +527,12 @@ const extractSupplementReply = (content: string) => {
   return match?.[1] || '';
 };
 
+const extractSummary = (content: string) => {
+  const regex = /"summary"\s*:\s*"((?:\\"|\\n|\\\\.|[^"])*?)(?:"|$)/;
+  const match = content.match(regex);
+  return match?.[1] || '';
+};
+
 const extractPlanner = (content: string) => {
   try {
     // 首先尝试直接解析为 JSON
@@ -582,29 +601,101 @@ const extractPlanner = (content: string) => {
   }
 };
 
-const extractResearcher = (content: string) => {
-  const regextitle =
-    /"title"\s*:\s*"((?:\\["\\/bfnrt]|\\u[0-9a-fA-F]{4}|[^"\\])*?)"(?=\s*[,}])/;
-  const regexcontent =
-    /"content"\s*:\s*"((?:\\["\\/bfnrt]|\\u[0-9a-fA-F]{4}|[^"\\])*?)"(?=\s*[,}])/;
-
-  const matchtitle = content.match(regextitle);
-  const matchcontent = content.match(regexcontent);
-
-  const data = {
-    title: matchtitle && matchtitle[1],
-    content: matchcontent && matchcontent[1],
-  };
-
-  console.log('extractResearcher=========', matchtitle, matchcontent);
-
-  return JSON.stringify(data);
-};
 
 interface PlannerResult {
   title: string;
   steps: any[];
 }
+
+// 创建带有悬停提示的数字组件
+const HoverNumber: React.FC<{
+  number: string;
+  header?: string;
+  tooltip?: string;
+  link?: string;
+  collectionId?: string;
+}> = ({ number, header, tooltip, link, collectionId }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const getFileUrlFn = async (id: string) => {
+    console.log('id================', id);
+    try {
+      const res = await getFileUrl(id);
+      const url = HTTP_URL + res.data.file_url;
+      window.open(url);
+    } catch (error) {
+      console.log('error================', error);
+    }
+  };
+
+  return (
+    <div style={{ display: 'inline-block' }} onMouseLeave={() => setIsOpen(false)}>
+      <span
+        style={{
+          color: 'white',
+          cursor: 'pointer',
+          width: "20px",
+          height: "20px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          textAlign: "center",
+          lineHeight: "20px",
+          borderRadius: "50%",
+          fontWeight: 'bold',
+          backgroundColor: "grey",
+          margin: "0px 4px",
+
+        }}
+        onMouseEnter={() => setIsOpen(true)}
+        onClick={() => {
+          getFileUrlFn(collectionId)
+        }}
+      >
+        {number}
+      </span>
+      {isOpen && (
+        <div
+          style={{
+            position: 'absolute',
+            zIndex: 1000,
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            padding: '16px',
+            maxWidth: '400px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            // marginTop: '8px'
+          }}
+          onMouseEnter={() => setIsOpen(true)}
+          onMouseLeave={() => setIsOpen(false)}
+        >
+          {header && (
+            <div style={{
+              fontSize: '14px',
+              fontWeight: 'bold',
+              marginBottom: '8px',
+              color: '#333',
+              borderBottom: '1px solid #eee',
+              paddingBottom: '8px'
+            }}>
+              {header}
+            </div>
+          )}
+          {tooltip && (
+            <div style={{
+              fontSize: '12px',
+              color: '#666',
+              lineHeight: '1.4',
+              marginBottom: '12px'
+            }}
+              dangerouslySetInnerHTML={{ __html: tooltip }}
+            />
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 // 简单的 Markdown 解析函数
 const parseMarkdown = (text: string) => {
@@ -632,6 +723,28 @@ const parseMarkdown = (text: string) => {
         /```([\s\S]*?)```/g,
         '<pre class="markdown-code"><code>$1</code></pre>'
       )
+      // 处理带有悬停提示的数字 - 使用函数来提取属性
+      .replace(/<span[^>]*class="eaitip"[^>]*>(\d+)<\/span>/g, (match, number) => {
+        // 提取所有属性
+        const tooltipMatch = match.match(/data-tooltip="([^"]*)"/);
+        const headerMatch = match.match(/data-header="([^"]*)"/);
+        const linkMatch = match.match(/data-link="([^"]*)"/);
+        const collectionIdMatch = match.match(/collection-id="([^"]*)"/);
+
+        const tooltip = tooltipMatch ? tooltipMatch[1] : '';
+        const header = headerMatch ? headerMatch[1] : '';
+        const link = linkMatch ? linkMatch[1] : '';
+        const collectionId = collectionIdMatch ? collectionIdMatch[1] : '';
+
+        // 构建占位符，使用特殊分隔符避免冒号冲突
+        // 对包含管道符的属性进行转义，使用特殊字符替换
+        const escapedTooltip = tooltip.replace(/\|/g, '&#124;');
+        const escapedHeader = header.replace(/\|/g, '&#124;');
+        const escapedLink = link.replace(/\|/g, '&#124;');
+        const escapedCollectionId = collectionId.replace(/\|/g, '&#124;');
+
+        return `{{HOVER_NUMBER:${number}|${escapedHeader}|${escapedTooltip}|${escapedLink}|${escapedCollectionId}}}`;
+      })
       // 处理行内代码
       .replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
       // 处理超链接 - 排除图片格式（以!开头的）
@@ -671,6 +784,52 @@ const parseMarkdown = (text: string) => {
       // 处理换行
       .replace(/\n/g, '<br/>')
   );
+};
+
+// 渲染带有悬停提示的内容
+const renderContentWithHoverNumbers = (content: string) => {
+  if (!content) return null;
+
+  // 分割内容，找到占位符
+  const parts = content.split(/(\{\{HOVER_NUMBER:[^}]+\}\})/);
+
+  console.log("parts============", parts);
+
+  return parts.map((part, index) => {
+    // 匹配新的占位符格式：{{HOVER_NUMBER:number|header|tooltip|link|collectionId}}
+    const fullMatch = part.match(/\{\{HOVER_NUMBER:(\d+)\|([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\}\}/);
+
+    console.log("fullMatch============", fullMatch);
+
+    if (fullMatch) {
+      const [, number, header, tooltip, link, collectionId] = fullMatch;
+      // 解码转义的管道符
+      const decodedHeader = header ? header.replace(/&#124;/g, '|') : '';
+      const decodedTooltip = tooltip ? tooltip.replace(/&#124;/g, '|') : '';
+      const decodedLink = link ? link.replace(/&#124;/g, '|') : '';
+      const decodedCollectionId = collectionId ? collectionId.replace(/&#124;/g, '|') : '';
+
+      return (
+        <HoverNumber
+          key={index}
+          number={number}
+          header={decodedHeader || undefined}
+          tooltip={decodedTooltip || undefined}
+          link={decodedLink || undefined}
+          collectionId={decodedCollectionId || undefined}
+        />
+      );
+    }
+
+    // 匹配基础格式：{{HOVER_NUMBER:number}}
+    const basicMatch = part.match(/\{\{HOVER_NUMBER:(\d+)\}\}/);
+    if (basicMatch) {
+      const number = basicMatch[1];
+      return <HoverNumber key={index} number={number} />;
+    }
+
+    return <span key={index} dangerouslySetInnerHTML={{ __html: part }} />;
+  });
 };
 
 // Coordinator 消息组件
@@ -725,7 +884,7 @@ const CoordinatorMessage: React.FC<{ message: Message }> = ({ message }) => {
         </div>
         <div className='coordinator-content'>
           {parsedContent ? (
-            <div dangerouslySetInnerHTML={{ __html: parsedContent }} />
+            renderContentWithHoverNumbers(parsedContent)
           ) : (
             <div>{message.content}</div>
           )}
@@ -792,8 +951,9 @@ const ResearcherMessage: React.FC<{ message: Message }> = ({ message }) => {
           {!isCollapsed && (
             <div
               style={{ marginTop: '6px' }}
-              dangerouslySetInnerHTML={{ __html: parsedContent }}
-            />
+            >
+              {renderContentWithHoverNumbers(parsedContent)}
+            </div>
           )}
         </div>
       </div>
@@ -844,7 +1004,7 @@ const Chat: React.FC = () => {
   const [uploadedImages, setUploadedImages] = useState<
     Array<{ url: string; name: string; id: string }>
   >([]);
-  const { userInfo, setUserInfo } = useUserStore();
+  const { userInfo, setUserInfo, databaseList } = useUserStore();
 
   const [taskParams, setTaskParams] = useState({});
 
@@ -964,9 +1124,9 @@ const Chat: React.FC = () => {
     const uploadData = {
       text: message,
       file_name: sectionName + '.md',
-      parent_id: "689083d13897878cdd928c49",
-      app_id: "689014d43897878cdd928b4b",
-      datasetId: "689083d13897878cdd928c49",
+      parent_id: databaseList?.case,
+      app_id: databaseList?.app_info_list.find((item: any) => item.type == "多模态问答工作流")?.app_id,
+      datasetId: databaseList?.case,
       userId: "6890805c3897878cdd928c34",
       teamId: "688c856f13e9f1c3b8aa1d31",
       tmbId: "688c856f13e9f1c3b8aa1d32",
@@ -1172,12 +1332,12 @@ const Chat: React.FC = () => {
           enable_graphKB: type2,
           task_info: taskParams,
           user_info: userInfo,
+          knowledge: databaseList?.dataset_list,
         },
         responseChatItemId: 'b1jmtV7hdBHokPUT2jzQwAwJ',
         // shareId: '6e6q0y0lnlw9t247jl2y9fbi',
         shareId:
-          type == '1' ? 'iuj6er9dbwlvfyvmrtxdg9em' : 'zybc1bm3xzt6u3uccoxttyp6',
-
+          type == '1' ? databaseList?.app_info_list.find((item: any) => item.type == "HTTP SSE")?.shareId : databaseList?.app_info_list.find((item: any) => item.type == "多模态问答工作流")?.shareId,  // 1 是 知识库 2 是 知识库
         chatId: chatId,
         appType: 'advanced',
         outLinkUid: 'shareChat-1754533192615-v8Ejm6GhhxpNhjhk9w_ZGzNR',
@@ -1297,6 +1457,8 @@ const Chat: React.FC = () => {
             if (!dataStr || dataStr === '[DONE]') {
               continue;
             }
+
+
 
             // 按事件类型分发处理
             if (eventType == 'fastAnswer') {
@@ -1469,7 +1631,13 @@ const Chat: React.FC = () => {
                         filterdata = extractSupplementReply(
                           agentMessages.get(agent) || ''
                         );
-                      } else if (agent == 'planner') {
+                      } else if (agent == 'repeater') {
+
+                        filterdata = extractSummary(
+                          agentMessages.get(agent) || ''
+                        );
+                      }
+                      else if (agent == 'planner') {
                         filterdata = extractPlanner(
                           agentMessages.get(agent) || ''
                         );
@@ -1555,9 +1723,35 @@ const Chat: React.FC = () => {
                 console.warn('解析 flowNodeStatus 数据失败', e);
               }
             }
+
           }
         } catch (e) {
           console.error('解析响应数据出错:', e, '原始数据:', chunk);
+        }
+      }
+
+      if (chatId) {
+        try {
+          const res = await updataChat({ chatId: chatId });
+          console.log("更新 chatId 数据=============", res.data.citation_answer);
+          const answerContent = res.data.citation_answer;
+          const citationchunks = res.data.citation_chunks;
+          if (answerContent && citationchunks) {
+            setMessages(prev => {
+              const newMessages = [...prev];
+              newMessages[newMessages.length - 1] = {
+                ...newMessages[newMessages.length - 1],
+                content: answerContent,
+                citationchunks: citationchunks,
+              };
+              return newMessages;
+            });
+          }
+
+
+
+        } catch (e) {
+          console.warn('更新 chatId 数据失败', e);
         }
       }
 

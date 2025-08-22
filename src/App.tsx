@@ -112,16 +112,14 @@ const IonicApp: React.FC<IonicAppProps> = ({
   const [log, setLog] = useState(true);
   const { userInfo, setUserInfo } = useUserStore();
 
-  const [istoken, setistoken] = useState(false);
+  const [istoken, setistoken] = useState(true);
 
 
   useEffect(() => {
 
-    initLogin();
+    // initLogin();
     loadUserData();
     loadConfData();
-
-
   }, []);
 
   useEffect(() => {

@@ -1,19 +1,33 @@
 import { IonButton, IonIcon, IonModal } from '@ionic/react';
 import { close, create, warning } from 'ionicons/icons';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { getBriefing } from '../services/api';
 
 interface BottomDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   selectItem: any;
+  taskid: string;
 }
 
 const BottomDrawer: React.FC<BottomDrawerProps> = ({
   isOpen,
   onClose,
   selectItem,
+  taskid
 }) => {
   const modal = useRef<HTMLIonModalElement>(null);
+  const [briefing, setBriefing] = useState<any>([]);
+
+  const getBriefingFn = async () => {
+    const res = await getBriefing({ task_id: taskid, fields: 'Plan_and_Precautions' });
+    console.log("res===============", res);
+    setBriefing(res.data);
+  }
+
+  useEffect(() => {
+    getBriefingFn();
+  }, [selectItem]);
 
 
   console.log("选中4444===============", selectItem);
@@ -131,13 +145,34 @@ const BottomDrawer: React.FC<BottomDrawerProps> = ({
 
         {selectItem.id == 3 && (
           <div style={{ display: "flex", gap: "10px", overflowX: "auto" }}>
-            {list.map((item: any) => (
+            {briefing.map((item: any, index: number) => (
               <div
-                style={{ flexShrink: "0" }}
+                style={{ flexShrink: "0", width: "300px", background: "rgba(255, 255, 255, 0.10)", borderRadius: "10px", padding: "10px" }}
                 key={item.name}>
-                <p style={{ fontSize: "16px", fontWeight: "bold" }}>{item.name}</p>
-                <p>{item.describe}</p>
-                <img src={item.image} alt="" />
+
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div style={{ width: "16px", height: "16px", background: "white", borderRadius: "4px", display: "flex", alignItems: "center", justifyContent: "center", color: "black", textAlign: "center", fontFamily: "SF Pro", fontSize: "12px", fontStyle: "normal", fontWeight: "700" }}>{index + 1}</div>
+                  <div style={{ color: "#FFF", textAlign: "center", fontFamily: "SF Pro", fontSize: "12px", fontStyle: "normal", fontWeight: "700", lineHeight: "normal" }}>{item.title}</div>
+                </div>
+
+                <div style={{
+                  fontSize: "12px",
+                  margin: "10px 0px",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 3,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  lineHeight: "1.4",
+                  maxHeight: "calc(1.4em * 3)"
+                }}>
+                  {item.content}
+                </div>
+                {
+                  item.image_url && item.image_url.length > 0 ? <img src={item.image_url ? item.image_url : "http://172.30.232.95:3003/api/system/img/68901f595665993caf0e1b20.png"} alt="" style={{ width: "100%", height: "200px" }} /> :
+                    <div style={{ width: "100%", height: "100%", maxHeight: "200px", display: "flex", justifyContent: "center", alignItems: "center" }}>{"暂无"}</div>
+                }
+
               </div>
             ))}
           </div>
@@ -298,12 +333,13 @@ const BottomDrawer: React.FC<BottomDrawerProps> = ({
             }}
             onClick={() => {
               // 处理Video按钮点击
+              onClose()
               console.log('Video clicked');
             }}
           >
-            Video
+            收起
           </button>
-          <button
+          {/* <button
             style={{
               flex: 1,
               padding: '12px 24px',
@@ -325,7 +361,7 @@ const BottomDrawer: React.FC<BottomDrawerProps> = ({
             }}
           >
             Manual
-          </button>
+          </button> */}
         </div>
       </div>
     </IonModal>

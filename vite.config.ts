@@ -27,7 +27,6 @@ export default defineConfig({
         secure: false,
       },
       '/ws': {
-
         // target: 'ws://10.110.163.79:21095',
         target: 'ws://172.30.232.95:31665',
         ws: true, // 开启 WebSocket 代理

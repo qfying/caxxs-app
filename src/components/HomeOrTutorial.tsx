@@ -8,9 +8,9 @@ interface StateProps {
 
 const HomeOrTutorial: React.FC<StateProps> = ({ hasSeenTutorial }) => {
   return hasSeenTutorial ? (
-    <Redirect to='/chat' />
+    <Redirect to='/login' />
   ) : (
-    <Redirect to='/chat' />
+    <Redirect to='/login' />
     // <Redirect to='/tutorial' />
   );
 };

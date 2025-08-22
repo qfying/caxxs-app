@@ -660,6 +660,7 @@ const Question = () => {
       <BottomDrawer
         isOpen={showBottomDrawer}
         selectItem={selectItem}
+        taskid={selectCardItem?.id}
         onClose={() => setShowBottomDrawer(false)}
       />
     </div>

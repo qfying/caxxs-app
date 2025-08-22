@@ -172,3 +172,22 @@ export const getUserInfo = (
 ): Promise<ApiResponse<UserInfo>> => {
   return http.get<UserInfo>(`/openapi/v2/user-profile/${user_id}`);
 };
+
+export const getChatKnowledgeBaseList = (): Promise<any> => {
+  return http.get<TaskData>(
+    `/openapi/v1/v0/chat/knowledge_base_list`
+  );
+};
+
+export const updataChat = (data:{chatId:string}): Promise<any> => {
+  return http.post<TaskData>('/openapi/v2/sentence_cite/update_chat', data);
+};
+
+export const getBriefing = (data:{task_id:string,fields:string}): Promise<ApiTaskResponse> => {
+  return http.get<TaskData>(
+    `/openapi/v2/task/briefing?task_id=${data.task_id}&fields=${data.fields}`
+  );
+};
+
+
+

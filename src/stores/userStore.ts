@@ -32,11 +32,13 @@ interface UserState {
   token: string | null;
   selectCardItem: CardItem | null;
   userInfo: UserInfo | null;
+  databaseList: any[] | null;
   setUser: (userId: string, token: string) => void;
   clearUser: () => void;
   setSelectCardItem: (item: CardItem | null) => void;
   clearSelectCardItem: () => void;
   setUserInfo: (userInfo: UserInfo | null) => void;
+  setDatabaseList: (databaseList: any[] | null) => void;
 }
 
 export const useUserStore = create<UserState>()(
@@ -46,11 +48,13 @@ export const useUserStore = create<UserState>()(
       token: null,
       selectCardItem: null,
       userInfo: null,
+      databaseList: null,
       setUser: (userId: string, token: string) => set({ userId, token }),
       clearUser: () => set({ userId: null, token: null }),
       setSelectCardItem: (item: CardItem | null) => set({ selectCardItem: item }),
       clearSelectCardItem: () => set({ selectCardItem: null }),
       setUserInfo: (userInfo: UserInfo | null) => set({ userInfo }),
+      setDatabaseList: (databaseList: any | null) => set({ databaseList }),
     }),
     {
       name: 'user-store', // localStorage 的 key
@@ -60,6 +64,7 @@ export const useUserStore = create<UserState>()(
         token: state.token,
         selectCardItem: state.selectCardItem,
         userInfo: state.userInfo,
+        databaseList: state.databaseList,
       }),
     }
   )

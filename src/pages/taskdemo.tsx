@@ -3,12 +3,13 @@ import { useEffect, useRef, useState } from 'react';
 import { getTaskList, taskaiparse, taskCreate } from '../services/api';
 import { useUserStore } from '../stores/userStore';
 
+
 import TaskCard from '../components/taskCard';
 
 const Task = () => {
   const modal = useRef<HTMLIonModalElement>(null);
   const router = useIonRouter();
-  const { userId, setSelectCardItem, selectCardItem } = useUserStore();
+  const { userId, setSelectCardItem, selectCardItem, databaseList } = useUserStore();
   const [nextIndex, setNextIndex] = useState(0);
   const [taskCreateValue, setTaskCreateValue] = useState('');
   const [taskList, setTaskList] = useState<any[]>([]);
@@ -136,7 +137,10 @@ const Task = () => {
       // content: "订单号是 2025-07-18，客户为山东蓝海环保设备有限公司，地址在山东省济南市高新区工业南路 88 号。产品名称是高温耐腐风机，描述部分写着：风机型号为 D1200，叶轮出现轻微异响，已更换轴承并调整对中，测试运转正常，客户现场确认通过验收。",
       // executeId: userId || '6887301624c99b8092c67e5e',
       content: taskCreateValue,
-      image_url: ""
+      image_url: "",
+      shareId: databaseList?.app_info_list.find((item: any) => item.type == "任务生成")?.shareId,
+      app_id: databaseList?.app_info_list.find((item: any) => item.type == "任务生成")?.app_id,
+
     };
     try {
       const res = await taskaiparse({ data });
@@ -152,6 +156,8 @@ const Task = () => {
         // 假设API返回的数据结构包含表单字段
         // 根据实际API返回的数据结构调整这里的映射
         const apiData = res.data as any;
+
+
         console.log('解析后的API数据:', apiData);
 
         setFormData({
@@ -202,6 +208,7 @@ const Task = () => {
 
     const res = await taskCreate({ data: formData });
 
+    setSelectCardItem(res.data)
 
     console.log('更新表单数据=============', res);
     setNextIndex(2);
@@ -991,6 +998,7 @@ const Task = () => {
                   }}
                   onClick={() => {
                     modal.current?.dismiss();
+
                     router.push('/question', 'root');
                   }}
                 >
