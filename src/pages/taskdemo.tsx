@@ -84,7 +84,7 @@ const Task = () => {
     status: '',
     deleted: false,
     task_name: '',
-
+    knowledge: [],
   });
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -177,6 +177,7 @@ const Task = () => {
           status: apiData.status || '',
           deleted: apiData.deleted || false,
           task_name: apiData.task_name || '',
+          knowledge: databaseList?.dataset_list || [],
         });
       }
     } catch (err) {
@@ -207,6 +208,7 @@ const Task = () => {
     console.log('表单数据:', formData, userId);
 
     formData.executeId = userId || ''
+
 
 
     const res = await taskCreate({ data: formData });
