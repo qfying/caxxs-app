@@ -390,7 +390,7 @@ const Question = () => {
                                   if ('alias' in item && item.alias) {
                                     console.log("selectCardItem==============", selectCardItem);
 
-                                    const res = await getBriefing({ task_id: selectCardItem?.executeId, fields: item.alias });
+                                    const res = await getBriefing({ task_id: selectCardItem?.id, fields: item.alias });
                                     setBriefing(res.data);
                                     setShowBottomDrawer(true);
                                     setSelectItem(item);

@@ -215,7 +215,7 @@ const Task = () => {
 
     setSelectCardItem({
       ...res.data,
-      id: parseInt(res.data.id) || 0,
+      id: res.data.id,
       name: res.data.task_name || '',
       time: '',
       company: res.data.customer || '',
