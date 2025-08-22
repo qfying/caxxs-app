@@ -4,6 +4,7 @@ import {
   IonInput,
   IonRow
 } from '@ionic/react';
+import { SHA256 } from 'crypto-js';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router';
 import { connect } from '../data/connect';
@@ -12,41 +13,8 @@ import { getChatKnowledgeBaseList, loginByPassword } from '../services/api';
 import { useUserStore } from '../stores/userStore';
 import './Login.scss';
 
-export const hashStr = async (str: string): Promise<string> => {
-  try {
-    // 检查是否支持 Web Crypto API
-    if (typeof crypto !== 'undefined' && crypto.subtle) {
-      const hashBuffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    } else {
-      // Fallback: 使用简单的字符串哈希算法
-      let hash = 0;
-      if (str.length === 0) return hash.toString();
-
-      for (let i = 0; i < str.length; i++) {
-        const char = str.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash; // 转换为32位整数
-      }
-
-      // 转换为16进制字符串
-      return Math.abs(hash).toString(16).padStart(8, '0');
-    }
-  } catch (error) {
-    console.warn('Web Crypto API 不可用，使用fallback哈希算法:', error);
-    // 如果Web Crypto API失败，使用fallback
-    let hash = 0;
-    if (str.length === 0) return hash.toString();
-
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash;
-    }
-
-    return Math.abs(hash).toString(16).padStart(8, '0');
-  }
+export const hashStr = (str: string): string => {
+  return SHA256(str).toString();
 };
 
 
