@@ -388,9 +388,9 @@ const Question = () => {
                               } else {
                                 try {
                                   if ('alias' in item && item.alias) {
-                                    console.log("selectCardItem==============", selectCardItem.id);
+                                    console.log("selectCardItem==============", selectCardItem);
 
-                                    const res = await getBriefing({ task_id: selectCardItem?.id?.toString() || '', fields: item.alias });
+                                    const res = await getBriefing({ task_id: selectCardItem?.executeId, fields: item.alias });
                                     setBriefing(res.data);
                                     setShowBottomDrawer(true);
                                     setSelectItem(item);
