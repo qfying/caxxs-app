@@ -388,6 +388,8 @@ const Question = () => {
                               } else {
                                 try {
                                   if ('alias' in item && item.alias) {
+                                    console.log("selectCardItem==============", selectCardItem.id);
+
                                     const res = await getBriefing({ task_id: selectCardItem?.id?.toString() || '', fields: item.alias });
                                     setBriefing(res.data);
                                     setShowBottomDrawer(true);

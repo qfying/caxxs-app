@@ -96,7 +96,6 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
         return null;
       case 'convergence_check':
         return null;
-
       default:
         return <DefaultMessage message={message} />;
     }
