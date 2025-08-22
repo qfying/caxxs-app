@@ -120,10 +120,13 @@ const Task = () => {
     getTaskListFn();
   }, [userId]);
 
+  console.log("userId=====================", userId);
+
+
   const getTaskListFn = async () => {
     try {
       // 使用zustand store中的用户ID
-      const executeId = userId || '6887301624c99b8092c67e5e';
+      const executeId = userId || '';
       const res = await getTaskList({ executeId });
       console.log('res=============', res);
       setTaskList(res.data || []);

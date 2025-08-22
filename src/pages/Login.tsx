@@ -13,6 +13,7 @@ import { getChatKnowledgeBaseList, loginByPassword } from '../services/api';
 import { useUserStore } from '../stores/userStore';
 import './Login.scss';
 
+
 export const hashStr = (str: string): string => {
   return SHA256(str).toString();
 };
@@ -30,7 +31,7 @@ const Login: React.FC<LoginProps> = ({
   const history = useHistory();
   const [login, setLogin] = useState({ username: '', password: '' });
   const [submitted, setSubmitted] = useState(false);
-  const { setDatabaseList } = useUserStore();
+  const { setDatabaseList, setUser } = useUserStore();
 
   const onLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,6 +57,10 @@ const Login: React.FC<LoginProps> = ({
       console.log(response);
       history.push('/chat');
       localStorage.setItem('token', response.data.token);
+
+      if (response.data.user && response.data.user._id) {
+        setUser(response.data.user._id, response.data.token);
+      }
 
       getChatKnowledgeBaseListFn()
     }
@@ -198,3 +203,4 @@ export default connect<{}, {}, LoginProps>({
   },
   component: Login,
 });
+
