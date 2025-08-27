@@ -1,6 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, type ReactNode } from 'react';
 
 type TaskItem = {
+  task_name: ReactNode;
   name: string;
   time: string;
   status: string;
@@ -157,7 +158,7 @@ const TaskCard = ({ carditem, onDelete, cardFn, isborder }: Props) => {
               textOverflow: 'ellipsis',
             }}
           >
-            {carditem.customer}
+            {carditem.task_name}
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ fontSize: '14px', color: 'white' }}>

@@ -62,7 +62,7 @@ const TaskBriefing = () => {
                 filter: 'brightness(0) invert(1)',
                 cursor: 'pointer',
               }}
-              onClick={() => (window.location.href = '/tabs/task')}
+              onClick={() => (window.location.href = '/chat')}
             />
           </IonButtons>
 

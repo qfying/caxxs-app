@@ -1,6 +1,7 @@
 import { IonButtons, useIonRouter } from '@ionic/react';
 import { useState } from 'react';
 import BottomDrawer from '../components/BottomDrawer';
+import { getBriefing } from '../services/api';
 import { useUserStore } from '../stores/userStore';
 
 const Question = () => {
@@ -10,6 +11,8 @@ const Question = () => {
   const [currentSection, setCurrentSection] = useState(0);
   const [showBottomDrawer, setShowBottomDrawer] = useState(false);
   const [selectItem, setSelectItem] = useState({} as any);
+  const [briefing, setBriefing] = useState<any>([]);
+
 
   // 示例：使用从其他页面传递过来的选中卡片项
   console.log('选中的卡片项:', selectCardItem);
@@ -38,53 +41,56 @@ const Question = () => {
       title1: '安装指导',
 
       subtitle:
-        (selectCardItem && selectCardItem.address) ||
+        (selectCardItem && selectCardItem.task_name) ||
         'Installation Instructions',
       description: '首先，为保证安装顺利\n我给你准备了三个重点',
-      description2: '开始学习它吧 ✊🏻',
+      description2: '安装前快速查看 ✊🏻',
       items: [
         {
-          id: 1,
-          title: '完整安装方案预习',
-          content: '不锈钢管道系统安装详细步骤和流程说明',
-          status: '已完成',
-          warning: '重要提醒',
-        },
-        {
           id: 2,
-          title: '安装要点确认',
-          content: '关键操作步骤和技术要求',
-          status: '已完成',
+          title: '客户及产品信息',
+          content: '客户信息及合同协议',
+          // status: '已完成',
+          warning: '重要提醒',
+          alias: "Customer_and_Product"
         },
         {
           id: 3,
-          title: '关键注意事项',
-          content: '安全提醒和常见问题预防',
-          status: '进行中',
+          title: '标准安装方案及注意事项',
+          content: '安装步骤、点检表安全提醒和常见问题预防',
+          status: '已完成',
+          alias: "Plan_and_Precautions"
+        },
+        {
+          id: 4,
+          title: '工具与备件清单',
+          content: '出门前记得检查工具和是否带齐、避免折返奔波',
+          // status: '进行中',
           warning: '安全警告',
+          alias: "Tool_and_Spare_Part"
         },
       ],
     },
 
     {
-      id: 3,
+      id: 5,
       title: '现场安装',
       title1: '待确认案例',
 
-      subtitle: (selectCardItem && selectCardItem.address) || 'On-Site Repair',
+      subtitle: (selectCardItem && selectCardItem.task_name) || 'On-Site Repair',
 
       description: '准备就绪，抵达现场',
       description2: '有问题可以随时想我提问',
 
       items: [
         {
-          id: 9,
+          id: 6,
           title: '风机气动性震动解决案例',
           content: '评估安装环境的安全性和适用性',
           status: '待开始',
         },
         {
-          id: 10,
+          id: 7,
           title: '风机气动性震动解决案例',
           content: '按照标准流程进行设备安装',
           status: '待开始',
@@ -93,25 +99,25 @@ const Question = () => {
     },
 
     {
-      id: 2,
+      id: 8,
       title: '总结',
       title1: '任务总结',
 
       subtitle:
-        (selectCardItem && selectCardItem.address) || 'Equipment Checklist',
+        (selectCardItem && selectCardItem.task_name) || 'Equipment Checklist',
 
       description: '辛苦了！天工已为你自动完成 \n 总结和沉淀工作。',
       description2: '来看看总结吧',
       items: [
         {
-          id: 4,
+          id: 9,
           title: '任务报告',
           content:
             '已根据本次服务全过程，自动生成报告初稿，请检查 或直接同步到工单。',
           status: '待开始',
         },
         {
-          id: 5,
+          id: 10,
           title: '新知识沉淀',
           content:
             '本次安装中，您发现并解决了非标接线盒的问题，已 将其提炼为新知识，您可以修改和补充。',
@@ -345,89 +351,105 @@ const Question = () => {
                   {(currentSection == 0 ||
                     currentSection == 1 ||
                     currentSection == 2) && (
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '10px',
-                      }}
-                    >
-                      {sections[currentSection].items.map(item => (
-                        <div
-                          key={item.id}
-                          style={{
-                            background: 'rgba(255, 255, 255, 0.1)',
-                            borderRadius: '15px',
-                            padding: '15px',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            cursor: 'pointer',
-                            transition: 'all 0.3s ease',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            position: 'relative',
-                          }}
-                          onMouseEnter={e => {
-                            e.currentTarget.style.background =
-                              'rgba(255, 255, 255, 0.15)';
-                          }}
-                          onMouseLeave={e => {
-                            e.currentTarget.style.background =
-                              'rgba(255, 255, 255, 0.1)';
-                          }}
-                          onClick={() => {
-                            console.log('点击项目:', item.title);
-                            if (item.title == '任务报告') {
-                              router.push('/task-briefing');
-                            } else {
-                              setShowBottomDrawer(true);
-                              setSelectItem(item);
-                            }
-                          }}
-                        >
-                          <div style={{ flex: 1 }}>
-                            <div
-                              style={{
-                                fontSize: '16px',
-                                fontWeight: 'bold',
-                                color: 'white',
-                                marginBottom: '5px',
-                              }}
-                            >
-                              {item.title}
-                            </div>
-                            <div
-                              style={{
-                                fontSize: '12px',
-                                color: 'rgba(255, 255, 255, 0.7)',
-                                lineHeight: '1.3',
-                              }}
-                            >
-                              {item.content}
-                            </div>
-                          </div>
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '10px',
+                        }}
+                      >
+                        {sections[currentSection].items.map(item => (
                           <div
+                            key={item.id}
                             style={{
+                              background: 'rgba(255, 255, 255, 0.1)',
+                              borderRadius: '15px',
+                              padding: '15px',
+                              border: '1px solid rgba(255, 255, 255, 0.2)',
+                              cursor: 'pointer',
+                              transition: 'all 0.3s ease',
                               display: 'flex',
+                              justifyContent: 'space-between',
                               alignItems: 'center',
-                              gap: '10px',
+                              position: 'relative',
+                            }}
+                            onMouseEnter={e => {
+                              e.currentTarget.style.background =
+                                'rgba(255, 255, 255, 0.15)';
+                            }}
+                            onMouseLeave={e => {
+                              e.currentTarget.style.background =
+                                'rgba(255, 255, 255, 0.1)';
+                            }}
+                            onClick={async () => {
+                              console.log('点击项目:', item.title);
+                              if (item.title == '任务报告') {
+                                router.push('/task-briefing');
+                              } else {
+                                try {
+                                  if ('alias' in item && item.alias) {
+                                    console.log("selectCardItem==============", selectCardItem);
+
+                                    const res = await getBriefing({ task_id: selectCardItem?.id, fields: item.alias });
+                                    setBriefing(res.data);
+                                    setShowBottomDrawer(true);
+                                    setSelectItem(item);
+                                  } else {
+                                    setShowBottomDrawer(true);
+                                    setSelectItem(item);
+                                  }
+                                } catch (e) {
+                                  console.log("e===============", e);
+                                  setShowBottomDrawer(true);
+                                  setSelectItem(item);
+                                }
+
+                              }
                             }}
                           >
-                            {item.warning && (
-                              <span
+                            <div style={{ flex: 1 }}>
+                              <div
                                 style={{
-                                  fontSize: '10px',
-                                  padding: '2px 6px',
-                                  borderRadius: '8px',
-                                  background: 'rgba(255, 152, 0, 0.3)',
-                                  color: '#FF9800',
-                                  border: '1px solid rgba(255, 152, 0, 0.5)',
+                                  fontSize: '16px',
+                                  fontWeight: 'bold',
+                                  color: 'white',
+                                  marginBottom: '5px',
                                 }}
                               >
-                                {item.warning}
-                              </span>
-                            )}
-                            {/* <span
+                                {item.title}
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: '12px',
+                                  color: 'rgba(255, 255, 255, 0.7)',
+                                  lineHeight: '1.3',
+                                }}
+                              >
+                                {item.content}
+                              </div>
+                            </div>
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                              }}
+                            >
+                              {/* {item.warning && (
+                                <span
+                                  style={{
+                                    fontSize: '10px',
+                                    padding: '2px 6px',
+                                    borderRadius: '8px',
+                                    background: 'rgba(255, 152, 0, 0.3)',
+                                    color: '#FF9800',
+                                    border: '1px solid rgba(255, 152, 0, 0.5)',
+                                  }}
+                                >
+                                  {item.warning}
+                                </span>
+                              )} */}
+                              {/* <span
                         style={{
                           fontSize: '10px',
                           padding: '2px 6px',
@@ -454,21 +476,21 @@ const Question = () => {
                       >
                         {item.status}
                       </span> */}
-                            <img
-                              src='/assets/icon/Back.svg'
-                              alt=''
-                              style={{
-                                width: '16px',
-                                height: '16px',
-                                filter: 'brightness(0) invert(1)',
-                                transform: 'rotate(180deg)',
-                              }}
-                            />
+                              <img
+                                src='/assets/icon/Back.svg'
+                                alt=''
+                                style={{
+                                  width: '16px',
+                                  height: '16px',
+                                  filter: 'brightness(0) invert(1)',
+                                  transform: 'rotate(180deg)',
+                                }}
+                              />
+                            </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                        ))}
+                      </div>
+                    )}
                 </div>
               </div>
 
@@ -511,9 +533,21 @@ const Question = () => {
                     onClick={() => {
                       // 方法1：URL 参数传递（简单数据）
                       const urlParams = new URLSearchParams({
-                        name: selectCardItem?.address || '',
-                        id: selectCardItem?.id?.toString() || '',
-                        taskType: '1',
+                        address: selectCardItem?.address || '',
+                        create: selectCardItem?.create || '',
+                        customer: selectCardItem?.customer || '',
+                        deleted: selectCardItem?.deleted || '',
+                        description: selectCardItem?.description || '',
+                        end: selectCardItem?.end || '',
+                        executeId: selectCardItem?.executeId || '',
+                        id: String(selectCardItem?.id || ''),
+                        order_id: selectCardItem?.order_id || '',
+                        product: selectCardItem?.product || '',
+                        start: selectCardItem?.start || '',
+                        status: selectCardItem?.status || '',
+                        task_name: selectCardItem?.task_name || '',
+                        task_type: selectCardItem?.task_type || '',
+                        chatType: '1',
                       });
                       router.push(`/chat?${urlParams.toString()}`);
                     }}
@@ -580,8 +614,8 @@ const Question = () => {
                   {currentSection === 0
                     ? '我明白啦'
                     : currentSection === 1
-                    ? '确认齐全'
-                    : '完成'}
+                      ? '确认齐全'
+                      : '完成'}
                 </button>
               </div>
             </div>
@@ -648,7 +682,9 @@ const Question = () => {
       <BottomDrawer
         isOpen={showBottomDrawer}
         selectItem={selectItem}
+        taskid={selectCardItem?.id?.toString() || ''}
         onClose={() => setShowBottomDrawer(false)}
+        briefing={briefing}
       />
     </div>
   );

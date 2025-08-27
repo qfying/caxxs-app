@@ -1,11 +1,10 @@
 import {
-  IonButton,
   IonButtons,
   IonIcon,
   IonMenu,
   IonMenuButton,
   useIonRouter,
-  useIonToast,
+  useIonToast
 } from '@ionic/react';
 import { personCircle } from 'ionicons/icons';
 import React, {
@@ -16,7 +15,15 @@ import React, {
   useState,
 } from 'react';
 import ChatInputArea from '../components/ChatInputArea';
-import { chatReq, chatUpload, sendChatMessage } from '../services/api';
+import { HTTP_URL } from '../config';
+import {
+  chatReq,
+  chatUpload,
+  getFileUrl,
+  sendChatMessage,
+  updataChat
+} from '../services/api';
+import { useUserStore } from '../stores/userStore';
 import { AndroidStreamEnhancer } from '../utils/android-stream-enhancer';
 import './chat.css';
 import Taskdemo from './taskdemo';
@@ -42,6 +49,9 @@ interface Message {
   searchResults?: any[];
   url?: string;
   imgList?: any[];
+  aboutfile?: any[];
+  isoption?: boolean;
+  citationchunks?: any[];
 }
 
 type Prop = {
@@ -52,6 +62,19 @@ type Prop = {
 // 消息渲染组件主体
 const MessageItemInner = ({ message, buttosearch }: Prop) => {
   console.log('777777777777777777', message);
+
+  const [isaboutfile, setIsboutfile] = useState('');
+
+  const getFileUrlFn = async (id: string) => {
+    console.log('id================', id);
+    try {
+      const res = await getFileUrl(id);
+      const url = HTTP_URL + res.data.file_url;
+      window.open(url);
+    } catch (error) {
+      console.log('error================', error);
+    }
+  };
 
   // 处理不同类型的 agent
 
@@ -71,6 +94,8 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
         return <LoadMessage message={message} msg={'排障计划正在生成中...'} />;
       case 'debug_answer_analysis':
         return null;
+      case 'convergence_check':
+        return null;
       default:
         return <DefaultMessage message={message} />;
     }
@@ -85,18 +110,18 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
     message.status === 'sent' &&
     message.content &&
     message.content.trim() !== '') ||
-    message.agent === 'debug_answer_analysis' ? null : (
+    message.agent === 'debug_answer_analysis' ||
+    message.agent === 'convergence_check' ? null : (
     <div
       className={`message-container ${message.isUser ? 'user' : ''}`}
-      // style={{
-      //   border: "1px solid rgba(255, 255, 255, 0.5)",
-      //   borderRadius: "2px 14px 14px 14px"
-      // }}
+    // style={{
+    //   border: "1px solid rgba(255, 255, 255, 0.5)",
+    //   borderRadius: "2px 14px 14px 14px"
+    // }}
     >
       <div
-        className={`message-bubble ${message.isUser ? 'user' : 'bot'} ${
-          message.status
-        }`}
+        className={`message-bubble ${message.isUser ? 'user' : 'bot'} ${message.status
+          }`}
       >
         <div>
           {message.imgList && message.imgList.length > 0 && (
@@ -111,7 +136,9 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
         {renderMessageByAgent()}
 
         {message.url && (
-          <div dangerouslySetInnerHTML={{ __html: parsedUrlHtml }} />
+          <div>
+            {renderContentWithHoverNumbers(parsedUrlHtml)}
+          </div>
         )}
 
         {message.isUser !== true &&
@@ -120,93 +147,147 @@ const MessageItemInner = ({ message, buttosearch }: Prop) => {
             <div
               style={{
                 display: 'flex',
-                flexDirection: message.options.length > 2 ? 'column' : 'row',
+                flexDirection: (message.options?.reduce((sum, opt) => sum + String(opt).length, 0) > 10) ? 'column' : 'row',
                 gap: '6px',
-                justifyContent: message.options.length > 2 ? '' : 'flex-end',
+                justifyContent: (message.options?.reduce((sum, opt) => sum + String(opt).length, 0) > 10) ? '' : 'flex-end',
                 marginTop: '10px',
               }}
             >
-              {message.options.map((option: any) => (
+              {message.options.map((option: any, index: number) => (
+
                 <div
                   style={{
-                    borderRadius: '10px',
-                    height: '30px',
-
-                    minWidth: '60px',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    cursor: 'pointer',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    overflow: 'hidden',
-                    padding: '0 8px',
-                  }}
-                  key={option}
-                  onClick={e => {
-                    e.stopPropagation();
-                    buttosearch(option, message);
                   }}
                 >
-                  <span
+
+                  <button
+                    disabled={message.isoption ? true : false}
                     style={{
+                      borderRadius: '10px',
+                      height: '30px',
+                      minWidth: '60px',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
                       overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      maxWidth: '100%',
+                      padding: '0 8px',
+                      width: "100%",
+                      backgroundColor: "transparent",
+                      color: message.isoption ? "grey" : "#fff"
                     }}
-                  >
-                    {option}
-                  </span>
+                    onClick={e => {
+                      e.stopPropagation();
+                      buttosearch(option, message);
+                    }}>
+                    <span
+                      style={{
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        maxWidth: '100%',
+                      }}
+                    >
+                      {option}
+                    </span>
+                  </button>
                 </div>
               ))}
             </div>
 
-            // <div
-            //   style={{
-            //     display: 'flex',
-            //     marginTop: '10px',
-            //     justifyContent: 'flex-end',
-            //   }}
-            // >
-            //   <div
-            //     onClick={e => {
-            //       console.log('确认');
-            //       e.stopPropagation();
-            //       buttosearch();
-            //     }}
-            //     style={{
-            //       width: '60px',
-            //       borderRadius: '10px',
-            //       height: '30px',
-            //       display: 'flex',
-            //       justifyContent: 'center',
-            //       alignItems: 'center',
-            //       cursor: 'pointer',
-            //       border: '1px solid rgba(255, 255, 255, 0.2)',
-            //     }}
-            //   >
-            //     确认
-            //   </div>
-            //   <div
-            //     onClick={e => {
-            //       console.log('修改');
-            //       e.stopPropagation();
-            //     }}
-            //     style={{
-            //       marginLeft: '10px',
-            //       width: '60px',
-            //       borderRadius: '10px',
-            //       height: '30px',
-            //       display: 'flex',
-            //       justifyContent: 'center',
-            //       alignItems: 'center',
-            //       cursor: 'pointer',
-            //       border: '1px solid rgba(255, 255, 255, 0.2)',
-            //     }}
-            //   >
-            //     修改
-            //   </div>
-            // </div>
+          )}
+
+        {message.citationchunks
+          && message.citationchunks
+            .length > 0 && (
+            <div
+              style={{
+                borderTop: '0.5px solid var(--base-white-15, #FFFFFF26)',
+                padding: '10px 0',
+                marginTop: '10px',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  height: '36px',
+                  backgroundColor: '#3D3E58',
+                  borderRadius: '10px',
+                  alignItems: 'center',
+                  padding: '0 10px',
+                }}
+              >
+                <span>参考来源</span>
+                <div
+                  style={{ display: 'flex', alignItems: 'center', gap: '2px' }}
+                  onClick={() => {
+                    console.log('点击了');
+                    if (isaboutfile === message.id) {
+                      setIsboutfile('');
+                    } else {
+                      setIsboutfile(message.id);
+                    }
+                  }}
+                >
+                  <span>{message.citationchunks
+                    .length}个案例文档</span>
+                  <img
+                    src='/assets/icon/Arrowbt.svg'
+                    alt='历史'
+                    style={{
+                      width: '15px',
+                      height: '15px',
+                      filter: 'brightness(0) invert(1)',
+                    }}
+                  />
+                </div>
+              </div>
+              {isaboutfile === message.id && (
+                <div>
+                  {message.citationchunks
+                    .map((item: any) => (
+                      <div key={item.id}>
+                        <div
+                          style={{
+                            width: '100%',
+                            height: '30px',
+                            backgroundColor: 'white',
+                            color: 'black',
+                            borderRadius: '10px',
+                            margin: '10px 0',
+                            padding: '0 10px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            textDecoration: 'none',
+                            minWidth: 0, // 关键：确保 flex 子元素可以收缩
+                          }}
+                          onClick={() => {
+                            console.log('item==========', item);
+                            getFileUrlFn(item.collectionId);
+                          }}
+                        >
+                          <span
+                            style={{
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                              flex: 1, // 占据剩余空间
+                              minWidth: 0, // 允许收缩
+                            }}
+                          >
+                            {item.sourceName}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
           )}
       </div>
     </div>
@@ -223,15 +304,40 @@ const MessageItem = React.memo(
 const DefaultMessage: React.FC<{ message: Message }> = ({ message }) => {
   console.log('test_answer==========', message.content);
 
+  // 判断是否正在流式输出
+  const isStreaming = message.isStreaming || message.status === 'sending';
+
+  // 如果正在流式输出，直接显示原始内容
+  if (isStreaming) {
+    return (
+      <div>
+        <div>
+          <div>{message.content}</div>
+        </div>
+      </div>
+    );
+  }
+
+  // 流式输出完成后，解析并显示格式化内容（memo 缓存）
   const parsedContent = useMemo(
     () => parseMarkdown(message.content),
     [message.content]
   );
 
+  //文本匹配案例 1
+  // `- ![video](http://172.30.232.95/videos/3M%E9%98%B2%E6%AF%92%E9%9D%A2%E5%85%B7%E7%A9%BF%E6%88%B4%E6%95%99%E5%AD%A6.mp4#t=0,30)
+  // - ![video](http://172.30.232.95/videos/3M%E9%98%B2%E6%AF%92%E9%9D%A2%E5%85%B7%E7%A9%BF%E6%88%B4%E6%95%99%E5%AD%A6.mp4#t=30,60)`
+  //文本匹配案例 2
+  // `![video](
+  // http://172.30.232.95/videos/3M%E9%98%B2%E6%AF%92%E9%9D%A2%E5%85%B7%E7%A9%BF%E6%88%B4%E6%95%99%E5%AD%A6.mp4#t=0,30
+  // )`
+
   return (
     <div>
       <div>
-        <div dangerouslySetInnerHTML={{ __html: parsedContent }} />
+        <div>
+          {renderContentWithHoverNumbers(parsedContent)}
+        </div>
         {/* <div>{message.content}</div> */}
       </div>
     </div>
@@ -420,6 +526,12 @@ const extractSupplementReply = (content: string) => {
   return match?.[1] || '';
 };
 
+const extractSummary = (content: string) => {
+  const regex = /"summary"\s*:\s*"((?:\\"|\\n|\\\\.|[^"])*?)(?:"|$)/;
+  const match = content.match(regex);
+  return match?.[1] || '';
+};
+
 const extractPlanner = (content: string) => {
   try {
     // 首先尝试直接解析为 JSON
@@ -488,29 +600,103 @@ const extractPlanner = (content: string) => {
   }
 };
 
-const extractResearcher = (content: string) => {
-  const regextitle =
-    /"title"\s*:\s*"((?:\\["\\/bfnrt]|\\u[0-9a-fA-F]{4}|[^"\\])*?)"(?=\s*[,}])/;
-  const regexcontent =
-    /"content"\s*:\s*"((?:\\["\\/bfnrt]|\\u[0-9a-fA-F]{4}|[^"\\])*?)"(?=\s*[,}])/;
-
-  const matchtitle = content.match(regextitle);
-  const matchcontent = content.match(regexcontent);
-
-  const data = {
-    title: matchtitle && matchtitle[1],
-    content: matchcontent && matchcontent[1],
-  };
-
-  console.log('extractResearcher=========', matchtitle, matchcontent);
-
-  return JSON.stringify(data);
-};
 
 interface PlannerResult {
   title: string;
   steps: any[];
 }
+
+// 创建带有悬停提示的数字组件
+const HoverNumber: React.FC<{
+  number: string;
+  header?: string;
+  tooltip?: string;
+  link?: string;
+  collectionId?: string;
+}> = ({ number, header, tooltip, link, collectionId }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const getFileUrlFn = async (id: string) => {
+    console.log('id================', id);
+    try {
+      const res = await getFileUrl(id);
+      const url = HTTP_URL + res.data.file_url;
+      window.open(url);
+    } catch (error) {
+      console.log('error================', error);
+    }
+  };
+
+  return (
+    <div style={{ display: 'inline-block' }} onMouseLeave={() => setIsOpen(false)}>
+      <span
+        style={{
+          color: 'white',
+          cursor: 'pointer',
+          width: "20px",
+          height: "20px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          textAlign: "center",
+          lineHeight: "20px",
+          borderRadius: "50%",
+          fontWeight: 'bold',
+          backgroundColor: "grey",
+          margin: "0px 4px",
+
+        }}
+        onMouseEnter={() => setIsOpen(true)}
+        onClick={() => {
+          if (collectionId) {
+            getFileUrlFn(collectionId)
+          }
+        }}
+      >
+        {number}
+      </span>
+      {isOpen && (
+        <div
+          style={{
+            position: 'absolute',
+            zIndex: 1000,
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            padding: '16px',
+            maxWidth: '400px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            // marginTop: '8px'
+          }}
+          onMouseEnter={() => setIsOpen(true)}
+          onMouseLeave={() => setIsOpen(false)}
+        >
+          {header && (
+            <div style={{
+              fontSize: '14px',
+              fontWeight: 'bold',
+              marginBottom: '8px',
+              color: '#333',
+              borderBottom: '1px solid #eee',
+              paddingBottom: '8px'
+            }}>
+              {header}
+            </div>
+          )}
+          {tooltip && (
+            <div style={{
+              fontSize: '12px',
+              color: '#666',
+              lineHeight: '1.4',
+              marginBottom: '12px'
+            }}
+              dangerouslySetInnerHTML={{ __html: tooltip }}
+            />
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 // 简单的 Markdown 解析函数
 const parseMarkdown = (text: string) => {
@@ -538,6 +724,28 @@ const parseMarkdown = (text: string) => {
         /```([\s\S]*?)```/g,
         '<pre class="markdown-code"><code>$1</code></pre>'
       )
+      // 处理带有悬停提示的数字 - 使用函数来提取属性
+      .replace(/<span[^>]*class="eaitip"[^>]*>(\d+)<\/span>/g, (match, number) => {
+        // 提取所有属性
+        const tooltipMatch = match.match(/data-tooltip="([^"]*)"/);
+        const headerMatch = match.match(/data-header="([^"]*)"/);
+        const linkMatch = match.match(/data-link="([^"]*)"/);
+        const collectionIdMatch = match.match(/collection-id="([^"]*)"/);
+
+        const tooltip = tooltipMatch ? tooltipMatch[1] : '';
+        const header = headerMatch ? headerMatch[1] : '';
+        const link = linkMatch ? linkMatch[1] : '';
+        const collectionId = collectionIdMatch ? collectionIdMatch[1] : '';
+
+        // 构建占位符，使用特殊分隔符避免冒号冲突
+        // 对包含管道符的属性进行转义，使用特殊字符替换
+        const escapedTooltip = tooltip.replace(/\|/g, '&#124;');
+        const escapedHeader = header.replace(/\|/g, '&#124;');
+        const escapedLink = link.replace(/\|/g, '&#124;');
+        const escapedCollectionId = collectionId.replace(/\|/g, '&#124;');
+
+        return `{{HOVER_NUMBER:${number}|${escapedHeader}|${escapedTooltip}|${escapedLink}|${escapedCollectionId}}}`;
+      })
       // 处理行内代码
       .replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
       // 处理超链接 - 排除图片格式（以!开头的）
@@ -546,16 +754,19 @@ const parseMarkdown = (text: string) => {
         '<a href="$2" target="_blank" rel="noopener noreferrer" class="solution-link">$1</a>'
       )
       // 处理图片
-      .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+      .replace(/!\[([^\]]*)\]\(\s*([\s\S]+?)\s*\)/g, (match, alt, src) => {
+        console.log("match===============", match, alt, src);
+
         // 检查是否为视频链接
         if (
           alt.toLowerCase() === 'video' ||
-          src.match(/\.(mp4|webm|ogg|mov|avi)$/i)
+          src.match(/\.(mp4|webm|ogg|mov|avi)(#t=[^)]+)?$/i)
         ) {
           // 提取时间戳信息
           const timeMatch = src.match(/#t=([^)]+)$/);
           const timeParam = timeMatch ? timeMatch[1] : '';
-          const videoSrc = src;
+          // 移除可能的多余换行符和空格
+          const videoSrc = src.trim();
 
           console.log('videoSrc=================', videoSrc, timeMatch);
 
@@ -565,15 +776,61 @@ const parseMarkdown = (text: string) => {
             </video>`;
         } else {
           // 普通图片处理
-          return `<img src="${src}" alt="${alt}" style="max-width: 100%; height: auto; border-radius: 8px; margin: 8px 0;" />`;
+          return `<img src="${src.trim()}" alt="${alt}" style="max-width: 100%; height: auto; border-radius: 8px; margin: 8px 0;" />`;
         }
       })
       // 处理列表
       .replace(/^\* (.*$)/gim, '<li>$1</li>')
-      .replace(/^- (.*$)/gim, '<li>$1</li>')
+      // .replace(/^- (.*$)/gim, '<li>$1</li>')
       // 处理换行
       .replace(/\n/g, '<br/>')
   );
+};
+
+// 渲染带有悬停提示的内容
+const renderContentWithHoverNumbers = (content: string) => {
+  if (!content) return null;
+
+  // 分割内容，找到占位符
+  const parts = content.split(/(\{\{HOVER_NUMBER:[^}]+\}\})/);
+
+  console.log("parts============", parts);
+
+  return parts.map((part, index) => {
+    // 匹配新的占位符格式：{{HOVER_NUMBER:number|header|tooltip|link|collectionId}}
+    const fullMatch = part.match(/\{\{HOVER_NUMBER:(\d+)\|([^|]*)\|([^|]*)\|([^|]*)\|([^|]*)\}\}/);
+
+    console.log("fullMatch============", fullMatch);
+
+    if (fullMatch) {
+      const [, number, header, tooltip, link, collectionId] = fullMatch;
+      // 解码转义的管道符
+      const decodedHeader = header ? header.replace(/&#124;/g, '|') : '';
+      const decodedTooltip = tooltip ? tooltip.replace(/&#124;/g, '|') : '';
+      const decodedLink = link ? link.replace(/&#124;/g, '|') : '';
+      const decodedCollectionId = collectionId ? collectionId.replace(/&#124;/g, '|') : '';
+
+      return (
+        <HoverNumber
+          key={index}
+          number={number}
+          header={decodedHeader || undefined}
+          tooltip={decodedTooltip || undefined}
+          link={decodedLink || undefined}
+          collectionId={decodedCollectionId || undefined}
+        />
+      );
+    }
+
+    // 匹配基础格式：{{HOVER_NUMBER:number}}
+    const basicMatch = part.match(/\{\{HOVER_NUMBER:(\d+)\}\}/);
+    if (basicMatch) {
+      const number = basicMatch[1];
+      return <HoverNumber key={index} number={number} />;
+    }
+
+    return <span key={index} dangerouslySetInnerHTML={{ __html: part }} />;
+  });
 };
 
 // Coordinator 消息组件
@@ -628,7 +885,7 @@ const CoordinatorMessage: React.FC<{ message: Message }> = ({ message }) => {
         </div>
         <div className='coordinator-content'>
           {parsedContent ? (
-            <div dangerouslySetInnerHTML={{ __html: parsedContent }} />
+            renderContentWithHoverNumbers(parsedContent)
           ) : (
             <div>{message.content}</div>
           )}
@@ -695,8 +952,9 @@ const ResearcherMessage: React.FC<{ message: Message }> = ({ message }) => {
           {!isCollapsed && (
             <div
               style={{ marginTop: '6px' }}
-              dangerouslySetInnerHTML={{ __html: parsedContent }}
-            />
+            >
+              {renderContentWithHoverNumbers(parsedContent)}
+            </div>
           )}
         </div>
       </div>
@@ -743,32 +1001,82 @@ const Chat: React.FC = () => {
   const [showtag, setShowtag] = useState(false);
   const [sectionName, setSectionName] = useState('');
   const [type, setType] = useState('1');
-  const [type2, setType2] = useState('1');
+  const [type2, setType2] = useState('0');
   const [uploadedImages, setUploadedImages] = useState<
     Array<{ url: string; name: string; id: string }>
   >([]);
+  const { userInfo, setUserInfo, databaseList } = useUserStore();
+
+  const [taskParams, setTaskParams] = useState({});
+
+  const clearTask = () => {
+    setSectionName('');
+    setTaskParams({});
+    setUserInfo({} as any);
+  }
 
   const router = useIonRouter();
 
   const [hello, setHello] = useState('');
 
+  useEffect(() => {
+    if (sectionName) {
+      setType('1');
+    } else {
+      setType('0');
+    }
+  }, [sectionName]);
+
   // 接收URL参数
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
-    const sectionId = searchParams.get('name');
-    const itemId = searchParams.get('id');
-    const taskType = searchParams.get('taskType');
-    setSectionName(sectionId || '');
+    console.log('searchParams==============', searchParams);
+    const address = searchParams.get('address');
+    const create = searchParams.get('create');
+    const customer = searchParams.get('customer');
+    const deleted = searchParams.get('deleted');
+    const description = searchParams.get('description');
+    const end = searchParams.get('end');
+    const executeId = searchParams.get('executeId');
+    const id = searchParams.get('id');
+    const order_id = searchParams.get('order_id');
+    const product = searchParams.get('product');
+    const start = searchParams.get('start');
+    const status = searchParams.get('status');
+    const task_name = searchParams.get('task_name');
+    const task_type = searchParams.get('task_type');
+    const chatType = searchParams.get('chatType');
+    setSectionName(task_name || '');
 
-    if (taskType == '1') {
+    setTaskParams({
+      address: address,
+      create: create,
+      customer: customer,
+      deleted: deleted,
+      description: description,
+      end: end,
+      executeId: executeId,
+      id: id,
+      order_id: order_id,
+      product: product,
+      start: start,
+      status:
+        status == '1'
+          ? '进行中'
+          : status == '2'
+            ? '即将开始'
+            : status == '3'
+              ? '已完成'
+              : status == '4'
+                ? '已取消'
+                : '',
+      task_name: task_name,
+      task_type: task_type,
+    });
+
+    if (chatType == '1') {
       setShowInputType(1);
     }
-
-    console.log('接收到的URL参数:', {
-      sectionId,
-      itemId,
-      taskType,
-    });
   }, []);
 
   useEffect(() => {
@@ -791,14 +1099,56 @@ const Chat: React.FC = () => {
         // upload(message.content);
       }
     }
+
+    setMessages(prev => {
+
+      const newMessages = [...prev];
+      const messageIndex = newMessages.findIndex(msg => msg.id === message.id);
+
+      if (messageIndex !== -1) {
+        newMessages[messageIndex] = {
+          ...newMessages[messageIndex],
+          isoption: true,
+        };
+      }
+
+      console.log('newMessages==============', newMessages);
+
+      return newMessages;
+    });
+
   };
 
   const upload = async (message: any) => {
+    console.log("sectionName===============", sectionName);
+
+    const uploadData = {
+      text: message,
+      file_name: sectionName + '.md',
+      parent_id: databaseList?.case || '',
+      app_id: databaseList?.app_info_list?.find((item: any) => item.type == "多模态问答工作流")?.app_id || '',
+      datasetId: databaseList?.case || '',
+      userId: "6890805c3897878cdd928c34",
+      teamId: "688c856f13e9f1c3b8aa1d31",
+      tmbId: "688c856f13e9f1c3b8aa1d32",
+      entrance: ""
+    }
     try {
-      const response = await chatUpload({ text: message });
+      const response = await chatUpload(uploadData);
       console.log('uploadresponse==============', response);
+      present({
+        message: '上传成功',
+        duration: 2000,
+        position: 'top',
+        color: 'success',
+      });
     } catch (err) {
-      console.log('上传失败');
+      present({
+        message: '上传失败',
+        duration: 2000,
+        position: 'top',
+        color: 'danger',
+      });
     }
   };
 
@@ -972,21 +1322,23 @@ const Chat: React.FC = () => {
         ],
         variables: {
           // feedback: variablesFeedback,
-          feedback: {
+          feedback: variablesFeedback ? {
             content: variablesFeedback ? iptvalue : '',
             image_url: uploadedImages.map(image => ({
               url: image.url,
             })),
-          },
+          } : "",
           internet_search: true,
           quote_enable: true,
           enable_graphKB: type2,
+          task_info: taskParams,
+          user_info: userInfo,
+          knowledge: databaseList?.dataset_list || [],
         },
         responseChatItemId: 'b1jmtV7hdBHokPUT2jzQwAwJ',
         // shareId: '6e6q0y0lnlw9t247jl2y9fbi',
         shareId:
-          type == '1' ? 'iuj6er9dbwlvfyvmrtxdg9em' : 'zybc1bm3xzt6u3uccoxttyp6',
-
+          type == '1' ? databaseList?.app_info_list?.find((item: any) => item.type == "HTTP SSE")?.shareId || '' : databaseList?.app_info_list?.find((item: any) => item.type == "多模态问答工作流")?.shareId || '',  // 1 是 知识库 2 是 知识库
         chatId: chatId,
         appType: 'advanced',
         outLinkUid: 'shareChat-1754533192615-v8Ejm6GhhxpNhjhk9w_ZGzNR',
@@ -1018,6 +1370,8 @@ const Chat: React.FC = () => {
 
     try {
       const response = await sendChatMessage(messagebody);
+
+      console.log('responsechunk=========', response);
 
       setUploadedImages([]);
 
@@ -1053,7 +1407,7 @@ const Chat: React.FC = () => {
         console.log(`第${chunkCount}次读取数据`);
 
         const { done, value } = await reader.read();
-        console.log('done=========', done, 'value长度:', value?.length);
+        console.log('done=========', done, 'value长度:', value, value?.length);
 
         if (done) {
           console.log(`流式读取完成，总共读取${chunkCount}次`);
@@ -1063,395 +1417,342 @@ const Chat: React.FC = () => {
         const chunk = decoder.decode(value, { stream: true });
         console.log(
           `第${chunkCount}次chunk数据 (长度: ${chunk.length}):`,
-          chunk.length > 200 ? chunk.substring(0, 200) + '...' : chunk
+          chunk,
+          reader
         );
-
-        // 将新数据添加到缓冲区
 
         // 解析 chunk 中的事件 - 支持多个事件
         try {
-          // 使用正则表达式分割多个事件
-          const events = chunk.split(/(?=event: )/);
+          // 累积到缓冲区，等待形成完整的 SSE 事件块（空行分隔）
+          buffer += chunk;
 
-          console.log(`处理${events.length}个事件 (Android环境: ${isAndroid})`);
-          totalEvents += events.length;
+          const blocks = buffer.split(/\r?\n\r?\n/);
+          buffer = blocks.pop() || '';
 
-          for (let i = 0; i < events.length; i++) {
-            const eventChunk = events[i];
-            if (!eventChunk.trim()) continue;
+          console.log(
+            `SSE事件块数: ${blocks.length}, 残余长度: ${buffer.length}`
+          );
+
+          for (let i = 0; i < blocks.length; i++) {
+            const block = blocks[i];
+            if (!block.trim()) continue;
 
             // 使用Android流式增强器处理延迟
-            await AndroidStreamEnhancer.handleEventDelay(i, events.length);
+            await AndroidStreamEnhancer.handleEventDelay(i, blocks.length);
 
-            const eventMatch = eventChunk.match(/event: (\w+)/);
+            // 解析事件类型
+            const eventMatch = block.match(/^event:\s*(\w+)/m);
+            if (!eventMatch) continue;
+            const eventType = eventMatch[1];
+            console.log(
+              `处理事件类型: ${eventType} (${i + 1}/${blocks.length})`
+            );
 
-            if (eventMatch) {
-              const eventType = eventMatch[1];
-              console.log(
-                `处理事件类型: ${eventType} (${i + 1}/${events.length})`
-              );
+            // 合并同一事件块中的多行 data
+            const dataLines = block.match(/^data:\s?(.*)$/gm) || [];
+            const dataStr = dataLines
+              .map(line => line.replace(/^data:\s?/, ''))
+              .join('\n')
+              .trim();
 
-              if (eventType == 'fastAnswer') {
-                const dataMatch = eventChunk.match(/data: (.+)/);
-                console.log('fastAnswer==========', dataMatch);
-                if (dataMatch) {
-                  const jsonStr = dataMatch[1].trim();
-                  console.log('event type2===============', jsonStr);
-                  if (jsonStr) {
-                    const data = JSON.parse(jsonStr);
-                    console.log('fastAnswer data=========', data);
-                    const answerContent = data.choices[0].delta.content;
-                    console.log('answerContent=========', answerContent);
-                    setMessages(prev => {
-                      const newMessages = [...prev];
-                      newMessages[newMessages.length - 1] = {
-                        ...newMessages[newMessages.length - 1],
-                        url: answerContent,
-                      };
-                      return newMessages;
-                    });
-                  }
+            if (!dataStr || dataStr === '[DONE]') {
+              continue;
+            }
+
+
+
+            // 按事件类型分发处理
+            if (eventType == 'fastAnswer') {
+              try {
+                const data = JSON.parse(dataStr);
+                const answerContent = data.choices?.[0]?.delta?.content;
+                if (answerContent) {
+                  setMessages(prev => {
+                    const newMessages = [...prev];
+                    newMessages[newMessages.length - 1] = {
+                      ...newMessages[newMessages.length - 1],
+                      url: answerContent,
+                    };
+                    return newMessages;
+                  });
                 }
+              } catch (e) {
+                console.warn('解析 fastAnswer 数据失败', e);
               }
+            } else if (eventType == 'flowResponses') {
+              try {
+                const data = JSON.parse(dataStr);
 
-              if (eventType == 'answer') {
-                // 解析 answer 类型的数据流
-                const dataMatch = eventChunk.match(/data: (.+)/);
-
-                console.log('event type1==========', dataMatch);
-                if (dataMatch) {
-                  const jsonStr = dataMatch[1].trim();
-                  console.log('event type2===============', jsonStr);
-
-                  if (jsonStr && jsonStr !== '[DONE]') {
-                    try {
-                      const data = JSON.parse(jsonStr);
-                      // 这里可以根据需要处理 answer 数据
-                      // 例如：将 assistant 的内容追加到消息流
-                      if (
-                        data.choices &&
-                        data.choices[0] &&
-                        data.choices[0].delta &&
-                        typeof data.choices[0].delta.content === 'string'
-                      ) {
-                        const answerContent = data.choices[0].delta.content;
-                        console.log('answerContent=========', answerContent);
-
-                        // 假设 answer 属于 agent: 'default'
-                        const currentContent =
-                          agentMessages.get('default') || '';
-                        const newContent = currentContent + answerContent;
-                        agentMessages.set('default', newContent);
-
-                        setMessages(prev => {
-                          // 查找现有的 default agent 消息
-                          const existingMessageIndex = prev.findIndex(
-                            msg =>
-                              !msg.isUser &&
-                              msg.agent === 'default' &&
-                              msg.status === 'sending'
-                          );
-
-                          if (existingMessageIndex !== -1) {
-                            // 更新现有消息
-                            const newMessages = [...prev];
-                            newMessages[existingMessageIndex] = {
-                              ...newMessages[existingMessageIndex],
-                              content: newContent,
-                              reasoningContent: data.reasoningContent,
-                            };
-                            return newMessages;
-                          } else {
-                            // 创建新的消息
-                            const newmessage: Message = {
-                              id:
-                                Date.now().toString() +
-                                Math.random().toString(36).substr(2, 9),
-                              dataId: data.id || '',
-                              role: 'assistant',
-                              content: newContent,
-                              isUser: false,
-                              status: 'sending',
-                              agent: 'default',
-                              reasoningContent: data.reasoningContent,
-                              isStreaming: true,
-                            };
-                            return [...prev, newmessage];
-                          }
-                        });
-                      }
-                    } catch (e) {
-                      console.warn('解析 answer 数据失败', e);
-                    }
-                  }
+                // 兼容原有两处对 flowResponses 的处理：
+                // 1) aboutfile = data[0].quoteList
+                if (Array.isArray(data) && data[0]?.quoteList) {
+                  const answerContent = data[0].quoteList;
+                  setMessages(prev => {
+                    const newMessages = [...prev];
+                    newMessages[newMessages.length - 1] = {
+                      ...newMessages[newMessages.length - 1],
+                      aboutfile: answerContent,
+                    };
+                    return newMessages;
+                  });
                 }
-              }
 
-              // 只处理 message 类型的事件
-              if (eventType === 'message_chunk') {
-                const dataMatch = eventChunk.match(/data: (.+)/);
-                if (dataMatch) {
-                  const jsonStr = dataMatch[1].trim();
-                  if (jsonStr && jsonStr !== '[DONE]') {
-                    const data = JSON.parse(jsonStr);
-                    console.log('message data=========', data);
-                    console.log('agent===========', data.agent);
-
-                    if (data.content) {
-                      const content = data.content;
-                      const agent = data.agent || 'default';
-
-                      let researcherAgentid = '';
-
-                      if (agent == 'researcher') {
-                        researcherAgentid = data.id;
-                      }
-
-                      // 更新 agent 消息内容
-                      if (agent === 'researcher') {
-                        // 对于 researcher，使用 researcherAgentid 作为 key
-                        const currentContent =
-                          researcherMessages.get(researcherAgentid) || '';
-                        console.log(
-                          'currentContent===========',
-                          currentContent
-                        );
-
-                        researcherMessages.set(
-                          researcherAgentid,
-                          currentContent + content
-                        );
-                      } else {
-                        // 其他 agent 使用原来的逻辑
-                        const currentContent = agentMessages.get(agent) || '';
-                        agentMessages.set(agent, currentContent + content);
-                      }
-
+                // 2) searchResults = response.quoteList（遍历数组）
+                if (Array.isArray(data)) {
+                  data.forEach((response: any) => {
+                    if (
+                      response?.moduleType === 'datasetSearchNode' &&
+                      response?.quoteList
+                    ) {
                       setMessages(prev => {
-                        // 对于 researcher agent，需要根据 researcherAgentid 查找现有消息
-                        let existingMessageIndex = -1;
-
-                        if (agent === 'researcher') {
-                          // 查找具有相同 researcherAgentid 的消息
-                          existingMessageIndex = prev.findIndex(
-                            msg =>
-                              !msg.isUser &&
-                              msg.agent === agent &&
-                              msg.status === 'sending' &&
-                              msg.dataId === researcherAgentid
-                          );
-                        } else {
-                          // 其他 agent 使用原来的逻辑
-                          existingMessageIndex = prev.findIndex(
-                            msg =>
-                              !msg.isUser &&
-                              msg.agent === agent &&
-                              msg.status === 'sending'
-                          );
-                        }
-
-                        if (existingMessageIndex !== -1) {
-                          // 更新现有消息
-                          let filterdata = null;
-                          if (agent == 'coordinator') {
-                            filterdata = extractSupplementReply(
-                              agentMessages.get(agent) || ''
-                            );
-                            // filterdata = agentMessages.get(agent) || ""
-                            console.log(
-                              '555555555555=========',
-                              agentMessages.get(agent),
-                              filterdata
-                            );
-                          } else if (agent == 'planner') {
-                            // extractPlanner
-                            filterdata = extractPlanner(
-                              agentMessages.get(agent) || ''
-                            );
-                            // filterdata = agentMessages.get(agent) || ""
-                          } else if (agent == 'researcher') {
-                            // filterdata = extractResearcher(researcherMessages.get(researcherAgentid) || "")
-                            console.log(
-                              'currentContent===========',
-                              researcherMessages.get(researcherAgentid)
-                            );
-                            // console.log("currentContent111===========", filterdata);
-                            filterdata =
-                              researcherMessages.get(researcherAgentid) || '';
-                          } else {
-                            filterdata = agentMessages.get(agent) || '';
+                        const newMessages = [...prev];
+                        if (newMessages.length > 0) {
+                          const lastMessage =
+                            newMessages[newMessages.length - 1];
+                          if (!lastMessage.isUser) {
+                            newMessages[newMessages.length - 1] = {
+                              ...lastMessage,
+                              searchResults: response.quoteList,
+                            };
                           }
-                          console.log('agentMessages.get(agent)===========');
-
-                          const newMessages = [...prev];
-                          newMessages[existingMessageIndex] = {
-                            ...newMessages[existingMessageIndex],
-                            content: filterdata || '',
-                            reasoningContent:
-                              data.reasoningContent ||
-                              newMessages[existingMessageIndex]
-                                .reasoningContent,
-                          };
-                          return newMessages;
-                        } else {
-                          // 创建新的 agent 消息
-                          const newMessageId =
-                            Date.now() +
-                            Math.random().toString(36).substr(2, 9);
-                          const newMessage: Message = {
-                            id: newMessageId,
-                            dataId:
-                              agent === 'researcher'
-                                ? researcherAgentid
-                                : data.id || '',
-                            role: 'assistant',
-                            content:
-                              agent === 'researcher'
-                                ? researcherMessages.get(researcherAgentid) ||
-                                  ''
-                                : agentMessages.get(agent) || '',
-                            isUser: false,
-                            status: 'sending',
-                            agent: agent,
-                            reasoningContent: data.reasoningContent,
-                            isStreaming: true,
-                          };
-                          return [...prev, newMessage];
                         }
+                        return newMessages;
                       });
                     }
-                  }
+                  });
                 }
-              } else if (eventType == 'interrupt') {
-                console.log('收到 interrupt 事件，暂不处理');
-                // interrupt 事件暂不处理
-                const dataMatch = eventChunk.match(/data: (.+)/);
+              } catch (e) {
+                console.warn('解析 flowResponses 数据失败', e);
+              }
+            } else if (eventType == 'answer') {
+              try {
+                const data = JSON.parse(dataStr);
+                if (
+                  data.choices &&
+                  data.choices[0] &&
+                  data.choices[0].delta &&
+                  typeof data.choices[0].delta.content === 'string'
+                ) {
+                  const answerContent = data.choices[0].delta.content;
 
-                if (dataMatch) {
-                  const jsonStr = dataMatch[1].trim();
-                  if (jsonStr && jsonStr !== '[DONE]') {
-                    const data = JSON.parse(jsonStr);
-                    console.log('interruptdata============', data);
-                    const btnOption = data.options;
-                    const btnAgent = data.id;
-                    setMessages(prev => {
+                  const currentContent = agentMessages.get('default') || '';
+                  const newContent = currentContent + answerContent;
+                  agentMessages.set('default', newContent);
+
+                  setMessages(prev => {
+                    // 查找现有的 default agent 消息
+                    const existingMessageIndex = prev.findIndex(
+                      msg =>
+                        !msg.isUser &&
+                        msg.agent === 'default' &&
+                        msg.status === 'sending'
+                    );
+
+                    if (existingMessageIndex !== -1) {
                       const newMessages = [...prev];
-                      if (newMessages.length > 0) {
-                        const lastMessage = newMessages[newMessages.length - 1];
-                        if (!lastMessage.isUser) {
-                          newMessages[newMessages.length - 1] = {
-                            ...lastMessage,
-                            options: btnOption,
-                            btnAgent: btnAgent,
-                          };
-                        }
-                      }
+                      newMessages[existingMessageIndex] = {
+                        ...newMessages[existingMessageIndex],
+                        content: newContent,
+                        reasoningContent: data.reasoningContent,
+                      };
                       return newMessages;
-                    });
-
-                    // if (data.id) {
-                    //   const isMatch =
-                    //     /^repeat_human_feedback:/.test(data.id) ||
-                    //     /^human_feedback:/.test(data.id) ||
-                    //     /^summary_human_feedback:/.test(data.id);
-
-                    //   console.log('isMatch===============', isMatch);
-                    //   setisbtn(isMatch);
-
-                    //   // 将isMatch状态添加到最新的消息中
-                    //   setMessages(prev => {
-                    //     const newMessages = [...prev];
-                    //     if (newMessages.length > 0) {
-                    //       const lastMessage =
-                    //         newMessages[newMessages.length - 1];
-                    //       if (!lastMessage.isUser) {
-                    //         newMessages[newMessages.length - 1] = {
-                    //           ...lastMessage,
-                    //           isMatch: isMatch,
-                    //         };
-                    //       }
-                    //     }
-                    //     return newMessages;
-                    //   });
-                    // }
-
-                    if (data.finish_reason == 'interrupt') {
-                      console.log('发送===========');
-                      setVariablesFeedback(true);
+                    } else {
+                      const newmessage: Message = {
+                        id:
+                          Date.now().toString() +
+                          Math.random().toString(36).substr(2, 9),
+                        dataId: data.id || '',
+                        role: 'assistant',
+                        content: newContent,
+                        isUser: false,
+                        status: 'sending',
+                        agent: 'default',
+                        reasoningContent: data.reasoningContent,
+                        isStreaming: true,
+                      };
+                      return [...prev, newmessage];
                     }
-                  }
+                  });
                 }
-              } else if (eventType == 'flowResponses') {
-                console.log('收到 flowResponses 事件');
-                const dataMatch = eventChunk.match(/data: (.+)/);
+              } catch (e) {
+                console.warn('解析 answer 数据失败', e);
+              }
+            } else if (eventType === 'message_chunk') {
+              try {
+                const data = JSON.parse(dataStr);
+                console.log('message data=========', data);
+                console.log('agent===========', data.agent);
 
-                if (dataMatch) {
-                  const jsonStr = dataMatch[1].trim();
-                  if (jsonStr && jsonStr !== '[DONE]') {
-                    try {
-                      const data = JSON.parse(jsonStr);
-                      console.log('flowResponses data=========', data);
+                if (data.content) {
+                  const content = data.content as string;
+                  const agent = (data.agent as string) || 'default';
 
-                      // 处理知识库搜索结果
-                      if (data && Array.isArray(data)) {
-                        data.forEach((response: any) => {
-                          if (
-                            response.moduleType === 'datasetSearchNode' &&
-                            response.quoteList
-                          ) {
-                            console.log('知识库搜索结果:', response.quoteList);
+                  let researcherAgentid = '';
+                  if (agent == 'researcher') {
+                    researcherAgentid = data.id as string;
+                  }
 
-                            // 将搜索结果添加到当前消息中
-                            setMessages(prev => {
-                              const newMessages = [...prev];
-                              if (newMessages.length > 0) {
-                                const lastMessage =
-                                  newMessages[newMessages.length - 1];
-                                if (!lastMessage.isUser) {
-                                  // 将搜索结果添加到消息中
-                                  newMessages[newMessages.length - 1] = {
-                                    ...lastMessage,
-                                    searchResults: response.quoteList,
-                                  };
-                                }
-                              }
-                              return newMessages;
-                            });
-                          }
-                        });
+                  // 更新 agent 消息内容
+                  if (agent === 'researcher') {
+                    const currentContent =
+                      researcherMessages.get(researcherAgentid) || '';
+                    researcherMessages.set(
+                      researcherAgentid,
+                      currentContent + content
+                    );
+                  } else {
+                    const currentContent = agentMessages.get(agent) || '';
+                    agentMessages.set(agent, currentContent + content);
+                  }
+
+                  setMessages(prev => {
+                    // 对于 researcher agent，需要根据 researcherAgentid 查找现有消息
+                    let existingMessageIndex = -1;
+
+                    if (agent === 'researcher') {
+                      existingMessageIndex = prev.findIndex(
+                        msg =>
+                          !msg.isUser &&
+                          msg.agent === agent &&
+                          msg.status === 'sending' &&
+                          msg.dataId === researcherAgentid
+                      );
+                    } else {
+                      existingMessageIndex = prev.findIndex(
+                        msg =>
+                          !msg.isUser &&
+                          msg.agent === agent &&
+                          msg.status === 'sending'
+                      );
+                    }
+
+                    if (existingMessageIndex !== -1) {
+                      let filterdata: any = null;
+                      if (agent == 'coordinator') {
+                        filterdata = extractSupplementReply(
+                          agentMessages.get(agent) || ''
+                        );
+                      } else if (agent == 'repeater') {
+
+                        filterdata = extractSummary(
+                          agentMessages.get(agent) || ''
+                        );
                       }
-                    } catch (e) {
-                      console.warn('解析 flowResponses 数据失败', e);
-                    }
-                  }
-                }
-              } else if (eventType == 'flowNodeStatus') {
-                console.log('收到 flowNodeStatus 事件');
-                const dataMatch = eventChunk.match(/data: (.+)/);
-
-                if (dataMatch) {
-                  const jsonStr = dataMatch[1].trim();
-                  if (jsonStr && jsonStr !== '[DONE]') {
-                    try {
-                      const data = JSON.parse(jsonStr);
-                      console.log('flowNodeStatus data=========', data);
-
-                      // 可以在这里处理节点状态更新
-                      // 例如：显示当前正在执行的节点名称
-                      if (data.status && data.name) {
-                        console.log(`节点状态: ${data.name} - ${data.status}`);
-                        // 可以根据需要更新UI显示当前执行的节点
+                      else if (agent == 'planner') {
+                        filterdata = extractPlanner(
+                          agentMessages.get(agent) || ''
+                        );
+                      } else if (agent == 'researcher') {
+                        filterdata =
+                          researcherMessages.get(researcherAgentid) || '';
+                      } else {
+                        filterdata = agentMessages.get(agent) || '';
                       }
-                    } catch (e) {
-                      console.warn('解析 flowNodeStatus 数据失败', e);
+
+                      const newMessages = [...prev];
+                      newMessages[existingMessageIndex] = {
+                        ...newMessages[existingMessageIndex],
+                        content: filterdata || '',
+                        reasoningContent:
+                          data.reasoningContent ||
+                          newMessages[existingMessageIndex].reasoningContent,
+                      };
+                      return newMessages;
+                    } else {
+                      const newMessageId =
+                        Date.now() + Math.random().toString(36).substr(2, 9);
+                      const newMessage: Message = {
+                        id: newMessageId,
+                        dataId:
+                          agent === 'researcher'
+                            ? researcherAgentid
+                            : (data.id as string) || '',
+                        role: 'assistant',
+                        content:
+                          agent === 'researcher'
+                            ? researcherMessages.get(researcherAgentid) || ''
+                            : agentMessages.get(agent) || '',
+                        isUser: false,
+                        status: 'sending',
+                        agent: agent,
+                        reasoningContent: data.reasoningContent,
+                        isStreaming: true,
+                      };
+                      return [...prev, newMessage];
+                    }
+                  });
+                }
+              } catch (e) {
+                console.warn('解析 message_chunk 数据失败', e);
+              }
+            } else if (eventType == 'interrupt') {
+              try {
+                const data = JSON.parse(dataStr);
+                console.log('interruptdata============', data);
+                const btnOption = data.options;
+                const btnAgent = data.id;
+                setMessages(prev => {
+                  const newMessages = [...prev];
+                  if (newMessages.length > 0) {
+                    const lastMessage = newMessages[newMessages.length - 1];
+                    if (!lastMessage.isUser) {
+                      newMessages[newMessages.length - 1] = {
+                        ...lastMessage,
+                        options: btnOption,
+                        btnAgent: btnAgent,
+                      };
                     }
                   }
+                  return newMessages;
+                });
+
+                if (data.finish_reason == 'interrupt') {
+                  console.log('发送===========');
+                  setVariablesFeedback(true);
                 }
+              } catch (e) {
+                console.warn('解析 interrupt 数据失败', e);
+              }
+            } else if (eventType == 'flowNodeStatus') {
+              try {
+                const data = JSON.parse(dataStr);
+                console.log('flowNodeStatus data=========', data);
+                if (data.status && data.name) {
+                  console.log(`节点状态: ${data.name} - ${data.status}`);
+                }
+              } catch (e) {
+                console.warn('解析 flowNodeStatus 数据失败', e);
               }
             }
+
           }
         } catch (e) {
           console.error('解析响应数据出错:', e, '原始数据:', chunk);
+        }
+      }
+
+      if (chatId) {
+        try {
+          const res = await updataChat({ chatId: chatId });
+          console.log("更新 chatId 数据=============", res.data.citation_answer);
+          const answerContent = res.data.citation_answer;
+          const citationchunks = res.data.citation_chunks;
+          if (answerContent && citationchunks) {
+            setMessages(prev => {
+              const newMessages = [...prev];
+              newMessages[newMessages.length - 1] = {
+                ...newMessages[newMessages.length - 1],
+                content: answerContent,
+                citationchunks: citationchunks,
+              };
+              return newMessages;
+            });
+          }
+
+
+
+        } catch (e) {
+          console.warn('更新 chatId 数据失败', e);
         }
       }
 
@@ -1546,7 +1847,7 @@ const Chat: React.FC = () => {
           <IonButtons slot='end'>
             <IonMenuButton menu='second-menu'>
               <img
-                src='/assets/icon/History.svg'
+                src='/assets/icon/timeclock.svg'
                 alt='历史'
                 style={{
                   width: '20px',
@@ -1556,7 +1857,7 @@ const Chat: React.FC = () => {
               />
             </IonMenuButton>
 
-            <IonButton>
+            {/* <IonButton>
               <img
                 src='/assets/icon/add.svg'
                 alt='添加'
@@ -1566,7 +1867,7 @@ const Chat: React.FC = () => {
                   filter: 'brightness(0) invert(1)',
                 }}
               />
-            </IonButton>
+            </IonButton> */}
           </IonButtons>
         </div>
 
@@ -1634,7 +1935,7 @@ const Chat: React.FC = () => {
                   console.log('返回上一个页面=============');
                   router.back();
                   // history.back();
-                  setSectionName('');
+
                   // 回到上一个页面
                 }}
               >
@@ -1647,7 +1948,7 @@ const Chat: React.FC = () => {
         <div
           className='chatbody'
           style={{
-            paddingTop: sectionName ? '40px' : '0',
+            paddingTop: sectionName ? '42px' : '0',
           }}
           onClick={e => {
             e.stopPropagation();
@@ -1671,7 +1972,7 @@ const Chat: React.FC = () => {
                 padding: '8px 16px',
               }}
             >
-              {messages.map(message => (
+              {messages.map((message) => (
                 <MessageItem
                   key={message.id}
                   message={message}
@@ -1715,6 +2016,7 @@ const Chat: React.FC = () => {
             left: 0,
             right: 0,
             zIndex: '100',
+            // border: '1px solid red',
           }}
         >
           {(showInputType == 1 || showInputType == 2) && (
@@ -1727,6 +2029,35 @@ const Chat: React.FC = () => {
                 marginBottom: '12px',
               }}
             >
+              {sectionName && (
+                <div
+                  style={{
+                    width: '80px',
+                    height: '30px',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '15px',
+                    fontSize: '12px',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    // backgroundColor: type == '1' ? '#3A3C61' : '',
+                    background:
+                      type == '1'
+                        ? 'linear-gradient(0deg, var(--base-white-15, rgba(255, 255, 255, 0.15)), var(--base-white-15, rgba(255, 255, 255, 0.15))),linear-gradient(158.13deg, #30247C -14.18%, #00033E 88.47%)'
+                        : '',
+                  }}
+                  onClick={() => {
+                    if (type == '1') {
+                      setType('0');
+                    } else {
+                      setType('1');
+                    }
+                  }}
+                >
+                  排障模式
+                </div>
+              )}
+
               <div
                 style={{
                   width: '80px',
@@ -1737,29 +2068,11 @@ const Chat: React.FC = () => {
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
-                  backgroundColor: type == '1' ? '#3A3C61' : '',
-                }}
-                onClick={() => {
-                  if (type == '1') {
-                    setType('0');
-                  } else {
-                    setType('1');
-                  }
-                }}
-              >
-                排障模式
-              </div>
-              <div
-                style={{
-                  width: '80px',
-                  height: '30px',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
-                  borderRadius: '15px',
-                  fontSize: '12px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  backgroundColor: type2 == '1' ? '#3A3C61' : '',
+                  // backgroundColor: type2 == '1' ? '#3A3C61' : '',
+                  background:
+                    type2 == '1'
+                      ? 'linear-gradient(0deg, var(--base-white-15, rgba(255, 255, 255, 0.15)), var(--base-white-15, rgba(255, 255, 255, 0.15))),linear-gradient(158.13deg, #30247C -14.18%, #00033E 88.47%)'
+                      : '',
                 }}
                 onClick={() => {
                   if (type2 == '1') {
@@ -1769,7 +2082,7 @@ const Chat: React.FC = () => {
                   }
                 }}
               >
-                知识图谱
+                深度检索
               </div>
             </div>
           )}
@@ -1785,6 +2098,8 @@ const Chat: React.FC = () => {
             showtag={showtag}
             uploadedImages={uploadedImages}
             setUploadedImages={setUploadedImages}
+            clearTask={clearTask}
+            type={type}
           />
         </div>
       </div>

@@ -100,7 +100,8 @@ const Menu: React.FC<MenuProps> = ({
   }
 
   return (
-    <IonMenu type='overlay' disabled={!menuEnabled} contentId='main'>
+    // <IonMenu type='overlay' disabled={!menuEnabled} contentId='main'>
+    <IonMenu type='overlay' disabled={true} contentId='main'>
       <IonContent forceOverscroll={false}>
         <IonList lines='none'>
           <IonListHeader>Conference</IonListHeader>

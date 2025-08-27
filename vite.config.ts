@@ -2,11 +2,13 @@ import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
 
+
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 3010,
+    port: 22564,
     host: true,
     proxy: {
       // '/openapi/v0': {
@@ -15,19 +17,18 @@ export default defineConfig({
       //   secure: false,
       // },
       '/openapi/v2': {
-        target: 'http://172.30.232.95:23081',
+        target: 'http://172.30.232.95:24201',
         changeOrigin: true,
         secure: false,
       },
       '/openapi/v1': {
-        target: 'http://172.30.232.95:23081',
+        target: 'http://172.30.232.95:24201',
         changeOrigin: true,
         secure: false,
       },
       '/ws': {
-
         // target: 'ws://10.110.163.79:21095',
-        target: 'ws://172.30.232.95:32250',
+        target: 'ws://172.30.232.95:31665',
         ws: true, // 开启 WebSocket 代理
         changeOrigin: true,
         secure: false,

@@ -1,20 +1,74 @@
 import { IonModal, IonTextarea, useIonRouter } from '@ionic/react';
 import { useEffect, useRef, useState } from 'react';
-import { getTaskList, taskCreate, taskUpdate } from '../services/api';
+import { getTaskList, taskaiparse, taskCreate } from '../services/api';
 import { useUserStore } from '../stores/userStore';
+
 
 import TaskCard from '../components/taskCard';
 
 const Task = () => {
   const modal = useRef<HTMLIonModalElement>(null);
   const router = useIonRouter();
-  const { userId, setSelectCardItem, selectCardItem } = useUserStore();
+  const { userId, setSelectCardItem, selectCardItem, databaseList } = useUserStore();
   const [nextIndex, setNextIndex] = useState(0);
   const [taskCreateValue, setTaskCreateValue] = useState('');
   const [taskList, setTaskList] = useState<any[]>([]);
 
   // 测试 store 是否正常工作
   console.log('当前 selectCardItem:', selectCardItem);
+
+  // 表单字段配置与校验规则（必填）
+  const formConfig: Array<{
+    key:
+    | 'task_name'
+    | 'customer'
+    | 'address'
+    | 'order_id'
+    | 'product'
+    | 'description';
+    label: string;
+    placeholder: string;
+    textarea?: boolean;
+    rules?: Array<{ required?: boolean; message?: string }>;
+  }> = [
+      {
+        key: 'task_name',
+        label: '任务名称',
+        placeholder: '请输入任务名称',
+        rules: [{ required: true, message: '请输入任务名称' }],
+      },
+      {
+        key: 'customer',
+        label: '客户',
+        placeholder: '请输入客户名称',
+        rules: [{ required: true, message: '请输入客户名称' }],
+      },
+      {
+        key: 'address',
+        label: '地址',
+        placeholder: '请输入地址',
+        rules: [{ required: true, message: '请输入地址' }],
+      },
+      {
+        key: 'order_id',
+        label: '订单号',
+        placeholder: '请输入订单号',
+        rules: [{ required: true, message: '请输入订单号' }],
+      },
+      {
+        key: 'product',
+        label: '产品',
+        placeholder: '请输入产品名称',
+        rules: [{ required: true, message: '请输入产品名称' }],
+      },
+      {
+        key: 'description',
+        label: '描述',
+        placeholder: '请输入任务描述',
+        textarea: true,
+        rules: [{ required: true, message: '请输入任务描述' }],
+      },
+    ];
 
   const [formData, setFormData] = useState({
     customer: '',
@@ -29,16 +83,50 @@ const Task = () => {
     start: '',
     status: '',
     deleted: false,
+    task_name: '',
+    knowledge: [],
   });
+
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const validateField = (key: string, value: any) => {
+    const cfg = formConfig.find(item => item.key === (key as any));
+    if (!cfg || !cfg.rules) return '';
+    for (const rule of cfg.rules) {
+      if (rule.required) {
+        const isEmpty =
+          value === undefined ||
+          value === null ||
+          (typeof value === 'string' && value.trim() === '');
+        if (isEmpty) return rule.message || '该字段为必填项';
+      }
+    }
+    return '';
+  };
+
+  const validateAll = () => {
+    const errors: Record<string, string> = {};
+    formConfig.forEach(({ key }) => {
+      const val = (formData as any)[key];
+      const err = validateField(key, val);
+      if (err) errors[key] = err;
+    });
+    setFormErrors(errors);
+    return errors;
+  };
 
   useEffect(() => {
     getTaskListFn();
   }, [userId]);
 
+  console.log("userId=====================", userId);
+
+
   const getTaskListFn = async () => {
     try {
       // 使用zustand store中的用户ID
-      const executeId = userId || '6887301624c99b8092c67e5e';
+      const executeId = userId || '';
       const res = await getTaskList({ executeId });
       console.log('res=============', res);
       setTaskList(res.data || []);
@@ -50,11 +138,15 @@ const Task = () => {
   const taskCreateFn = async () => {
     const data = {
       // content: "订单号是 2025-07-18，客户为山东蓝海环保设备有限公司，地址在山东省济南市高新区工业南路 88 号。产品名称是高温耐腐风机，描述部分写着：风机型号为 D1200，叶轮出现轻微异响，已更换轴承并调整对中，测试运转正常，客户现场确认通过验收。",
-      executeId: userId || '6887301624c99b8092c67e5e',
+      // executeId: userId || '6887301624c99b8092c67e5e',
       content: taskCreateValue,
+      image_url: "",
+      shareId: databaseList?.app_info_list?.find((item: any) => item.type == "任务生成")?.shareId || '',
+      app_id: databaseList?.app_info_list?.find((item: any) => item.type == "任务生成")?.app_id || '',
+
     };
     try {
-      const res = await taskCreate({ data });
+      const res = await taskaiparse({ data });
 
       setNextIndex(1);
       console.log('res任务创建=============', res);
@@ -67,6 +159,8 @@ const Task = () => {
         // 假设API返回的数据结构包含表单字段
         // 根据实际API返回的数据结构调整这里的映射
         const apiData = res.data as any;
+
+
         console.log('解析后的API数据:', apiData);
 
         setFormData({
@@ -82,6 +176,8 @@ const Task = () => {
           start: apiData.start || '',
           status: apiData.status || '',
           deleted: apiData.deleted || false,
+          task_name: apiData.task_name || '',
+          knowledge: databaseList?.dataset_list || [],
         });
       }
     } catch (err) {
@@ -102,15 +198,42 @@ const Task = () => {
   };
 
   const handleFormSubmit = async () => {
-    // 这里可以添加表单验证逻辑
-    console.log('表单数据:', formData);
+    setIsSubmitting(true);
+    const errors = validateAll();
+    if (Object.keys(errors).length > 0) {
+      setIsSubmitting(false);
+      return;
+    }
 
-    const res = await taskUpdate({ data: formData });
+    console.log('表单数据:', formData, userId);
+
+    formData.executeId = userId || ''
+
+
+
+    const res = await taskCreate({ data: formData });
+
+    setSelectCardItem({
+      ...res.data,
+      id: res.data.id,
+      name: res.data.task_name || '',
+      time: '',
+      company: res.data.customer || '',
+      lacate: res.data.address || ''
+    })
+
     console.log('更新表单数据=============', res);
     setNextIndex(2);
     if (res.code == 200) {
       setNextIndex(3);
     }
+
+    setIsSubmitting(false);
+  };
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleFormSubmit();
   };
 
   const [demoList, setDemoList] = useState([
@@ -202,7 +325,7 @@ const Task = () => {
 
         <div style={{ width: '100%' }}>
           <div style={{ fontSize: '16px', color: '#fff', opacity: '0.6' }}>
-            {'早上好，李工'}
+            {'早上好，天工'}
           </div>
           {taskList && taskList.length > 0 ? (
             <div
@@ -478,7 +601,8 @@ const Task = () => {
             )}
 
             {nextIndex == 1 && (
-              <div
+              <form
+                onSubmit={onSubmit}
                 style={{
                   display: 'flex',
                   flexDirection: 'column',
@@ -486,6 +610,57 @@ const Task = () => {
                   marginTop: '20px',
                 }}
               >
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <label
+                    style={{
+                      fontSize: '14px',
+                      color: 'white',
+                      minWidth: '60px',
+                      opacity: 0.5,
+                    }}
+                  >
+                    任务名称
+                  </label>
+                  <input
+                    type='text'
+                    value={formData.task_name}
+                    onChange={e =>
+                      setFormData(prev => ({
+                        ...prev,
+                        task_name: e.target.value,
+                      }))
+                    }
+                    onBlur={e => {
+                      const err = validateField('task_name', e.target.value);
+                      setFormErrors(prev => ({ ...prev, task_name: err }));
+                    }}
+                    placeholder='请输入任务名称'
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      borderRadius: '8px',
+                      border: formErrors.task_name
+                        ? '1px solid #ff4d4f'
+                        : '1px solid rgba(255, 255, 255, 0.3)',
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      color: 'white',
+                      fontSize: '14px',
+                      marginLeft: '15px',
+                    }}
+                  />
+                </div>
+                {formErrors.task_name && (
+                  <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '-12px', marginLeft: '75px' }}>
+                    {formErrors.task_name}
+                  </div>
+                )}
+
                 <div
                   style={{
                     display: 'flex',
@@ -512,12 +687,18 @@ const Task = () => {
                         customer: e.target.value,
                       }))
                     }
+                    onBlur={e => {
+                      const err = validateField('customer', e.target.value);
+                      setFormErrors(prev => ({ ...prev, customer: err }));
+                    }}
                     placeholder='请输入客户名称'
                     style={{
                       flex: 1,
                       padding: '12px',
                       borderRadius: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      border: formErrors.customer
+                        ? '1px solid #ff4d4f'
+                        : '1px solid rgba(255, 255, 255, 0.3)',
                       background: 'rgba(255, 255, 255, 0.1)',
                       color: 'white',
                       fontSize: '14px',
@@ -525,6 +706,11 @@ const Task = () => {
                     }}
                   />
                 </div>
+                {formErrors.customer && (
+                  <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '-12px', marginLeft: '75px' }}>
+                    {formErrors.customer}
+                  </div>
+                )}
 
                 <div
                   style={{
@@ -552,12 +738,18 @@ const Task = () => {
                         address: e.target.value,
                       }))
                     }
+                    onBlur={e => {
+                      const err = validateField('address', e.target.value);
+                      setFormErrors(prev => ({ ...prev, address: err }));
+                    }}
                     placeholder='请输入地址'
                     style={{
                       flex: 1,
                       padding: '12px',
                       borderRadius: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      border: formErrors.address
+                        ? '1px solid #ff4d4f'
+                        : '1px solid rgba(255, 255, 255, 0.3)',
                       background: 'rgba(255, 255, 255, 0.1)',
                       color: 'white',
                       fontSize: '14px',
@@ -565,6 +757,11 @@ const Task = () => {
                     }}
                   />
                 </div>
+                {formErrors.address && (
+                  <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '-12px', marginLeft: '75px' }}>
+                    {formErrors.address}
+                  </div>
+                )}
 
                 <div
                   style={{
@@ -592,12 +789,18 @@ const Task = () => {
                         order_id: e.target.value,
                       }))
                     }
+                    onBlur={e => {
+                      const err = validateField('order_id', e.target.value);
+                      setFormErrors(prev => ({ ...prev, order_id: err }));
+                    }}
                     placeholder='请输入订单号'
                     style={{
                       flex: 1,
                       padding: '12px',
                       borderRadius: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      border: formErrors.order_id
+                        ? '1px solid #ff4d4f'
+                        : '1px solid rgba(255, 255, 255, 0.3)',
                       background: 'rgba(255, 255, 255, 0.1)',
                       color: 'white',
                       fontSize: '14px',
@@ -605,6 +808,11 @@ const Task = () => {
                     }}
                   />
                 </div>
+                {formErrors.order_id && (
+                  <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '-12px', marginLeft: '75px' }}>
+                    {formErrors.order_id}
+                  </div>
+                )}
 
                 <div
                   style={{
@@ -632,12 +840,18 @@ const Task = () => {
                         product: e.target.value,
                       }))
                     }
+                    onBlur={e => {
+                      const err = validateField('product', e.target.value);
+                      setFormErrors(prev => ({ ...prev, product: err }));
+                    }}
                     placeholder='请输入产品名称'
                     style={{
                       flex: 1,
                       padding: '12px',
                       borderRadius: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      border: formErrors.product
+                        ? '1px solid #ff4d4f'
+                        : '1px solid rgba(255, 255, 255, 0.3)',
                       background: 'rgba(255, 255, 255, 0.1)',
                       color: 'white',
                       fontSize: '14px',
@@ -645,6 +859,11 @@ const Task = () => {
                     }}
                   />
                 </div>
+                {formErrors.product && (
+                  <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '-12px', marginLeft: '75px' }}>
+                    {formErrors.product}
+                  </div>
+                )}
 
                 <div
                   style={{
@@ -672,13 +891,19 @@ const Task = () => {
                         description: e.target.value,
                       }))
                     }
+                    onBlur={e => {
+                      const err = validateField('description', e.target.value);
+                      setFormErrors(prev => ({ ...prev, description: err }));
+                    }}
                     placeholder='请输入任务描述'
                     rows={3}
                     style={{
                       flex: 1,
                       padding: '12px',
                       borderRadius: '8px',
-                      border: '1px solid rgba(255, 255, 255, 0.3)',
+                      border: formErrors.description
+                        ? '1px solid #ff4d4f'
+                        : '1px solid rgba(255, 255, 255, 0.3)',
                       background: 'rgba(255, 255, 255, 0.1)',
                       color: 'white',
                       fontSize: '14px',
@@ -688,6 +913,11 @@ const Task = () => {
                     }}
                   />
                 </div>
+                {formErrors.description && (
+                  <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '-12px', marginLeft: '75px' }}>
+                    {formErrors.description}
+                  </div>
+                )}
 
                 {/* 底部按钮 */}
                 <div
@@ -716,6 +946,7 @@ const Task = () => {
                   </button>
 
                   <button
+                    type='submit'
                     style={{
                       flex: 1,
                       padding: '12px 24px',
@@ -728,12 +959,12 @@ const Task = () => {
                       cursor: 'pointer',
                       height: '62px',
                     }}
-                    onClick={handleFormSubmit}
+                    disabled={isSubmitting}
                   >
                     确认
                   </button>
                 </div>
-              </div>
+              </form>
             )}
 
             {nextIndex == 2 && (
@@ -779,6 +1010,7 @@ const Task = () => {
                   }}
                   onClick={() => {
                     modal.current?.dismiss();
+
                     router.push('/question', 'root');
                   }}
                 >

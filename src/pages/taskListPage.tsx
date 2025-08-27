@@ -122,7 +122,7 @@ const TaskListPage = () => {
           // border: '1px solid red',
         }}
       >
-        {taskList.slice(0, 3).map((item: any, index: number) => (
+        {taskList.map((item: any, index: number) => (
           <div key={item.id}>
             <TaskCard
               carditem={item}

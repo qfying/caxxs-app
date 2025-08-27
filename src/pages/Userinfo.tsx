@@ -1,8 +1,10 @@
 import { IonButtons, useIonRouter } from '@ionic/react';
 import { useState } from 'react';
 import { userinfoCreate } from '../services/api';
+import { useUserStore } from '../stores/userStore';
 
 const Userinfo = () => {
+  const { userInfo, setUserInfo } = useUserStore();
   const router = useIonRouter();
   const [formData, setFormData] = useState({
     user_id: '',

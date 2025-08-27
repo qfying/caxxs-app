@@ -37,7 +37,7 @@ class WebSocketManager {
     }
 
     try {
-      const wsUrl = `ws://172.30.232.95:32250${endpoint}`;
+      const wsUrl = `ws://172.30.232.95:31665${endpoint}`;
       this.ws = new WebSocket(wsUrl);
 
       this.ws.onopen = () => {
@@ -290,7 +290,7 @@ const ChatVoiceRecorder: React.FC<ChatVoiceRecorderProps> = ({
     isCanceledRef.current = false;
     try {
       navigator.vibrate(300);
-    } catch (err) {}
+    } catch (err) { }
 
     setIsRecording(true);
     recordingRef.current = true;

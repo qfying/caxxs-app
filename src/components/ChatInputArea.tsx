@@ -3,6 +3,7 @@ import { IonButton, IonInput, useIonToast } from '@ionic/react';
 import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { usePlatform } from '../hooks/usePlatform';
 import { uploadFile } from '../services/api';
+import { useUserStore } from '../stores/userStore';
 import './ChatInputArea.css';
 import ChatVoiceRecorder from './ChatVoiceRecorder';
 
@@ -17,6 +18,8 @@ interface ChatInputAreaProps {
   showtag?: boolean;
   uploadedImages?: any[];
   setUploadedImages?: React.Dispatch<React.SetStateAction<any[]>>;
+  clearTask?: () => void;
+  type: string;
 }
 
 const ChatInputArea: React.FC<ChatInputAreaProps> = ({
@@ -29,12 +32,16 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   onSetShowInputType,
   showtag,
   uploadedImages = [],
-  setUploadedImages = () => {},
+  setUploadedImages = () => { },
+  clearTask = () => { },
+  type,
 }) => {
   const inputRef = useRef<HTMLIonInputElement>(null);
   const [present] = useIonToast();
   const [isUploading, setIsUploading] = useState(false);
   const { isAndroid } = usePlatform();
+  const { databaseList } = useUserStore();
+
 
   console.log('isAndroid================', isAndroid);
 
@@ -165,15 +172,8 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
 
     try {
       setIsUploading(true);
-      // present({
-      //   message: '正在上传图片...',
-      //   duration: 2000,
-      //   position: 'top',
-      //   color: 'primary',
-      // });
-
-      const response = await uploadFile(file);
-      console.log('图片上传成功:', response.data);
+      const shareId = type == '1' ? databaseList?.app_info_list?.find((item: any) => item.type == "HTTP SSE")?.shareId || '' : databaseList?.app_info_list?.find((item: any) => item.type == "多模态问答工作流")?.shareId || ''
+      const response = await uploadFile(file, shareId);
 
       if (response.data && response.data.previewUrl) {
         // 生成唯一ID并添加到已上传图片列表
@@ -183,23 +183,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
           id: imageId,
         };
 
-        console.log('newImage=============', newImage);
-
         setUploadedImages(prev => [...prev, newImage]);
-
-        // 将图片URL添加到输入框中
-        // const imageText = `![图片](${response.data.previewUrl})`;
-        // const newValue = inputValue + (inputValue ? '\n' : '') + imageText;
-
-        // 触发输入变化事件 - 使用正确的事件格式
-        // const customEvent = new CustomEvent('ionInput', {
-        //   detail: { value: newValue },
-        //   bubbles: true,
-        //   cancelable: true,
-        // });
-
-        // console.log('触发输入变化事件:', customEvent);
-        // onInputChange(customEvent);
 
         present({
           message: '图片上传成功！',
@@ -541,8 +525,10 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
         id='top-center'
         onClick={() => {
           console.log('点击任务图标');
+          clearTask();
 
           if (!isAIResponding) onSetShowInputType(4);
+
         }}
         style={{
           opacity: isAIResponding ? 0.5 : 1,

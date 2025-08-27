@@ -6,4 +6,7 @@
     "source.organizeImports": "explicit"
   },
   "editor.tabSize": 2,
+  "cSpell.words": [
+    "citationchunks"
+  ],
 }
