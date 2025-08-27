@@ -172,7 +172,7 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
 
     try {
       setIsUploading(true);
-      const shareId = type == '1' ? databaseList?.app_info_list?.find((item: any) => item.type == "HTTP SSE")?.shareId || '' : databaseList?.app_info_list?.find((item: any) => item.type == "多模态问答工作流")?.shareId || ''
+      const shareId = type == '1' ? databaseList?.app_info_list?.find((item: any) => item.type == 1)?.shareId || '' : databaseList?.app_info_list?.find((item: any) => item.type == 0)?.shareId || ''
       const response = await uploadFile(file, shareId);
 
       if (response.data && response.data.previewUrl) {

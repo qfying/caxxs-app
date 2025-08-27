@@ -141,8 +141,8 @@ const Task = () => {
       // executeId: userId || '6887301624c99b8092c67e5e',
       content: taskCreateValue,
       image_url: "",
-      shareId: databaseList?.app_info_list?.find((item: any) => item.type == "任务生成")?.shareId || '',
-      app_id: databaseList?.app_info_list?.find((item: any) => item.type == "任务生成")?.app_id || '',
+      shareId: databaseList?.app_info_list?.find((item: any) => item.type == 2)?.shareId || '',
+      app_id: databaseList?.app_info_list?.find((item: any) => item.type == 2)?.app_id || '',
 
     };
     try {
@@ -212,6 +212,7 @@ const Task = () => {
 
 
     const res = await taskCreate({ data: formData });
+
 
     setSelectCardItem({
       ...res.data,

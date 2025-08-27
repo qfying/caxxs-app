@@ -1007,6 +1007,8 @@ const Chat: React.FC = () => {
   >([]);
   const { userInfo, setUserInfo, databaseList } = useUserStore();
 
+  console.log('databaseList111==============', databaseList);
+
   const [taskParams, setTaskParams] = useState({});
 
   const clearTask = () => {
@@ -1126,7 +1128,7 @@ const Chat: React.FC = () => {
       text: message,
       file_name: sectionName + '.md',
       parent_id: databaseList?.case || '',
-      app_id: databaseList?.app_info_list?.find((item: any) => item.type == "多模态问答工作流")?.app_id || '',
+      app_id: databaseList?.app_info_list?.find((item: any) => item.type == 0)?.app_id || '',
       datasetId: databaseList?.case || '',
       userId: "6890805c3897878cdd928c34",
       teamId: "688c856f13e9f1c3b8aa1d31",
@@ -1338,7 +1340,7 @@ const Chat: React.FC = () => {
         responseChatItemId: 'b1jmtV7hdBHokPUT2jzQwAwJ',
         // shareId: '6e6q0y0lnlw9t247jl2y9fbi',
         shareId:
-          type == '1' ? databaseList?.app_info_list?.find((item: any) => item.type == "HTTP SSE")?.shareId || '' : databaseList?.app_info_list?.find((item: any) => item.type == "多模态问答工作流")?.shareId || '',  // 1 是 知识库 2 是 知识库
+          type == '1' ? databaseList?.app_info_list?.find((item: any) => item.type == 1)?.shareId || '' : databaseList?.app_info_list?.find((item: any) => item.type == 0)?.shareId || '',  // 1 是 知识库 2 是 知识库
         chatId: chatId,
         appType: 'advanced',
         outLinkUid: 'shareChat-1754533192615-v8Ejm6GhhxpNhjhk9w_ZGzNR',
