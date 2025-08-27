@@ -1,8 +1,6 @@
-import react from '@vitejs/plugin-react'
-import { resolve } from 'path'
-import { defineConfig } from 'vite'
-
-
+import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
+import { defineConfig } from 'vite';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -32,13 +30,13 @@ export default defineConfig({
         ws: true, // 开启 WebSocket 代理
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path.replace(/^\/ws/, ''), // 可根据需要重写路径
+        rewrite: path => path.replace(/^\/ws/, ''), // 可根据需要重写路径
       },
-    }
+    },
   },
   define: {
     'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
-    __HMR_CONFIG_NAME__: JSON.stringify('vite')
+    __HMR_CONFIG_NAME__: JSON.stringify('vite'),
   },
   css: {
     preprocessorOptions: {
@@ -52,4 +50,4 @@ export default defineConfig({
       '@': resolve(__dirname, 'src'),
     },
   },
-})
+});
