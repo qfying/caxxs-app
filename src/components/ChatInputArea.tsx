@@ -3,6 +3,7 @@ import { IonButton, IonInput, useIonToast } from '@ionic/react';
 import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import { usePlatform } from '../hooks/usePlatform';
 import { uploadFile } from '../services/api';
+import { useUserStore } from '../stores/userStore';
 import './ChatInputArea.css';
 import ChatVoiceRecorder from './ChatVoiceRecorder';
 
@@ -18,6 +19,7 @@ interface ChatInputAreaProps {
   uploadedImages?: any[];
   setUploadedImages?: React.Dispatch<React.SetStateAction<any[]>>;
   clearTask?: () => void;
+  type: string;
 }
 
 const ChatInputArea: React.FC<ChatInputAreaProps> = ({
@@ -32,11 +34,14 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
   uploadedImages = [],
   setUploadedImages = () => { },
   clearTask = () => { },
+  type,
 }) => {
   const inputRef = useRef<HTMLIonInputElement>(null);
   const [present] = useIonToast();
   const [isUploading, setIsUploading] = useState(false);
   const { isAndroid } = usePlatform();
+  const { databaseList } = useUserStore();
+
 
   console.log('isAndroid================', isAndroid);
 
@@ -167,7 +172,8 @@ const ChatInputArea: React.FC<ChatInputAreaProps> = ({
 
     try {
       setIsUploading(true);
-      const response = await uploadFile(file);
+      const shareId = type == '1' ? databaseList?.app_info_list?.find((item: any) => item.type == "HTTP SSE")?.shareId || '' : databaseList?.app_info_list?.find((item: any) => item.type == "多模态问答工作流")?.shareId || ''
+      const response = await uploadFile(file, shareId);
 
       if (response.data && response.data.previewUrl) {
         // 生成唯一ID并添加到已上传图片列表

@@ -2099,6 +2099,7 @@ const Chat: React.FC = () => {
             uploadedImages={uploadedImages}
             setUploadedImages={setUploadedImages}
             clearTask={clearTask}
+            type={type}
           />
         </div>
       </div>

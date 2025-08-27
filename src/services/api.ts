@@ -116,7 +116,6 @@ export const taskCreate = ({ data }: any): Promise<ApiTaskResponse> => {
 
 export const taskaiparse = ({ data }: any): Promise<ApiTaskResponse> => {
   return http.post<TaskData>('/openapi/v2/task/ai_parse', data);
-
 };
 
 export const taskUpdate = ({ data }: any): Promise<ApiTaskResponse> => {
@@ -141,13 +140,14 @@ export const chatUpload = (data: any): Promise<ApiTaskListResponse> => {
 
 // 文件上传函数
 export const uploadFile = (
-  file: File
+  file: File,
+  shareId: string
 ): Promise<ApiResponse<{ fileId: string; previewUrl: string }>> => {
   console.log('uploadFile==============', file);
 
   const formData = new FormData();
   formData.append('file', file);
-
+  formData.append('shareId', shareId);
   console.log('uploadFile==============', formData.get('file'));
 
   // 不设置Content-Type，让浏览器自动设置multipart/form-data和boundary
@@ -174,20 +174,18 @@ export const getUserInfo = (
 };
 
 export const getChatKnowledgeBaseList = (): Promise<any> => {
-  return http.get<TaskData>(
-    `/openapi/v1/v0/chat/knowledge_base_list`
-  );
+  return http.get<TaskData>(`/openapi/v1/v0/chat/knowledge_base_list`);
 };
 
-export const updataChat = (data:{chatId:string}): Promise<any> => {
+export const updataChat = (data: { chatId: string }): Promise<any> => {
   return http.post<TaskData>('/openapi/v2/sentence_cite/update_chat', data);
 };
 
-export const getBriefing = (data:{task_id:string,fields:string}): Promise<ApiTaskResponse> => {
+export const getBriefing = (data: {
+  task_id: string;
+  fields: string;
+}): Promise<ApiTaskResponse> => {
   return http.get<TaskData>(
     `/openapi/v2/task/briefing?task_id=${data.task_id}&fields=${data.fields}`
   );
 };
-
-
-
