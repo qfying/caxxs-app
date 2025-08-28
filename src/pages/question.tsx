@@ -1,4 +1,4 @@
-import { IonButtons, useIonRouter } from '@ionic/react';
+import { IonButtons, useIonRouter, useIonToast } from '@ionic/react';
 import { useState } from 'react';
 import BottomDrawer from '../components/BottomDrawer';
 import { getBriefing } from '../services/api';
@@ -7,6 +7,8 @@ import { useUserStore } from '../stores/userStore';
 const Question = () => {
   const router = useIonRouter();
   const { selectCardItem, setSelectCardItem } = useUserStore();
+  const [present] = useIonToast();
+
 
   const [currentSection, setCurrentSection] = useState(0);
   const [showBottomDrawer, setShowBottomDrawer] = useState(false);
@@ -391,19 +393,23 @@ const Question = () => {
                                     console.log("selectCardItem==============", selectCardItem);
 
                                     const res = await getBriefing({ task_id: selectCardItem?.id, fields: item.alias });
-                                    if (res?.has_data && res.has_data == false && res.message) {
+                                    // console.log("1111111111111111111111===============", res, res.has_data);
+                                    if (res.data.has_data === false && res.data.message) {
+                                      console.log("1111111111111111111111===============", res, res.has_data);
+
                                       present({
-                                        message: 'res.message',
+                                        message: res.data.message,
                                         duration: 2000,
                                         position: 'top',
-                                        color: 'success',
+                                        color: 'danger',
                                       });
 
+                                    } else {
+                                      setBriefing(res.data);
+                                      setShowBottomDrawer(true);
+                                      setSelectItem(item);
                                     }
-                                    setBriefing(res.data);
 
-                                    setShowBottomDrawer(true);
-                                    setSelectItem(item);
                                   } else {
                                     setShowBottomDrawer(true);
                                     setSelectItem(item);
