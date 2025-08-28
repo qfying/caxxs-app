@@ -391,7 +391,17 @@ const Question = () => {
                                     console.log("selectCardItem==============", selectCardItem);
 
                                     const res = await getBriefing({ task_id: selectCardItem?.id, fields: item.alias });
+                                    if (res?.has_data && res.has_data == false && res.message) {
+                                      present({
+                                        message: 'res.message',
+                                        duration: 2000,
+                                        position: 'top',
+                                        color: 'success',
+                                      });
+
+                                    }
                                     setBriefing(res.data);
+
                                     setShowBottomDrawer(true);
                                     setSelectItem(item);
                                   } else {
